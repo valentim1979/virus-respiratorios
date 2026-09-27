@@ -2640,3 +2640,283 @@ Output created: docs/index.html
 
 
 [4/5] Enviando para o GitHub...
+[main a7aaa4b] Atualização de dados — 26/09/2026
+ 81 files changed, 281 insertions(+), 1 deletion(-)
+To https://github.com/valentim1979/virus-respiratorios.git
+   4e80daf..a7aaa4b  main -> main
+
+[5/5] Publicado.
+==================================================
+  Site: https://valentim1979.github.io/virus-respiratorios
+==================================================
+
+
+==================================================
+  PUBLICAR — 26/09/2026 23:00
+==================================================
+
+[1/5] Executando SCRIPT_Unificado.R...
+Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE
+
+Anexando pacote: ‘dplyr’
+
+Os seguintes objetos são mascarados por ‘package:stats’:
+
+    filter, lag
+
+Os seguintes objetos são mascarados por ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Anexando pacote: ‘readr’
+
+O seguinte objeto é mascarado por ‘package:scales’:
+
+    col_factor
+
+
+Anexando pacote: ‘lubridate’
+
+Os seguintes objetos são mascarados por ‘package:base’:
+
+    date, intersect, setdiff, union
+
+Municípios: 30 | Pop. total: 909.489
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Tabela de referência PR: 399 municípios, 22 regionais, 4 macrorregiões.
+Saída: graficos
+
+Carregando anos: 2024, 2025, 2026
+  Baixando via API dados.gov.br (SRAG 2024)...
+  [cache] Usando CSV já baixado (SRAG_API_2024.csv) — ano encerrado, não muda mais
+  [OK] 267986 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2025)...
+  [cache] Usando CSV já baixado (SRAG_API_2025.csv) — ano encerrado, não muda mais
+  [OK] 336391 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2026)...
+  [cache] Usando CSV já baixado (SRAG_API_2026.csv) — atualizado hoje
+  [OK] 212278 registros (via API)
+Total de registros: 816.655
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Escopo    : 15ª Regional de Saúde de Maringá
+Registros : 1.424
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Pop. IBGE : 909.489
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+
+Carregando anos históricos para gráfico de vírus: 2019, 2020, 2021, 2022, 2023
+  Baixando via API dados.gov.br (SRAG 2019)...
+  [cache] Usando CSV já baixado (SRAG_API_2019.csv) — ano encerrado, não muda mais
+  [OK] 48941 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2020)...
+  [cache] Usando CSV já baixado (SRAG_API_2020.csv) — ano encerrado, não muda mais
+  [OK] 1206920 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2021)...
+  [cache] Usando CSV já baixado (SRAG_API_2021.csv) — ano encerrado, não muda mais
+  [OK] 1745672 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2022)...
+  [cache] Usando CSV já baixado (SRAG_API_2022.csv) — ano encerrado, não muda mais
+  [OK] 560577 registros (via API)
+  Baixando via API dados.gov.br (SRAG 2023)...
+  [cache] Usando CSV já baixado (SRAG_API_2023.csv) — ano encerrado, não muda mais
+  [OK] 279453 registros (via API)
+[OK] base_15rs_historica: 8 anos | 34.270 registros
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/06_curva_epidemica_comparativa.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Canal endêmico — anos de referência: 2022, 2023, 2024, 2025
+Salvo: graficos/06b_canal_endemico.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+3: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/07_notificacoes_semana_epi.png
+Salvo: graficos/07b_variacao_semanal.png
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/08_confirmados_semana_epi.png
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/09_incidencia_por_municipio.png
+Salvo: graficos/10_notificacoes_regionais_pr.png
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/11_distribuicao_sexo.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/12_classificacao_final.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/13_circulacao_viral_total.png
+Salvo: graficos/14_tendencia_viral_semanal.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/D13_virus_faixa_etaria_heatmap.png
+Salvo: graficos/D13_virus_faixa_etaria_barras.png
+Gráficos D13 salvos.
+Salvo: graficos/15_tipos_linhagens_influenza.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/22_virus_tendencia_anual.png
+[OK] Gráfico 22 salvo.
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/16_faixa_etaria_notif_confirmados.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/17_piramide_etaria_notificados.png
+Salvo: graficos/18_piramide_etaria_obitos.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/19_evolucao_desfecho.png
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Salvo: graficos/20_raca_cor.png
+Salvo: graficos/srag_serie_classificacao_2026.png
+ℹ tmap modes "plot" - "view"
+ℹ toggle with `tmap::ttm()`
+This message is displayed once per session.
+
+Gerando mapa por município...
+Map saved to /Users/valentimsalajunior/Documents/vigilancia-epidemiologica/graficos/mapa_srag_casos_2026.png
+Resolution: 2400 by 2000 pixels
+Size: 8 by 6.666667 inches (300 dpi)
+[plot mode] fit legend/component: Some legend items or map compoments do not
+fit well, and are therefore rescaled.
+ℹ Set the tmap option `component.autoscale = FALSE` to disable rescaling.
+Map saved to /Users/valentimsalajunior/Documents/vigilancia-epidemiologica/graficos/mapa_srag_incidencia_2026.png
+Resolution: 2400 by 2000 pixels
+Size: 8 by 6.666667 inches (300 dpi)
+Mapas por município salvos.
+  [aviso] Usando NM_UN_INTE (unidade de internação) como aproximação de estabelecimento — cobre só os casos hospitalizados.
+Dados por estabelecimento exportados (Paraná): 3.850 linhas, 243 estabelecimentos, 22 regionais.
+Circulação viral por estabelecimento exportada: 4.173 linhas.
+Mensagens de aviso:
+1: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+2: In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+
+============================================================
+RESUMO
+============================================================
+Escopo              : 15ª Regional de Saúde de Maringá
+Ano(s) analisados   : 2026
+Pop. IBGE 2025      : 909.489
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Total notificações  : 1.424
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Tx notif. /100k hab.: 156.6
+Confirmados PCR     : 486
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Óbitos (EVOLUCAO=2) : 95
+Mensagen de aviso:
+In prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Letalidade          : 6.67%
+Saída               : graficos
+============================================================
+Concluído. Rode quarto render e git push para atualizar o site.
+      Gráficos gerados.
+
+[2/5] Dados novos detectados — limpando cache do freeze...
+      Cache removido.
+
+[3/5] Renderizando projeto Quarto...
+[1m[34m[1/3] descritiva.qmd[39m[22m
+[31m
+
+processing file: descritiva.qmd
+[39m1/29                        
+2/29 [setup]                
+[31mtentando a URL 'https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/2026/INFLUD26-14-09-2026.csv'
+[39m[31mContent type 'text/csv' length 237470416 bytes (226.5 MB)
+[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=[39m[31m=
+[39m[31mdownloaded 226.5 MB
+
+[39m3/29                        
+4/29 [completitude]         
+5/29                        
+6/29 [oportunidade-notif]   
+7/29                        
+8/29 [oportunidade-desf]    
+9/29                        
+10/29 [comorbidades-total]   
+11/29                        
+12/29 [comorbidades-obitos]  
+13/29                        
+14/29 [letalidade-faixa]     
+15/29                        
+16/29 [letalidade-sexo]      
+17/29                        
+18/29 [uti-faixa]            
+19/29                        
+20/29 [criterio]             
+21/29                        
+22/29 [antiviral]            
+23/29                        
+24/29 [vacinal]              
+25/29                        
+26/29 [mortalidade-municipio]
+27/29                        
+28/29 [tabela-mun]           
+29/29                        
+[31moutput file: descritiva.knit.md
+
+[39m[1m[34m[2/3] index.qmd[39m[22m
+[1m[34m[3/3] sobre.qmd[39m[22m
+
+Output created: docs/index.html
+
+
+[4/5] Enviando para o GitHub...

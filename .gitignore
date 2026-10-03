@@ -20,3 +20,6 @@ vigilancia-sentinela/
 # Log e trava da rotina de entrada do SIVEP (processar_entrada.sh)
 processar_entrada.log
 .processar_entrada.lock
+
+# Log da publicação (cresce a cada execução; não versionar)
+publicar.log

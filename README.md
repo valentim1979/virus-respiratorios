@@ -24,7 +24,7 @@ GitHub Pages).
 | `index.qmd`, `descritiva.qmd`, `sobre.qmd` | Páginas do site |
 | `_quarto.yml` | Configuração do projeto Quarto |
 | `dbf_sivep/` | Cache local dos CSVs baixados da API (não versionado, exceto `.gitkeep`) |
-| `sivep_15rs/` | Dados de apoio: população IBGE e shapefiles (GIS) dos municípios |
+| `sivep_15rs/` | Dados de apoio: regionais/macrorregiões do PR e shapefiles (malha municipal do PR, bairros de Maringá e Sarandi) |
 | `dados/`, `tabelas/`, `graficos/` | Saídas geradas pelos scripts (CSVs para o site, Excel, PNGs) |
 | `docs/` | Site já renderizado — é o que o GitHub Pages publica |
 | `arquivo/` | Scripts e páginas fora de uso hoje, mantidos para eventual reaproveitamento (não fazem parte do pipeline ativo) |
@@ -46,6 +46,17 @@ GitHub Pages).
 
 Isso executa `SCRIPT_Unificado.R`, renderiza o site com `quarto render` e
 já faz commit + push do resultado.
+
+## Atualização diária com a base do SIVEP-Gripe
+
+1. Exporte do SIVEP-Gripe o DBF estadual (PR) do ano corrente.
+2. Coloque o arquivo (`.dbf` ou `.zip`) em `~/SIVEP_entrada/`.
+3. O serviço `sivep-entrada.path` (systemd de usuário) roda `processar_entrada.sh`:
+   anonimiza a base (`anonimizar_sivep.R`, LGPD), apaga o arquivo bruto, gera os
+   gráficos, renderiza e publica. O resultado aparece como notificação no desktop.
+
+A base anonimizada fica em `~/SIVEP_dados/`, fora do repositório e do OneDrive.
+Detalhes metodológicos e de proteção de dados em [METODOLOGIA.md](METODOLOGIA.md).
 
 ## Fonte dos dados
 

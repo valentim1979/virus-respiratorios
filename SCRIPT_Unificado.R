@@ -30,11 +30,19 @@ ANO_INICIO_CANAL <- 2022
 MUNICIPIO_ANALISE <- NULL
 
 # --- 0.3 Caminhos (relativos à raiz do projeto) ---
-# Pasta de cache dos CSVs baixados da API dados.gov.br. Os dados de SRAG
-# agora vêm sempre da API — DBFs locais não são mais lidos.
+# Pasta de cache dos CSVs baixados da API dados.gov.br.
 DIRETORIO_CACHE_API <- "dbf_sivep"
 
-ARQUIVO_IBGE <- "sivep_15rs/ibge_cnv_pop.csv"
+# Dados por registro (base local anonimizada do SIVEP e contexto da página
+# descritiva). Fica fora do ~/Work, que é sincronizado com o OneDrive.
+DIR_SENSIVEIS <- path.expand(Sys.getenv("SIVEP_DADOS", "~/SIVEP_dados"))
+dir.create(DIR_SENSIVEIS, showWarnings = FALSE, recursive = TRUE, mode = "0700")
+
+# Base local de um ano: DBF estadual (PR) exportado do SIVEP-Gripe e
+# anonimizado por anonimizar_sivep.R. Quando existe, substitui o CSV da API
+# daquele ano (a API atrasa 1-2 semanas).
+caminho_base_local <- function(ano) file.path(DIR_SENSIVEIS, paste0("sivep_local_anon_", ano, ".rds"))
+
 ARQUIVO_REGIONAIS_PR <- "sivep_15rs/parana_macrorregiao.csv"
 
 CAMINHO_SHP_MUNICIPIOS <- "sivep_15rs/GIS/Pr_Municipios_2024/PR_Municipios_2024.shp"
@@ -43,10 +51,12 @@ CAMINHO_SHP_MUNICIPIOS <- "sivep_15rs/GIS/Pr_Municipios_2024/PR_Municipios_2024.
 DIR_GRAFICOS <- "graficos"
 
 # --- 0.6 Data de extração ---
-# Data de referência: mtime do CSV em cache (baixado da API) para o ano de
-# análise, ou a data de hoje se ainda não tiver sido baixado nesta execução.
+# Data de referência: data da exportação do DBF local do ano de análise, se
+# houver; senão mtime do CSV em cache (API), ou hoje se ainda não baixado.
 CAMINHO_CACHE_ANO_ANALISE <- file.path(DIRETORIO_CACHE_API, paste0("SRAG_API_", max(ANO_ANALISE), ".csv"))
-DATA_EXTRACAO <- if (file.exists(CAMINHO_CACHE_ANO_ANALISE)) {
+DATA_EXTRACAO <- if (file.exists(caminho_base_local(max(ANO_ANALISE)))) {
+  attr(readRDS(caminho_base_local(max(ANO_ANALISE))), "exportado_em")
+} else if (file.exists(CAMINHO_CACHE_ANO_ANALISE)) {
   as.Date(file.info(CAMINHO_CACHE_ANO_ANALISE)$mtime)
 } else {
   Sys.Date()
@@ -278,9 +288,16 @@ validar_campos_dbf_api <- function(ano, diretorio_dbf = DIRETORIO_CACHE_API) {
   invisible(list(comum = em_comum, so_dbf = so_no_dbf, so_api = so_na_api))
 }
 
-# carregar_base(): baixa sempre o CSV via API dados.gov.br. DBFs locais não
-# são mais lidos — todo o carregamento passa pela API.
+# carregar_base(): usa a base local anonimizada do ano (DBF do SIVEP) se
+# existir; senão baixa/usa o CSV da API dados.gov.br.
 carregar_base <- function(ano, diretorio) {
+  if (file.exists(caminho_base_local(ano))) {
+    df <- readRDS(caminho_base_local(ano))
+    message("  [local] SRAG ", ano, ": ", nrow(df), " registros do DBF do SIVEP (",
+            attr(df, "origem"), ", exportado em ", format(attr(df, "exportado_em"), "%d/%m/%Y"), ")")
+    df$ANO_BASE <- ano
+    return(df)
+  }
   message("  Baixando via API dados.gov.br (SRAG ", ano, ")...")
   df <- tryCatch(
     baixar_via_api(ano, diretorio),
@@ -1390,24 +1407,6 @@ salvar_grafico(g20, "20_raca_cor")
 
 titulo_ano <- paste(anos_carregar, collapse = "/")
 
-g_class <- casos_semana_class %>%
-  ggplot(aes(x = SEM_EPI, y = casos, color = CLASSIFICACAO, group = CLASSIFICACAO)) +
-  geom_line(linewidth = 0.7) +
-  geom_point(size = 1.2, alpha = 0.7) +
-  scale_x_continuous(breaks = seq(1, 53, by = 4)) +
-  scale_color_brewer(palette = "Set1") +
-  labs(
-    title    = paste("SRAG por Classificação Etiológica e Semana |", titulo_ano),
-    subtitle = paste0(escopo_titulo, " | Fonte: SIVEP-GRIPE"),
-    x = "Semana epidemiológica", y = "Casos notificados",
-    color = NULL, caption = texto_rodape
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
-salvar_grafico(g_class,
-               paste0("srag_serie_classificacao_", paste(anos_carregar, collapse = "_")))
-
 
 # ==============================================================================
 # MAPAS GEOGRÁFICOS (tmap)
@@ -1615,8 +1614,6 @@ if (is.na(col_estab)) {
 # Contém só os objetos que descritiva_srag_15rs.R usa. Fica em ~/SIVEP_dados
 # (fora do ~/Work, que vai para o OneDrive) porque tem dados por registro.
 
-DIR_SENSIVEIS <- path.expand(Sys.getenv("SIVEP_DADOS", "~/SIVEP_dados"))
-dir.create(DIR_SENSIVEIS, showWarnings = FALSE, recursive = TRUE, mode = "0700")
 CAMINHO_CONTEXTO_DESCRITIVA <- file.path(DIR_SENSIVEIS, "contexto_descritiva.rds")
 saveRDS(
   list(

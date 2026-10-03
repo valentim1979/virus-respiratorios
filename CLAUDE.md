@@ -8,9 +8,21 @@ Boletim epidemiológico de SRAG (SIVEP-Gripe, módulo hospitalar) da 15ª Region
 
 ## Onde roda / sincronização
 
-- A publicação oficial roda no **MacBook**, todo dia às 23h via launchd (`com.valentim.vigilancia-publicar.plist` → `./publicar.sh --dados-novos`), com commit e push automáticos.
-- Neste PC (Linux/Omarchy) o repositório pode ficar para trás: **sempre `git pull` antes de mexer**. O histórico do GitHub já foi reescrito uma vez; se `main` e `origin/main` divergirem sem ancestral comum, não faça merge — iguale ao remoto.
-- Não rode `./publicar.sh` / `/publicar` neste PC sem o usuário pedir: ele faz `git add .` + commit + push e concorre com a publicação do Mac.
+- A publicação roda **neste notebook (Linux/Omarchy)**: o usuário baixa à mão o DBF estadual (PR) de um ano no SIVEP-Gripe e joga em `~/SIVEP_entrada/`; a unit systemd de usuário `sivep-entrada.path` dispara `sivep-entrada.service` → `processar_entrada.sh` (anonimiza → `publicar.sh --dados-novos`), com notificação no desktop. Log em `processar_entrada.log`.
+- Até 03/10/2026 a publicação rodava num Mac (launchd às 23h, via API); foi desligada. Não reative publicação em outra máquina — duas máquinas publicando geram push recusado.
+- `~/Work` é sincronizado com o OneDrive (rclone bisync). Por isso **dados por registro nunca ficam no projeto**: base anonimizada e contexto da página descritiva vão para `~/SIVEP_dados/` (variável `SIVEP_DADOS`), e o DBF bruto entra por `~/SIVEP_entrada/`, ambos fora do `~/Work`.
+- O histórico do GitHub já foi reescrito uma vez; se `main` e `origin/main` divergirem sem ancestral comum, não faça merge — iguale ao remoto. Com a árvore suja, `git pull` falha com "Please commit or stash them" (pull configurado com rebase) — não é divergência.
+- Não rode `./publicar.sh` / `/publicar` sem o usuário pedir: faz `git add .` + commit + push.
+
+## Dados do SIVEP e LGPD
+
+- `anonimizar_sivep.R` lê o DBF/ZIP mais recente de `~/SIVEP_entrada`, mantém **só** as colunas de `colunas_permitidas.txt` (dado aberto do Ministério − `DT_NASC`/`NU_NOTIFIC` + bairro e unidade notificadora), grava `~/SIVEP_dados/sivep_local_anon_<ano>.rds` (tudo texto, datas `AAAA-MM-DD`, como o CSV da API) e **apaga o bruto**; em erro, move o bruto para `~/SIVEP_entrada/erro/`. Aborta se a base misturar anos (<95% num ano).
+- `carregar_base(ano)` no `SCRIPT_Unificado.R` usa a base local do ano quando existe; os demais anos vêm da API. A data do rodapé (`DATA_EXTRACAO`) passa a ser a da exportação do DBF.
+- Nunca leia, imprima ou registre valores de registros do DBF bruto ou da base anonimizada — só nomes de colunas e contagens agregadas. Para adicionar uma coluna, inclua-a em `colunas_permitidas.txt` (nunca identificadores diretos; a lista `PROIBIDAS` no script barra os principais).
+
+## Metodologia
+
+`METODOLOGIA.md` é a seção de Métodos (artigo/tese) do painel. **Ao mudar qualquer definição, indicador, fonte, anonimização ou modelo, atualize-o no mesmo commit** — descrevendo o que o código faz (não o que deveria fazer) e acrescentando uma linha no "Histórico de alterações". Referências citadas devem ser reais e verificáveis.
 
 ## Comandos
 
@@ -28,13 +40,13 @@ Requer `DADOS_GOV_TOKEN=...` em `~/.Renviron` (API dados.gov.br). Não há teste
 
 ## Arquitetura
 
-**Fluxo de dados:** API dados.gov.br → cache `dbf_sivep/SRAG_API_<ano>.csv` → `SCRIPT_Unificado.R` → `graficos/*.png`, `dados/*.csv`, `tabelas/*.xlsx` → páginas `.qmd` → `docs/`.
+**Fluxo de dados:** API dados.gov.br → cache `dbf_sivep/SRAG_API_<ano>.csv` (+ base local anonimizada do ano, se houver) → `SCRIPT_Unificado.R` → `graficos/*.png`, `dados/*.csv`, `tabelas/*.xlsx` → páginas `.qmd` → `docs/`.
 
 - **`SCRIPT_Unificado.R`** (~1600 linhas) é organizado em blocos numerados (`BLOCO 0` … `BLOCO 5`+). O `BLOCO 0` concentra os parâmetros editáveis (`ANO_ANALISE`, `ANO_INICIO_CANAL`, `MUNICIPIO_ANALISE`, caminhos de arquivos). Gráficos são salvos via `salvar_grafico()` com rodapé `texto_rodape`.
 - **Cache da API** (`baixar_via_api()`): anos encerrados são baixados uma vez e reaproveitados para sempre; o ano corrente só é rebaixado se o CSV não for de hoje; se o download falhar, mantém o cache anterior. `dbf_sivep/` (~4,7 GB) não é versionado.
-- **Recorte da regional:** por município de **residência** (`CO_MUN_RES` ∈ `municipios_15rs$codigo_ibge_6`, código IBGE de 6 dígitos). Municípios e população IBGE 2025 estão fixos no `BLOCO 2` (`municipios_15rs`); regionais/macrorregiões do PR vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, de `sivep_15rs/GIS/Pr_Municipios_2024/`. Não há mais mapas por bairro (a API não traz `NM_BAIRRO`).
+- **Recorte da regional:** por município de **residência** (`CO_MUN_RES` ∈ `municipios_15rs$codigo_ibge_6`, código IBGE de 6 dígitos). Municípios e população IBGE 2025 estão fixos no `BLOCO 2` (`municipios_15rs`); regionais/macrorregiões do PR vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, de `sivep_15rs/GIS/Pr_Municipios_2024/`. Não há mapas por bairro hoje (a API não traz `NM_BAIRRO`; a base local traz).
 - **Páginas consomem as saídas de formas diferentes:**
   - `index.qmd` — página principal; usa os PNGs de `graficos/` por caminho fixo (o nome do arquivo é o contrato entre script e página) e células `{ojs}` interativas que leem `dados/*.csv` via `FileAttachment` (por isso `dados/**` está em `resources` no `_quarto.yml`).
   - `descritiva.qmd` — executa R no render, mas **não** reroda o script principal: lê `~/SIVEP_dados/contexto_descritiva.rds` (salvo no fim de `SCRIPT_Unificado.R`; pasta configurável por `SIVEP_DADOS`) e faz `source("descritiva_srag_15rs.R")`, que monta os gráficos `gD01`–`gD12` exibidos direto pela página e grava `tabelas/descritiva_15rs_<ano>.xlsx`. Por isso o `.rds` precisa existir antes do `quarto render`; se `descritiva_srag_15rs.R` passar a usar outro objeto do script principal, inclua-o na lista do `saveRDS()`.
 - Ao renomear ou criar um gráfico no script, atualize a referência correspondente no `.qmd`.
-- `arquivo/` guarda páginas/scripts fora de uso e `sivep_15rs/` contém scripts antigos e um app Shiny; ambos estão excluídos do render e não fazem parte do pipeline ativo.
+- `sivep_15rs/` só guarda dados de apoio (CSV de regionais do PR e shapefiles: malha do PR e bairros de Maringá/Sarandi). `arquivo/` guarda páginas/scripts fora de uso. Ambos estão excluídos do render.

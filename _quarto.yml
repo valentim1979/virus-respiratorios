@@ -12,7 +12,6 @@ project:
 website:
   title: "15ª RS — Vigilância Epidemiológica"
   description: "Boletim epidemiológico da 15ª Regional de Saúde de Maringá/PR"
-  favicon: "assets/favicon.ico"
   navbar:
     background: "#003366"
     left:

@@ -241,15 +241,42 @@ baixar_via_api <- function(ano, diretorio_cache) {
     )
   }
 
+  ler_csv_pr(destino)
+}
+
+# ler_csv_pr(): o CSV da API é nacional (até ~1,8 GB por ano) e ler tudo
+# estoura a memória do notebook. Lê em blocos e guarda só os registros com
+# residência, notificação ou internação no Paraná — tudo o que o script usa
+# (15ª RS por residência, PR por notificação, estabelecimentos por internação).
+# O resultado fica em cache (<csv>_PR.rds), refeito quando o CSV muda.
+ler_csv_pr <- function(caminho_csv) {
+  cache_pr <- sub("\\.csv$", "_PR.rds", caminho_csv)
+  if (file.exists(cache_pr) && file.mtime(cache_pr) >= file.mtime(caminho_csv)) {
+    return(readRDS(cache_pr))
+  }
+
+  eh_pr <- function(uf, cod_mun) {
+    (!is.na(uf) & uf == "PR") | (!is.na(cod_mun) & startsWith(cod_mun, "41"))
+  }
+  filtra_pr <- function(bloco, pos) {
+    bloco[eh_pr(bloco$SG_UF,      bloco$CO_MUN_RES) |
+          eh_pr(bloco$SG_UF_NOT,  bloco$CO_MUN_NOT) |
+          eh_pr(bloco$SG_UF_INTE, bloco$CO_MU_INTE), ]
+  }
+
   # [Não verificado] assume separador ";" e encoding latin1, padrão histórico
   # do SIVEP-Gripe/SRAG. Se der erro de parsing, confira o dicionário de dados:
   # https://s3.sa-east-1.amazonaws.com/ckan.saude.gov.br/SRAG/dicionario-de-dados-2019-a-2025.pdf
-  readr::read_delim(
-    destino, delim = ";",
-    locale    = readr::locale(encoding = "latin1"),
-    col_types = readr::cols(.default = "c"),
-    progress  = FALSE
+  df <- readr::read_delim_chunked(
+    caminho_csv, delim = ";",
+    callback   = readr::DataFrameCallback$new(filtra_pr),
+    chunk_size = 50000,
+    locale     = readr::locale(encoding = "latin1"),
+    col_types  = readr::cols(.default = "c"),
+    progress   = FALSE
   )
+  saveRDS(df, cache_pr)
+  df
 }
 
 # validar_campos_dbf_api(): compara os nomes de coluna do DBF local com os do
@@ -392,7 +419,9 @@ base_completa <- base_completa %>%
     CO_MUN_RES     = as.integer(CO_MUN_RES),
     DT_NOTIFIC_DT  = parseia_data(DT_NOTIFIC),
     ANO            = lubridate::year(DT_NOTIFIC_DT),
-    SEM_EPI        = as.integer(SEM_NOT),
+    # Semana epidemiológica de INÍCIO DOS SINTOMAS (não a de notificação):
+    # aproxima o momento da infecção e é o padrão do InfoGripe/MS.
+    SEM_EPI        = as.integer(SEM_PRI),
     CLASSIFICACAO  = case_when(
       CLASSI_FIN == 1 ~ "Influenza",
       CLASSI_FIN == 2 ~ "Outro vírus respiratório",
@@ -403,7 +432,10 @@ base_completa <- base_completa %>%
     ),
     OBITO_SRAG   = EVOLUCAO == 2,
     OBITO_OUTRAS = EVOLUCAO == 3,
-    UTI_SIM      = UTI == 1
+    UTI_SIM      = UTI == 1,
+    # Caso encerrado = com desfecho registrado (cura, óbito por SRAG ou por
+    # outras causas). Denominador da letalidade.
+    ENCERRADO    = EVOLUCAO %in% c(1, 2, 3)
   )
 
 base_15rs_completa <- base_completa %>%
@@ -481,13 +513,14 @@ casos_municipio <- base_15rs_completa %>%
     obitos_srag   = sum(OBITO_SRAG,   na.rm = TRUE),
     obitos_outras = sum(OBITO_OUTRAS, na.rm = TRUE),
     uti           = sum(UTI_SIM,      na.rm = TRUE),
+    encerrados    = sum(ENCERRADO,    na.rm = TRUE),
     .groups = "drop"
   ) %>%
   left_join(municipios_15rs, by = c("CO_MUN_RES" = "codigo_ibge_6")) %>%
   mutate(
     incidencia_100k  = round(casos       / populacao_2025 * 100000, 1),
     mortalidade_100k = round(obitos_srag / populacao_2025 * 100000, 1),
-    letalidade_pct   = round(obitos_srag / casos          * 100,    1)
+    letalidade_pct   = ifelse(encerrados > 0, round(obitos_srag / encerrados * 100, 1), NA_real_)
   ) %>%
   arrange(desc(incidencia_100k))
 
@@ -509,7 +542,7 @@ base_curva <- base_15rs_completa %>%
 casos_semana_ano <- base_curva %>%
   mutate(
     Ano    = as.character(ANO_BASE),
-    Semana = as.integer(SEM_NOT)
+    Semana = SEM_EPI
   ) %>%
   filter(!is.na(Semana)) %>%
   group_by(Ano, Semana) %>%
@@ -537,7 +570,7 @@ if (nrow(casos_semana_ano) > 0) {
       title    = paste0("Curva Epidêmica Comparativa — ", escopo_titulo),
       subtitle = paste0("Ano(s) em análise: ", paste(anos_carregar, collapse = ", "),
                         " | Contexto histórico: ", paste(anos_contexto, collapse = ", ")),
-      x = "Semana Epidemiológica", y = "Casos Notificados",
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos Notificados",
       color = "Ano", caption = texto_rodape
     ) +
     theme_minimal() +
@@ -568,7 +601,7 @@ if (length(anos_historico) < 2) {
     filter(ANO_BASE %in% anos_historico) %>%
     { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
       filter(., CO_MUN_RES == cod_mun) else . } %>%
-    mutate(Semana = as.integer(SEM_NOT)) %>%
+    mutate(Semana = SEM_EPI) %>%
     filter(!is.na(Semana)) %>%
     group_by(ANO_BASE, Semana) %>%
     summarise(total = n(), .groups = "drop")
@@ -588,7 +621,7 @@ if (length(anos_historico) < 2) {
     filter(ANO_BASE %in% anos_carregar) %>%
     { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
       filter(., CO_MUN_RES == cod_mun) else . } %>%
-    mutate(Semana = as.integer(SEM_NOT)) %>%
+    mutate(Semana = SEM_EPI) %>%
     filter(!is.na(Semana)) %>%
     group_by(Semana) %>%
     summarise(total = n(), .groups = "drop")
@@ -642,7 +675,7 @@ if (length(anos_historico) < 2) {
         "Referência pós-pandêmica: ", label_ref, " (", n_anos_ref, " anos)  |  ",
         "Semanas em alerta ou acima: ", semanas_ep
       ),
-      x = "Semana Epidemiológica", y = "Casos Notificados", caption = texto_rodape
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos Notificados", caption = texto_rodape
     ) +
     theme_minimal() +
     theme(
@@ -660,13 +693,13 @@ if (length(anos_historico) < 2) {
 # ==============================================================================
 
 casos_semana <- base_filtrada %>%
-  group_by(SEM_NOT) %>%
+  group_by(SEM_EPI) %>%
   summarise(total = n(), .groups = "drop")
 
 n_semana   <- sum(casos_semana$total)
 incid_100k <- round(n_semana / POPULACAO_ESCOPO * 100000, 1)
 
-g07 <- ggplot(casos_semana, aes(x = factor(SEM_NOT), y = total)) +
+g07 <- ggplot(casos_semana, aes(x = factor(SEM_EPI), y = total)) +
   geom_col(fill = "#0057A3") +
   geom_text(aes(label = total), vjust = -0.5, size = 3.2) +
   labs(
@@ -675,7 +708,7 @@ g07 <- ggplot(casos_semana, aes(x = factor(SEM_NOT), y = total)) +
     subtitle = paste0("N = ", format(n_semana, big.mark = ".", decimal.mark = ","),
                       " | Taxa: ", incid_100k, " por 100.000 hab.",
                       " | Pop. IBGE 2025: ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ",")),
-    x = "Semana Epidemiológica", y = "Notificações", caption = texto_rodape
+    x = "Semana epidemiológica de início dos sintomas", y = "Notificações", caption = texto_rodape
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -688,9 +721,9 @@ salvar_grafico(g07, "07_notificacoes_semana_epi")
 # ==============================================================================
 
 casos_semana_var <- base_filtrada %>%
-  group_by(SEM_NOT) %>%
+  group_by(SEM_EPI) %>%
   summarise(total = n(), .groups = "drop") %>%
-  arrange(SEM_NOT) %>%
+  arrange(SEM_EPI) %>%
   mutate(
     media    = round(mean(total), 1),
     variacao = round((total - lag(total)) / lag(total) * 100, 1),
@@ -702,7 +735,7 @@ casos_semana_var <- base_filtrada %>%
     )
   )
 
-g07b <- ggplot(casos_semana_var, aes(x = as.integer(SEM_NOT), y = total)) +
+g07b <- ggplot(casos_semana_var, aes(x = SEM_EPI, y = total)) +
   geom_col(aes(fill = direcao), width = 0.7) +
   geom_line(aes(y = media), color = "#FF8C00", linewidth = 1, linetype = "dashed") +
   geom_text(
@@ -721,7 +754,7 @@ g07b <- ggplot(casos_semana_var, aes(x = as.integer(SEM_NOT), y = total)) +
   labs(
     title    = paste0("Variação Semanal de SRAG — ", escopo_titulo),
     subtitle = "Vermelho = aumento | Verde = redução | Laranja tracejado = média do período",
-    x = "Semana Epidemiológica", y = "Casos Notificados", caption = texto_rodape
+    x = "Semana epidemiológica de início dos sintomas", y = "Casos Notificados", caption = texto_rodape
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -735,19 +768,19 @@ salvar_grafico(g07b, "07b_variacao_semanal")
 
 confirmados_semana <- base_filtrada %>%
   filter(CLASSI_FIN %in% c(1, 2, 3, 5)) %>%
-  group_by(SEM_NOT) %>%
+  group_by(SEM_EPI) %>%
   summarise(total = n(), .groups = "drop")
 
 n_conf <- sum(confirmados_semana$total)
 
-g08 <- ggplot(confirmados_semana, aes(x = factor(SEM_NOT), y = total)) +
+g08 <- ggplot(confirmados_semana, aes(x = factor(SEM_EPI), y = total)) +
   geom_col(fill = "#A30000") +
   geom_text(aes(label = total), vjust = -0.5, size = 3.2) +
   labs(
     title    = paste0("SRAG Confirmado por Semana Epidemiológica — ", escopo_titulo,
                       " (N = ", format(n_conf, big.mark = ".", decimal.mark = ","), ")"),
     subtitle = paste0("N = ", format(n_conf, big.mark = ".", decimal.mark = ",")),
-    x = "Semana Epidemiológica", y = "Casos Confirmados", caption = texto_rodape
+    x = "Semana epidemiológica de início dos sintomas", y = "Casos Confirmados", caption = texto_rodape
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -938,7 +971,7 @@ salvar_grafico(g13, "13_circulacao_viral_total")
 # ==============================================================================
 
 virus_semanal <- base_filtrada %>%
-  filter(!is.na(SEM_NOT)) %>%
+  filter(!is.na(SEM_EPI)) %>%
   mutate(
     Influenza       = POS_PCRFLU == 1,
     VSR             = PCR_VSR    == 1,
@@ -953,14 +986,14 @@ virus_semanal <- base_filtrada %>%
     values_to = "positivo"
   ) %>%
   filter(positivo == TRUE) %>%
-  group_by(SEM_NOT, virus) %>%
+  group_by(SEM_EPI, virus) %>%
   summarise(total = n(), .groups = "drop")
 
 if (nrow(virus_semanal) > 0) {
   n_semanal <- nrow(base_filtrada %>% filter(POS_PCRFLU == 1 | POS_PCROUT == 1))
 
   g14 <- ggplot(virus_semanal,
-                aes(x = as.integer(SEM_NOT), y = total, color = virus, group = virus)) +
+                aes(x = SEM_EPI, y = total, color = virus, group = virus)) +
     geom_line(linewidth = 0.8) +
     geom_point(size = 1.5, alpha = 0.8) +
     scale_x_continuous(breaks = seq(1, 53, by = 4)) +
@@ -969,7 +1002,7 @@ if (nrow(virus_semanal) > 0) {
       title    = paste0("Tendência Semanal de Vírus Respiratórios — ", escopo_titulo,
                         " (N = ", format(n_semanal, big.mark = ".", decimal.mark = ","), ")"),
       subtitle = "Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus",
-      x = "Semana Epidemiológica", y = "Casos Positivos",
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos Positivos",
       color = "Vírus", caption = texto_rodape
     ) +
     theme_minimal() +
@@ -1535,6 +1568,7 @@ if (is.na(col_estab)) {
     summarise(
       casos       = n(),
       obitos      = sum(EVOLUCAO == 2, na.rm = TRUE),
+      encerrados  = sum(EVOLUCAO %in% c(1, 2, 3), na.rm = TRUE),
       uti         = sum(UTI == 1, na.rm = TRUE),
       confirmados = sum(CLASSI_FIN %in% c(1, 2, 3, 5), na.rm = TRUE),
       .groups     = "drop"
@@ -1639,7 +1673,8 @@ message("Contexto da página descritiva salvo: ", CAMINHO_CONTEXTO_DESCRITIVA)
 
 n_obitos   <- sum(base_filtrada$EVOLUCAO == 2, na.rm = TRUE)
 n_pcr_pos  <- sum(base_filtrada$PCR_RESUL == 1, na.rm = TRUE)
-letalidade <- round(n_obitos / nrow(base_filtrada) * 100, 2)
+n_encerrados <- sum(base_filtrada$ENCERRADO, na.rm = TRUE)
+letalidade <- round(n_obitos / n_encerrados * 100, 2)
 
 message("\n", strrep("=", 60))
 message("RESUMO")
@@ -1651,7 +1686,7 @@ message("Total notificações  : ", format(nrow(base_filtrada), big.mark = ".", 
 message("Tx notif. /100k hab.: ", round(nrow(base_filtrada) / POPULACAO_ESCOPO * 100000, 1))
 message("Confirmados PCR     : ", format(n_pcr_pos, big.mark = ".", decimal.mark = ","))
 message("Óbitos (EVOLUCAO=2) : ", format(n_obitos, big.mark = ".", decimal.mark = ","))
-message("Letalidade          : ", letalidade, "%")
+message("Letalidade          : ", letalidade, "% (óbitos / ", n_encerrados, " casos encerrados)")
 message("Saída               : ", DIR_GRAFICOS)
 message(strrep("=", 60))
 message("Concluído. Rode quarto render e git push para atualizar o site.")

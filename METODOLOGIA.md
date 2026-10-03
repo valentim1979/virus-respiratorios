@@ -19,7 +19,7 @@ A 15ª Regional de Saúde compreende **30 municípios** do noroeste do Paraná, 
 | Ano corrente (quando disponível) | Base estadual (PR) exportada do SIVEP-Gripe (DBF), por ano, pelo próprio serviço de vigilância | Diária (exportação manual) |
 | Demais anos (2019 em diante) | Dados abertos de SRAG do Ministério da Saúde, via API do Portal Brasileiro de Dados Abertos (dados.gov.br; conjunto `39a4995f-4a6e-440f-8c8f-b00c81fae0d0`) | Semanal a quinzenal; anos encerrados são baixados uma única vez |
 
-A base aberta do Ministério é publicada com defasagem de uma a duas semanas em relação ao sistema (por exemplo, o arquivo de 2026 disponível em 02/10/2026 tinha data de corte 28/09/2026). Por isso, para o ano corrente, o painel prioriza a exportação direta do SIVEP-Gripe. Os dois formatos usam o mesmo dicionário de dados do SIVEP-Gripe e são harmonizados para o mesmo formato (todas as variáveis como texto; datas no padrão AAAA-MM-DD) antes da análise. A data de referência dos dados exibida no painel é a data da exportação do DBF ou, na sua ausência, a data de download do arquivo da API.
+A base aberta do Ministério é publicada com defasagem de uma a duas semanas em relação ao sistema (por exemplo, o arquivo de 2026 disponível em 02/10/2026 tinha data de corte 28/09/2026). Por isso, para o ano corrente, o painel prioriza a exportação direta do SIVEP-Gripe. Dos arquivos nacionais da API são mantidos apenas os registros com residência, notificação ou internação no Paraná (UF ou código IBGE do município iniciado por 41), o que abrange todos os recortes usados no painel. Os dois formatos usam o mesmo dicionário de dados do SIVEP-Gripe e são harmonizados para o mesmo formato (todas as variáveis como texto; datas no padrão AAAA-MM-DD) antes da análise. A data de referência dos dados exibida no painel é a data da exportação do DBF ou, na sua ausência, a data de download do arquivo da API.
 
 ## 4. Aspectos éticos e proteção de dados (LGPD)
 
@@ -37,9 +37,10 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 
 - **Caso de SRAG:** toda notificação de SRAG hospitalizado no SIVEP-Gripe cujo município de **residência** (`CO_MUN_RES`) pertence à 15ª RS. As análises estaduais de notificação usam a UF de notificação (`SG_UF_NOT = PR`), e as de estabelecimento usam o município de internação (`CO_MU_INTE`).
 - **Ano do caso:** ano do arquivo de origem (`ANO_BASE`). Nos arquivos do Ministério e nas exportações anuais, notificação e início dos sintomas pertencem ao mesmo ano.
-- **Semana epidemiológica:** semana epidemiológica da notificação (`SEM_NOT`).
+- **Semana epidemiológica:** semana epidemiológica de **início dos sintomas** (`SEM_PRI`), padrão do InfoGripe/Fiocruz e do Ministério da Saúde para análise de tendência, por aproximar o momento da infecção. Todas as séries semanais (curva epidêmica, canal endêmico, notificados, confirmados, variação semanal, tendência viral e séries por estabelecimento) usam essa semana.
 - **Classificação final** (`CLASSI_FIN`): 1 = influenza; 2 = outro vírus respiratório; 3 = outro agente etiológico; 4 = SRAG não especificada; 5 = covid-19. **Caso confirmado** (etiologia definida): classificações 1, 2, 3 ou 5.
 - **Óbito por SRAG:** `EVOLUCAO = 2`. Óbito por outras causas: `EVOLUCAO = 3`.
+- **Caso encerrado:** caso com desfecho registrado — `EVOLUCAO` igual a 1 (cura), 2 (óbito por SRAG) ou 3 (óbito por outras causas). Casos com evolução ignorada (9) ou em branco não são considerados encerrados.
 - **Internação em UTI:** `UTI = 1`.
 - **Faixa etária:** derivada de `COD_IDADE` (código do SIVEP em que o primeiro dígito indica a unidade e os três seguintes, o valor), agrupada em 0–6 meses, 6–11 meses, 1–4, 5–9, 10–14, 15–19, 20–29, 30–39, 40–49, 50–59 e 60 anos ou mais.
 - **Detecção viral:** caso com RT-PCR positivo (`PCR_RESUL = 1`, `POS_PCRFLU = 1` ou `POS_PCROUT = 1`). Os agentes são identificados pelas variáveis específicas (`POS_PCRFLU`, `PCR_SARS2`, `PCR_VSR`, `PCR_RINO`, `PCR_ADENO`, `PCR_METAP`, `PCR_PARA1`–`PCR_PARA4`, `PCR_BOCA`, `PCR_OUTRO`). Um caso pode ter mais de um agente detectado.
@@ -51,7 +52,7 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 |---|---|
 | Taxa de incidência de SRAG | casos residentes no período ÷ população IBGE 2025 × 100.000 |
 | Taxa de mortalidade por SRAG | óbitos por SRAG ÷ população IBGE 2025 × 100.000 |
-| Letalidade | óbitos por SRAG ÷ casos notificados × 100 |
+| Letalidade | óbitos por SRAG ÷ casos encerrados × 100 (faixas etárias com menos de 5 casos encerrados são omitidas) |
 | Proporção de internação em UTI | casos com `UTI = 1` ÷ casos notificados × 100 |
 | Variação semanal | (casos da semana − casos da semana anterior) ÷ casos da semana anterior × 100 |
 | Completitude | registros com preenchimento válido ÷ total de registros × 100, por variável-chave; referência mínima de 80% |
@@ -119,8 +120,8 @@ O código e o histórico de alterações estão versionados em git (repositório
 ## 10. Limitações
 
 - **Atraso de notificação:** as semanas recentes estão subestimadas até que o nowcasting seja implementado (seção 8.1).
-- **Semana de notificação:** a série semanal usa a semana de notificação, e não a de início dos sintomas, padrão em análises de transmissão. Isso desloca a curva em relação ao momento da infecção.
-- **Letalidade subestimada:** a letalidade usa todos os casos notificados no denominador, inclusive os que ainda não têm desfecho registrado. Por isso é subestimada no ano corrente.
+- **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor, e o nowcasting (seção 8.1) vai corrigir esse viés.
+- **Letalidade entre encerrados:** restringir o denominador aos casos encerrados evita a subestimação pelos casos ainda internados. Em contrapartida, pode superestimar a letalidade no ano corrente se os óbitos forem registrados mais rápido que as altas, e exclui casos com evolução ignorada.
 - **Denominador fixo:** as taxas usam a população de 2025 em todos os anos.
 - **Canal endêmico frágil:** o canal é baseado em poucos anos de referência (pós-2022), o que torna os percentis instáveis. Ele não é ajustado por tendência nem pelo tamanho da população.
 - **Qualidade do preenchimento:** comorbidades, vacinação e uso de antiviral dependem da completitude dos campos (seção 6), e o não preenchimento não equivale à ausência da condição.
@@ -140,4 +141,5 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Séries semanais passam da semana de notificação (`SEM_NOT`) para a de início dos sintomas (`SEM_PRI`). Letalidade passa a usar os casos encerrados como denominador (antes: todos os notificados). O painel ganha um quadro "Como ler este painel" e a página Sobre ganha um resumo da metodologia. |
 | 03/10/2026 | Documento criado com a metodologia vigente. Inclusão da base estadual do SIVEP-Gripe (DBF) para o ano corrente, com anonimização por lista de permissão; a página descritiva passa a reutilizar os objetos da análise principal. |

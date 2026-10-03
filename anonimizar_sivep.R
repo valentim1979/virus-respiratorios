@@ -77,12 +77,17 @@ processar <- function() {
   stopifnot(!any(PROIBIDAS %in% names(df)))
 
   # Mesmo formato do CSV da API: tudo texto, datas AAAA-MM-DD, UTF-8.
+  # O DBF do SIVEP traz as datas como texto dd/mm/aaaa.
   df[] <- lapply(df, function(x) {
     if (inherits(x, "Date")) return(format(x, "%Y-%m-%d"))
     x <- as.character(x)
     enc <- iconv(x, from = "latin1", to = "UTF-8")
     ifelse(validUTF8(x), x, enc)
   })
+  for (col in grep("^DT_", names(df), value = TRUE)) {
+    br <- grepl("^[0-9]{2}/[0-9]{2}/[0-9]{4}$", df[[col]])
+    df[[col]][br] <- format(as.Date(df[[col]][br], "%d/%m/%Y"), "%Y-%m-%d")
+  }
 
   anos <- substr(df$DT_SIN_PRI, 1, 4)
   dist <- sort(table(anos, useNA = "ifany"), decreasing = TRUE)

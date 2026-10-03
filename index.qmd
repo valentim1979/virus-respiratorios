@@ -9,6 +9,16 @@ date-format: "DD/MM/YYYY HH:mm"
 **Ano de referência:** 2026 &nbsp;|&nbsp; **Fonte:** SIVEP-Gripe (módulo hospitalar) &nbsp;|&nbsp; **Escopo:** 30 municípios da 15ª Regional de Saúde
 :::
 
+::: {.callout-note collapse="true"}
+## Como ler este painel
+
+- **Semana epidemiológica = semana de início dos sintomas** (não a da notificação). Cada caso é contado na semana em que o paciente começou a ter sintomas, o que mostra melhor quando a transmissão aconteceu.
+- **As últimas 2 a 4 semanas estão incompletas.** Casos com sintomas recentes ainda estão sendo internados, notificados e digitados no SIVEP-Gripe. Uma queda no fim das curvas **não significa necessariamente redução de casos** — os números dessas semanas sobem a cada atualização.
+- **Letalidade = óbitos por SRAG ÷ casos encerrados** (com desfecho registrado: cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada ficam fora do cálculo.
+- **Mortalidade e incidência** são calculadas por 100 mil habitantes (população IBGE 2025) e permitem comparar municípios de tamanhos diferentes.
+- A data dos dados aparece no rodapé de cada gráfico. A metodologia completa está na página [Sobre](sobre.qmd).
+:::
+
 Notificações de SRAG hospitalar na área de abrangência da 15ª RS. A Vigilância Universal abrange todos os hospitais e serviços de saúde — registra casos graves com necessidade de hospitalização, internações em UTI e óbitos.
 
 ---
@@ -134,8 +144,9 @@ serie_semanal = d3.rollups(
 //| echo: false
 total_casos   = d3.sum(dados_filtrados, d => d.casos)
 total_obitos  = d3.sum(dados_filtrados, d => d.obitos)
+total_encerrados = d3.sum(dados_filtrados, d => d.encerrados)
 total_uti     = d3.sum(dados_filtrados, d => d.uti)
-letalidade_pct = total_casos > 0 ? (total_obitos / total_casos * 100).toFixed(1) : "0.0"
+letalidade_pct = total_encerrados > 0 ? (total_obitos / total_encerrados * 100).toFixed(1).replace(".", ",") + "%" : "—"
 ```
 
 ```{ojs}
@@ -186,7 +197,7 @@ html`<div style="border:1px solid #dde3e8;border-radius:8px;padding:10px 16px;ba
     <div><strong>Notificações:</strong> ${total_casos.toLocaleString("pt-BR")}</div>
     <div><strong>Óbitos:</strong> ${total_obitos.toLocaleString("pt-BR")}</div>
     <div><strong>UTI:</strong> ${total_uti.toLocaleString("pt-BR")}</div>
-    <div><strong>Letalidade:</strong> ${letalidade_pct}%</div>
+    <div title="Óbitos por SRAG ÷ casos encerrados (com desfecho registrado)"><strong>Letalidade (entre encerrados):</strong> ${letalidade_pct}</div>
     <div><strong>Estabelecimentos:</strong> ${n_estabelecimentos_sel}</div>
     <div><strong>Município(s):</strong> ${municipios_label}</div>
     <div><strong>Vírus mais frequente:</strong> ${virus_predominante}</div>
@@ -353,11 +364,15 @@ Circulação viral (RT-PCR) segue os mesmos vírus monitorados nos gráficos ger
 
 ## Série temporal
 
+::: {.callout-warning appearance="simple"}
+Séries por **semana de início dos sintomas**. As últimas 2 a 4 semanas ainda vão receber casos (atraso de internação, notificação e digitação) — não interprete a queda no fim da curva como redução real.
+:::
+
 ::: {.panel-tabset}
 
 ### Curva comparativa
 
-![Curva epidêmica por semana epidemiológica — comparativo anual (2024–2026). A linha mais espessa representa o ano corrente.](graficos/06_curva_epidemica_comparativa.png){.lightbox}
+![Curva epidêmica por semana epidemiológica de início dos sintomas — comparativo anual (2024–2026). A linha mais espessa representa o ano corrente.](graficos/06_curva_epidemica_comparativa.png){.lightbox}
 
 ### Canal endêmico
 
@@ -383,19 +398,19 @@ A linha tracejada verde representa a mediana histórica semanal (referência cen
 **Fonte:** SIVEP-Gripe (módulo hospitalar) | Elaboração: SCVGE — 15ª RS
 :::
 
-![Canal endêmico de SRAG por semana epidemiológica — zona verde = esperado (P25–P75), zona amarela = alerta (P75–P90), pontos acima da zona amarela = nível epidêmico (> P90). Linha tracejada = mediana histórica pós-pandêmica (2022–2025).](graficos/06b_canal_endemico.png){.lightbox}
+![Canal endêmico de SRAG por semana epidemiológica de início dos sintomas — zona verde = esperado (P25–P75), zona amarela = alerta (P75–P90), pontos acima da zona amarela = nível epidêmico (> P90). Linha tracejada = mediana histórica pós-pandêmica (2022–2025).](graficos/06b_canal_endemico.png){.lightbox}
 
 ### Notificações semanais
 
-![Total de notificações de SRAG por semana epidemiológica — 2026.](graficos/07_notificacoes_semana_epi.png){.lightbox}
+![Total de notificações de SRAG por semana epidemiológica de início dos sintomas — 2026.](graficos/07_notificacoes_semana_epi.png){.lightbox}
 
 ### Confirmados semanais
 
-![Casos confirmados de SRAG por semana epidemiológica — 2026.](graficos/08_confirmados_semana_epi.png){.lightbox}
+![Casos confirmados de SRAG por semana epidemiológica de início dos sintomas — 2026.](graficos/08_confirmados_semana_epi.png){.lightbox}
 
 ### Variação semanal
 
-![Casos de SRAG por semana epidemiológica com linha de média do período e variação percentual semana a semana. Verde = aumento em relação à semana anterior. Vermelho = redução.](graficos/07b_variacao_semanal.png){.lightbox}
+![Casos de SRAG por semana epidemiológica de início dos sintomas, com linha de média do período e variação percentual semana a semana. Vermelho = aumento em relação à semana anterior. Verde = redução.](graficos/07b_variacao_semanal.png){.lightbox}
 
 :::
 
@@ -483,7 +498,7 @@ Mapas gerados a partir dos shapefiles do IBGE (municípios). Clique em qualquer 
 
 ### Tendência semanal
 
-![Tendência semanal dos principais vírus respiratórios por RT-PCR — Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus — 15ª RS — 2026.](graficos/14_tendencia_viral_semanal.png){.lightbox}
+![Tendência semanal (semana de início dos sintomas) dos principais vírus respiratórios por RT-PCR — Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus — 15ª RS — 2026.](graficos/14_tendencia_viral_semanal.png){.lightbox}
 
 ### Tipos de Influenza
 

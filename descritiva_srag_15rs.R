@@ -21,7 +21,7 @@ variaveis_chave <- list(
   "Idade"                = "COD_IDADE",
   "Raça/Cor"             = "CS_RACA",
   "Bairro"               = "BAIRRO",
-  "Semana Epidemiológica" = "SEM_NOT",
+  "Semana de início dos sintomas" = "SEM_PRI",
   "Critério Confirmação"  = "CRITERIO",
   "Evolução (Desfecho)"  = "EVOLUCAO",
   "Data Início Sintomas" = "DT_SIN_PRI",
@@ -262,25 +262,26 @@ letalidade_faixa <- base_filtrada %>%
   filter(faixa_etaria %in% ORDEM_FAIXAS) %>%
   group_by(faixa_etaria) %>%
   summarise(
-    casos   = n(),
-    obitos  = sum(EVOLUCAO == 2, na.rm = TRUE),
-    .groups = "drop"
+    casos      = n(),
+    encerrados = sum(EVOLUCAO %in% c(1, 2, 3), na.rm = TRUE),
+    obitos     = sum(EVOLUCAO == 2, na.rm = TRUE),
+    .groups    = "drop"
   ) %>%
   mutate(
     faixa_etaria    = factor(faixa_etaria, levels = ORDEM_FAIXAS),
-    letalidade_pct  = round(obitos / casos * 100, 1)
+    letalidade_pct  = round(obitos / encerrados * 100, 1)
   ) %>%
-  filter(casos >= 5)   # remove faixas com n muito pequeno
+  filter(encerrados >= 5)   # remove faixas com n muito pequeno
 
 gD06 <- ggplot(letalidade_faixa,
                aes(x = faixa_etaria, y = letalidade_pct)) +
   geom_col(fill = "#A30000") +
-  geom_text(aes(label = paste0(letalidade_pct, "%\n(", obitos, "/", casos, ")")),
+  geom_text(aes(label = paste0(letalidade_pct, "%\n(", obitos, "/", encerrados, ")")),
             vjust = -0.3, size = 3) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.25))) +
   labs(
     title    = paste0("Letalidade por Faixa Etária — ", escopo_titulo),
-    subtitle = "% óbitos por SRAG / total notificados na faixa | Mínimo 5 casos",
+    subtitle = "% óbitos por SRAG / casos encerrados (com desfecho) na faixa | Mínimo 5 encerrados",
     x = "Faixa Etária", y = "Letalidade (%)",
     caption = texto_rodape
   ) +
@@ -301,23 +302,24 @@ letalidade_sexo <- base_filtrada %>%
   filter(sexo != "Ignorado") %>%
   group_by(sexo) %>%
   summarise(
-    casos  = n(),
-    obitos = sum(EVOLUCAO == 2, na.rm = TRUE),
-    .groups = "drop"
+    casos      = n(),
+    encerrados = sum(EVOLUCAO %in% c(1, 2, 3), na.rm = TRUE),
+    obitos     = sum(EVOLUCAO == 2, na.rm = TRUE),
+    .groups    = "drop"
   ) %>%
-  mutate(letalidade_pct = round(obitos / casos * 100, 1))
+  mutate(letalidade_pct = round(obitos / encerrados * 100, 1))
 
 gD07 <- ggplot(letalidade_sexo,
                aes(x = sexo, y = letalidade_pct, fill = sexo)) +
   geom_col(width = 0.5) +
-  geom_text(aes(label = paste0(letalidade_pct, "%\n(", obitos, "/", casos, ")")),
+  geom_text(aes(label = paste0(letalidade_pct, "%\n(", obitos, "/", encerrados, ")")),
             vjust = -0.3, size = 4) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
   scale_fill_manual(values = c("Masculino" = "#0057A3", "Feminino" = "#E91E8C"),
                     guide = "none") +
   labs(
     title    = paste0("Letalidade por Sexo — ", escopo_titulo),
-    subtitle = "% óbitos por SRAG / total notificados por sexo",
+    subtitle = "% óbitos por SRAG / casos encerrados (com desfecho) por sexo",
     x = NULL, y = "Letalidade (%)",
     caption = texto_rodape
   ) +
@@ -509,7 +511,7 @@ gD12 <- casos_municipio %>%
 # ==============================================================================
 
 tabela_resumo_mun <- casos_municipio %>%
-  select(municipio, casos, obitos_srag, uti,
+  select(municipio, casos, encerrados, obitos_srag, uti,
          incidencia_100k, mortalidade_100k, letalidade_pct) %>%
   mutate(
     municipio       = str_to_title(municipio),

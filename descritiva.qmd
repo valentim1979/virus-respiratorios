@@ -31,6 +31,14 @@ ano_label <- paste(anos_carregar, collapse = "/")
 **Leia antes de interpretar:** os percentuais de comorbidade, vacinação e antiviral dependem diretamente da completitude do preenchimento do SIVEP-Gripe. Um valor baixo nesses gráficos pode refletir subnotificação do campo — não necessariamente ausência da condição. Consulte o gráfico de completitude (seção 1) antes de interpretar qualquer outra análise desta página.
 :::
 
+::: {.callout-note collapse="true"}
+## Definições usadas nesta página
+
+- **Letalidade** = óbitos por SRAG ÷ **casos encerrados** × 100. Caso encerrado é o que já tem desfecho registrado no SIVEP-Gripe (cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada não entram no cálculo — por isso a letalidade não é subestimada no ano corrente.
+- **Mortalidade** = óbitos por SRAG ÷ população (IBGE 2025) × 100.000. Mede o impacto na população, não a gravidade entre os casos.
+- **Semana epidemiológica** = semana de **início dos sintomas**. As semanas mais recentes ainda recebem casos a cada atualização.
+:::
+
 ---
 
 ## 1. Completitude das Variáveis-Chave
@@ -115,9 +123,9 @@ if (exists("gD05")) gD05
 
 ### 4a. Letalidade por Faixa Etária
 
-A letalidade é calculada como o número de óbitos por SRAG dividido pelo total de notificações em cada faixa etária. **Não é uma taxa de mortalidade populacional** — é uma proporção dentro dos casos notificados hospitalizados.
+A letalidade é calculada como o número de óbitos por SRAG dividido pelo número de **casos encerrados** (com desfecho registrado: cura, óbito por SRAG ou óbito por outras causas) em cada faixa etária. **Não é uma taxa de mortalidade populacional** — é uma proporção dentro dos casos hospitalizados que já tiveram desfecho.
 
-Faixas com poucos casos (n < 5) foram excluídas para evitar percentuais instáveis. O denominador pequeno em algumas faixas pode gerar variações expressivas a cada atualização da base.
+Faixas com poucos casos encerrados (n < 5) foram excluídas para evitar percentuais instáveis. O denominador pequeno em algumas faixas pode gerar variações expressivas a cada atualização da base.
 
 O aumento da letalidade com a idade é um padrão consistente na literatura sobre SRAG e infecções respiratórias graves. Idosos acima de 60 anos representam historicamente o grupo de maior risco de morte por vírus respiratórios no Brasil.
 
@@ -128,12 +136,12 @@ gD06
 ```
 
 ::: {.callout-note appearance="minimal"}
-**Como ler este gráfico:** cada barra mostra a letalidade (%) daquela faixa etária. Abaixo do percentual aparece a fração **óbitos / total notificados** — por exemplo, `12,5% (3/24)` significa 3 óbitos entre 24 casos notificados naquela faixa.
+**Como ler este gráfico:** cada barra mostra a letalidade (%) daquela faixa etária. Abaixo do percentual aparece a fração **óbitos / casos encerrados** — por exemplo, `12,5% (3/24)` significa 3 óbitos entre 24 casos encerrados naquela faixa.
 :::
 
 ### 4b. Letalidade por Sexo
 
-Apresenta a proporção de óbitos por SRAG dentro de cada grupo por sexo. Diferenças entre masculino e feminino são documentadas na literatura para diversas infecções respiratórias graves.
+Apresenta a proporção de óbitos por SRAG entre os casos encerrados de cada sexo. Diferenças entre masculino e feminino são documentadas na literatura para diversas infecções respiratórias graves.
 
 [Inferência] Maior letalidade no sexo masculino, quando observada, pode estar associada a maior prevalência de comorbidades, comportamentos de saúde distintos (como menor adesão ao cuidado preventivo) ou diferenças imunológicas. Essa interpretação está baseada em padrões descritos na literatura — **não pode ser confirmada com os dados do SIVEP-Gripe isoladamente**, que não registra essas variáveis de forma estruturada.
 
@@ -208,7 +216,7 @@ gD11
 
 A taxa de mortalidade por SRAG é calculada como o número de óbitos por SRAG dividido pela população municipal estimada pelo IBGE para 2025, expressa por 100.000 habitantes.
 
-Diferente da letalidade (que mede mortes entre os casos notificados), a mortalidade relaciona os óbitos à população total — o que permite comparação entre municípios de tamanhos diferentes.
+Diferente da letalidade (que mede mortes entre os casos encerrados), a mortalidade relaciona os óbitos à população total — o que permite comparação entre municípios de tamanhos diferentes.
 
 Municípios menores tendem a apresentar maior variabilidade nas taxas: pequenas diferenças absolutas no número de óbitos resultam em variações percentuais expressivas. Um município com 2.000 habitantes e 2 óbitos terá taxa de 100/100k — o que não significa necessariamente pior desempenho assistencial.
 
@@ -226,7 +234,8 @@ Consolidação dos principais indicadores epidemiológicos por município da 15�
 
 - **Incidência /100k:** casos notificados por 100.000 habitantes
 - **Mortalidade /100k:** óbitos por SRAG por 100.000 habitantes
-- **Letalidade (%):** proporção de óbitos entre os casos notificados
+- **Encerrados:** casos com desfecho registrado (cura, óbito por SRAG ou por outras causas)
+- **Letalidade (%):** óbitos por SRAG ÷ casos encerrados
 - **UTI (%):** proporção de casos com internação em UTI registrada
 
 ```{r tabela-mun}
@@ -234,6 +243,7 @@ tabela_resumo_mun %>%
   dplyr::rename(
     Município              = municipio,
     Casos                  = casos,
+    Encerrados             = encerrados,
     Óbitos                 = obitos_srag,
     UTI                    = uti,
     `Incidência /100k`     = incidencia_100k,

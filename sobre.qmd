@@ -5,9 +5,9 @@ toc: false
 
 ## 15ª Regional de Saúde do Paraná
 
-A 15ª Regional de Saúde, sediada em Maringá/PR, coordena ações de saúde em 30 municípios da região noroeste do Paraná, com população estimada de aproximadamente 958 mil habitantes (IBGE 2025).
+A 15ª Regional de Saúde, sediada em Maringá/PR, coordena ações de saúde em 30 municípios da região noroeste do Paraná, com população estimada de 909.489 habitantes (IBGE 2025).
 
-Municípios-sede da regional: **Maringá** (429.660 hab.), **Sarandi** (128.106 hab.) e **Paicandu** (48.695 hab.) representam juntos cerca de 63% da população regional.
+Municípios-sede da regional: **Maringá** (429.660 hab.), **Sarandi** (128.106 hab.) e **Paicandu** (48.695 hab.) representam juntos cerca de 67% da população regional.
 
 ## Vigilância Epidemiológica
 
@@ -19,10 +19,31 @@ Os gráficos e mapas publicados aqui são gerados a partir de um script R unific
 
 **Fluxo de atualização:**
 
-1. Extração dos dados do SIVEP-Gripe
-2. Execução do script R (`SCRIPT_Unificado.R`)
-3. `quarto render` — geração do site
-4. `git push` — publicação no GitHub Pages
+1. Exportação da base estadual do SIVEP-Gripe do ano corrente (os anos anteriores vêm dos dados abertos do Ministério da Saúde, em dados.gov.br)
+2. Anonimização automática da base, em conformidade com a LGPD
+3. Execução do script R (`SCRIPT_Unificado.R`)
+4. `quarto render` — geração do site
+5. `git push` — publicação no GitHub Pages
+
+## Metodologia
+
+**Caso:** notificação de SRAG hospitalizado no SIVEP-Gripe de pessoa **residente** em um dos 30 municípios da 15ª RS.
+
+**Semana epidemiológica:** semana de **início dos sintomas** (`SEM_PRI`). Como os casos levam dias ou semanas para serem internados, notificados e digitados, **as últimas 2 a 4 semanas de cada série estão incompletas** e aumentam a cada atualização.
+
+**Principais indicadores:**
+
+| Indicador | Cálculo |
+|---|---|
+| Incidência | casos ÷ população IBGE 2025 × 100.000 |
+| Mortalidade | óbitos por SRAG ÷ população IBGE 2025 × 100.000 |
+| Letalidade | óbitos por SRAG ÷ casos **encerrados** (cura, óbito por SRAG ou óbito por outras causas) × 100 |
+| Caso confirmado | classificação final influenza, outro vírus respiratório, outro agente etiológico ou covid-19 |
+| Canal endêmico | percentis 25, 75 e 90 das contagens semanais de 2022 em diante (anos pandêmicos excluídos) |
+
+**Proteção de dados:** a base do SIVEP-Gripe é anonimizada antes de qualquer análise — nome, nome da mãe, CPF, CNS, telefone, endereço, CEP, data de nascimento e número da notificação são descartados, e o arquivo original é apagado. O site publica apenas dados agregados.
+
+A descrição completa (definições, indicadores, limitações e referências) está em [METODOLOGIA.md](https://github.com/valentim1979/virus-respiratorios/blob/main/METODOLOGIA.md).
 
 ## Sistemas de informação utilizados
 

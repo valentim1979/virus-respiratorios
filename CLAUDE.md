@@ -8,7 +8,7 @@ Boletim epidemiológico de SRAG (SIVEP-Gripe, módulo hospitalar) da 15ª Region
 
 ## Onde roda / sincronização
 
-- A publicação roda **neste notebook (Linux/Omarchy)**: o usuário baixa à mão o DBF estadual (PR) de um ano no SIVEP-Gripe e joga em `~/SIVEP_entrada/`; a unit systemd de usuário `sivep-entrada.path` dispara `sivep-entrada.service` → `processar_entrada.sh` (anonimiza → `publicar.sh --dados-novos`), com notificação no desktop. Log em `processar_entrada.log`.
+- A publicação roda **neste notebook (Linux/Omarchy)**: o usuário baixa à mão o DBF estadual (PR) de um ano no SIVEP-Gripe e joga em `~/SIVEP_entrada/`; a unit systemd de usuário `sivep-entrada.path` dispara `sivep-entrada.service` → `processar_entrada.sh` (anonimiza → `publicar.sh --dados-novos`), com notificação no desktop. Log em `processar_entrada.log`. Se a árvore do git estiver suja (trabalho em andamento), a base é atualizada mas a publicação é **adiada** — por isso, ao terminar uma mudança, faça o commit e, se houver base nova, rode `./publicar.sh --dados-novos`.
 - Até 03/10/2026 a publicação rodava num Mac (launchd às 23h, via API); foi desligada. Não reative publicação em outra máquina — duas máquinas publicando geram push recusado.
 - `~/Work` é sincronizado com o OneDrive (rclone bisync). Por isso **dados por registro nunca ficam no projeto**: base anonimizada e contexto da página descritiva vão para `~/SIVEP_dados/` (variável `SIVEP_DADOS`), e o DBF bruto entra por `~/SIVEP_entrada/`, ambos fora do `~/Work`.
 - O histórico do GitHub já foi reescrito uma vez; se `main` e `origin/main` divergirem sem ancestral comum, não faça merge — iguale ao remoto. Com a árvore suja, `git pull` falha com "Please commit or stash them" (pull configurado com rebase) — não é divergência.

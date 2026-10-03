@@ -27,8 +27,19 @@ echo "=================================================="
 
 avisar "Arquivo do SIVEP recebido" "Anonimizando e gerando o boletim…"
 
-git pull --rebase
+# 1º a anonimização: o bruto sai da pasta vigiada em qualquer caso (sucesso
+# apaga, erro move para erro/), então o systemd não dispara em loop.
 Rscript "$PROJETO/anonimizar_sivep.R" "$HOME/SIVEP_entrada"
+
+# publicar.sh faz "git add ." — não publica com alterações locais pendentes
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Alterações locais não commitadas — base atualizada, publicação adiada."
+  avisar -u normal "Base do SIVEP atualizada, publicação adiada" \
+    "Há alterações locais não commitadas em $PROJETO. Faça o commit e rode ./publicar.sh --dados-novos."
+  exit 0
+fi
+
+git pull --rebase
 "$PROJETO/publicar.sh" --dados-novos
 
 avisar "Boletim publicado" "https://valentim1979.github.io/virus-respiratorios/"

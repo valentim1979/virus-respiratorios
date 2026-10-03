@@ -143,7 +143,7 @@ if (!is.null(digitacao_unidade)) {
 }
 ```
 
-[Inferência] Unidades com mediana acima de 1 dia ou com casos digitados mais de 30 dias após a notificação podem ter sobrecarga da equipe de digitação, fichas preenchidas em papel e digitadas em lote, ou digitação retroativa após o desfecho. Essas hipóteses precisam ser verificadas com cada serviço.
+Unidades com mediana acima de 1 dia ou com casos digitados mais de 30 dias após a notificação podem ter sobrecarga da equipe de digitação, fichas preenchidas em papel e digitadas em lote, ou digitação retroativa após o desfecho. Essas hipóteses precisam ser verificadas com cada serviço.
 
 ### 2c. Sintomas → Notificação
 
@@ -163,7 +163,7 @@ gD02
 
 Este gráfico mostra o tempo entre a internação e o desfecho — separado entre cura e óbito por SRAG. Distribuições com cauda longa à direita são esperadas em casos graves com complicações.
 
-[Inferência] Tempos medianos de internação até óbito consistentemente menores do que os de cura podem indicar maior gravidade na apresentação clínica dos casos fatais, com progressão rápida da doença. Essa interpretação baseia-se em padrões descritos na literatura sobre SRAG grave, mas **não pode ser confirmada apenas com os dados do SIVEP-Gripe**, que não registra detalhes clínicos evolutivos.
+Tempos medianos de internação até óbito consistentemente menores do que os de cura podem indicar maior gravidade na apresentação clínica dos casos fatais, com progressão rápida da doença. Essa interpretação baseia-se em padrões descritos na literatura sobre SRAG grave, mas **não pode ser confirmada apenas com os dados do SIVEP-Gripe**, que não registra detalhes clínicos evolutivos.
 
 **Referência:** Ranzani OT et al. *Characterisation of the first 250 000 hospital admissions for COVID-19 in Brazil: a retrospective analysis of nationwide data*. Lancet Respir Med. 2021;9(4):407–418.
 
@@ -195,7 +195,7 @@ if (exists("gD04")) gD04
 
 Compara a frequência de cada comorbidade entre todos os casos notificados e entre os casos que evoluíram para óbito por SRAG. A diferença proporcional entre os dois grupos indica quais condições estão associadas a desfechos mais graves nesta base.
 
-[Inferência] Comorbidades com proporção visivelmente maior no grupo de óbitos do que no grupo geral de notificados podem estar associadas a maior risco de morte por SRAG na 15ª RS. Essa leitura é descritiva — o SIVEP-Gripe não permite análise de risco ajustada sem tratamento estatístico adicional (regressão logística ou análise de sobrevida), que não está contemplada neste painel.
+Comorbidades com proporção visivelmente maior no grupo de óbitos do que no grupo geral de notificados podem estar associadas a maior risco de morte por SRAG na 15ª RS. Essa leitura é descritiva — o SIVEP-Gripe não permite análise de risco ajustada sem tratamento estatístico adicional (regressão logística ou análise de sobrevida), que não está contemplada neste painel.
 
 **Referência:** Baqui P et al. *Ethnic and regional variations in hospital mortality from COVID-19 in Brazil: a cross-sectional observational study*. Lancet Glob Health. 2020;8(8):e1018–e1026.
 
@@ -229,7 +229,7 @@ gD06
 
 Apresenta a proporção de óbitos por SRAG entre os casos encerrados de cada sexo. Diferenças entre masculino e feminino são documentadas na literatura para diversas infecções respiratórias graves.
 
-[Inferência] Maior letalidade no sexo masculino, quando observada, pode estar associada a maior prevalência de comorbidades, comportamentos de saúde distintos (como menor adesão ao cuidado preventivo) ou diferenças imunológicas. Essa interpretação está baseada em padrões descritos na literatura — **não pode ser confirmada com os dados do SIVEP-Gripe isoladamente**, que não registra essas variáveis de forma estruturada.
+Maior letalidade no sexo masculino, quando observada, pode estar associada a maior prevalência de comorbidades, comportamentos de saúde distintos (como menor adesão ao cuidado preventivo) ou diferenças imunológicas. Essa interpretação está baseada em padrões descritos na literatura — **não pode ser confirmada com os dados do SIVEP-Gripe isoladamente**, que não registra essas variáveis de forma estruturada.
 
 **Referência:** Peckham H et al. *Male sex identified by global COVID-19 meta-analysis as a risk factor for death and ITU admission*. Nat Commun. 2020;11(1):6317.
 
@@ -243,7 +243,7 @@ Mostra a proporção de casos internados em UTI dentro de cada faixa etária. O 
 
 A completitude desse campo deve ser verificada na seção 1. Registros com UTI = "ignorado" são tratados como ausentes e não entram no numerador.
 
-[Inferência] Faixas etárias com alta proporção de UTI e alta letalidade simultaneamente sugerem que, mesmo com suporte intensivo, a evolução foi desfavorável. Essa leitura é descritiva e não substitui análise clínica individualizada.
+Faixas etárias com alta proporção de UTI e alta letalidade simultaneamente sugerem que, mesmo com suporte intensivo, a evolução foi desfavorável. Essa leitura é descritiva e não substitui análise clínica individualizada.
 
 ```{r uti-faixa, fig.width=12, fig.height=6}
 gD08
@@ -255,7 +255,7 @@ Os gráficos anteriores mostram **números absolutos** — que dependem do taman
 
 O denominador é a população residente estimada pelo Ministério da Saúde por município, sexo e idade (DATASUS), somada para os municípios da 15ª RS. Como a população é publicada por ano de idade, a faixa de menores de 1 ano não é subdividida em meses.
 
-[Inferência] Taxas mais altas nos extremos de idade — crianças pequenas e idosos — são o padrão esperado para SRAG e coincidem com os grupos de risco do Guia de Manejo e Tratamento de Influenza. Diferenças entre os sexos na mesma faixa podem refletir comorbidades, exposição ou procura por atendimento, e não podem ser explicadas apenas com estes dados.
+Taxas mais altas nos extremos de idade — crianças pequenas e idosos — são o padrão esperado para SRAG e coincidem com os grupos de risco do Guia de Manejo e Tratamento de Influenza. Diferenças entre os sexos na mesma faixa podem refletir comorbidades, exposição ou procura por atendimento, e não podem ser explicadas apenas com estes dados.
 
 ```{r taxas-faixa, fig.width=12, fig.height=9}
 if (!is.null(gD08b)) gD08b
@@ -345,7 +345,7 @@ tabela_trat_desfecho %>%
 if (!is.null(gD10c)) gD10c
 ```
 
-[Inferência] Uma proporção menor de tratamento — ou um início mais tardio — entre os óbitos do que entre os curados é compatível com o benefício do oseltamivir precoce descrito na literatura. A comparação é apenas descritiva: os óbitos tendem a ser mais idosos e com mais comorbidades, e casos muito graves podem ter morrido antes de o tratamento ser registrado. Por isso, a diferença entre os grupos **não mede o efeito do antiviral**.
+Uma proporção menor de tratamento — ou um início mais tardio — entre os óbitos do que entre os curados é compatível com o benefício do oseltamivir precoce descrito na literatura. A comparação é apenas descritiva: os óbitos tendem a ser mais idosos e com mais comorbidades, e casos muito graves podem ter morrido antes de o tratamento ser registrado. Por isso, a diferença entre os grupos **não mede o efeito do antiviral**.
 
 #### Todos os casos de SRAG
 
@@ -361,7 +361,7 @@ if (!is.null(av_srag$g_oport)) av_srag$g_oport
 
 :::
 
-[Inferência] Proporção baixa de tratamento entre os casos de influenza, ou início tardio (após 48 h), pode refletir atraso na suspeita clínica, procura tardia pelo serviço de saúde ou indisponibilidade do medicamento. A data de início do antiviral pode ser anterior à internação quando o tratamento começou na atenção ambulatorial.
+Proporção baixa de tratamento entre os casos de influenza, ou início tardio (após 48 h), pode refletir atraso na suspeita clínica, procura tardia pelo serviço de saúde ou indisponibilidade do medicamento. A data de início do antiviral pode ser anterior à internação quando o tratamento começou na atenção ambulatorial.
 
 ::: {.callout-note collapse="true"}
 ## Indicação e posologia do fosfato de oseltamivir (Tamiflu®) — Guia MS 2023
@@ -427,7 +427,7 @@ O campo `VACINA` registra se o paciente recebeu a vacina contra gripe na última
 
 A vacina contra influenza é oferecida anualmente aos grupos prioritários, que coincidem em grande parte com os grupos de risco para complicações (idosos, crianças pequenas, gestantes, puérperas e pessoas com comorbidades).
 
-[Inferência] Uma proporção alta de não vacinados entre casos e óbitos por influenza é compatível com a proteção conferida pela vacina contra formas graves e reforça a importância da vacinação dos grupos prioritários. Essa comparação é apenas descritiva: **não mede a efetividade da vacina**, que exige comparação com a população não doente e ajuste por idade e comorbidades.
+Uma proporção alta de não vacinados entre casos e óbitos por influenza é compatível com a proteção conferida pela vacina contra formas graves e reforça a importância da vacinação dos grupos prioritários. Essa comparação é apenas descritiva: **não mede a efetividade da vacina**, que exige comparação com a população não doente e ajuste por idade e comorbidades.
 
 ```{r vacina-influenza, fig.width=11, fig.height=4}
 gD11b
@@ -443,7 +443,7 @@ Diferente da letalidade (que mede mortes entre os casos encerrados), a mortalida
 
 Municípios menores tendem a apresentar maior variabilidade nas taxas: pequenas diferenças absolutas no número de óbitos resultam em variações percentuais expressivas. Um município com 2.000 habitantes e 2 óbitos terá taxa de 100/100k — o que não significa necessariamente pior desempenho assistencial.
 
-[Inferência] Municípios com mortalidade consistentemente acima da média regional podem ter características populacionais (maior proporção de idosos, maior prevalência de comorbidades) ou assistenciais (acesso limitado a UTI, distância de hospitais de referência) que explicam o padrão. Essa hipótese não pode ser confirmada com os dados do SIVEP-Gripe isoladamente.
+Municípios com mortalidade consistentemente acima da média regional podem ter características populacionais (maior proporção de idosos, maior prevalência de comorbidades) ou assistenciais (acesso limitado a UTI, distância de hospitais de referência) que explicam o padrão. Essa hipótese não pode ser confirmada com os dados do SIVEP-Gripe isoladamente.
 
 ```{r mortalidade-municipio, fig.width=12, fig.height=10}
 gD12
@@ -481,14 +481,6 @@ tabela_resumo_mun %>%
     font_size  = 13
   )
 ```
-
----
-
-::: {.callout-note}
-**Sobre os rótulos nesta página**
-
-Trechos marcados com **[Inferência]** apresentam interpretações plausíveis baseadas em padrões descritos na literatura científica, mas que não podem ser confirmadas apenas com os dados do SIVEP-Gripe disponíveis neste painel. Trechos sem rótulo descrevem o que os dados mostram diretamente.
-:::
 
 ---
 

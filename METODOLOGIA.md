@@ -124,7 +124,7 @@ A página de estatística descritiva acrescenta:
 - tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.2);
 - mortalidade por município, com tabela-resumo municipal.
 
-As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são sinalizadas no painel como **[Inferência]**.
+As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são redigidas no painel como hipóteses ("pode indicar", "é compatível com"), separadas da descrição dos resultados.
 
 ## 8. Modelagem
 
@@ -200,6 +200,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Removidos do painel os rótulos "[Inferência]" e o quadro que os explicava; as interpretações seguem redigidas como hipóteses. |
 | 03/10/2026 | Antiviral: tabela e gráfico do tratamento e do tempo até o antiviral entre óbitos e curados de influenza confirmada. |
 | 03/10/2026 | Oportunidade de digitação por unidade notificadora (seção 6.2): cadeia de tempos até a digitação, série mensal e tabela por unidade, com corte de 30 dias de acompanhamento para evitar o viés de casos ainda não digitados. |
 | 03/10/2026 | Nowcasting implementado (seção 8.1): triângulo de notificação com regressão binomial negativa, D = 4, janela de 26 semanas, intervalo de predição de 95% por simulação e validação retrospectiva em 20 cortes, publicados na aba "Estimativa (nowcasting)" do painel. |

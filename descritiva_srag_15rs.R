@@ -83,7 +83,7 @@ gD01 <- ggplot(completitude,
   scale_fill_gradient(low = "#d73027", high = "#1a9850", limits = c(0, 100), guide = "none") +
   labs(
     title    = paste0("Completitude das Variáveis-Chave — ", escopo_titulo),
-    subtitle = paste0("N = ", format(nrow(base_filtrada), big.mark = "."),
+    subtitle = paste0("N = ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","),
                       " | Linha tracejada = referência 80%"),
     x = "% de registros preenchidos", y = NULL,
     caption  = texto_rodape
@@ -129,7 +129,7 @@ gD02 <- ggplot(oportunidade, aes(x = dias_sin_notif)) +
   labs(
     title    = paste0("Oportunidade de Notificação — ", escopo_titulo),
     subtitle = paste0("Dias entre início dos sintomas e notificação | N = ",
-                      format(n_op, big.mark = "."),
+                      format(n_op, big.mark = ".", decimal.mark = ","),
                       " | Mediana: ", med_op, " dias",
                       " | P25–P75: ", p25_op, "–", p75_op, " dias"),
     x = "Dias (sintomas → notificação)", y = "Número de casos",
@@ -223,7 +223,7 @@ if (nrow(freq_comorbidade) > 0) {
     scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
     labs(
       title    = paste0("Comorbidades — Frequência Total — ", escopo_titulo),
-      subtitle = paste0("N = ", format(nrow(base_filtrada), big.mark = "."),
+      subtitle = paste0("N = ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","),
                         " notificações | % sobre o total de registros"),
       x = "Número de casos", y = NULL,
       caption = texto_rodape
@@ -422,7 +422,7 @@ gD09 <- ggplot(criterio_conf,
   scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
   labs(
     title    = paste0("Critério de Confirmação — SRAG Confirmado — ", escopo_titulo,
-                      " (N = ", format(n_crit, big.mark = "."), ")"),
+                      " (N = ", format(n_crit, big.mark = ".", decimal.mark = ","), ")"),
     subtitle = "Somente casos com classificação final confirmada (CLASSI_FIN = 1, 2, 3 ou 5)",
     x = "Casos confirmados", y = NULL,
     caption = texto_rodape
@@ -458,7 +458,7 @@ gD10 <- ggplot(antiviral_dist,
   scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
   labs(
     title    = paste0("Uso de Antiviral — ", escopo_titulo,
-                      " (N = ", format(nrow(base_filtrada), big.mark = "."), ")"),
+                      " (N = ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","), ")"),
     x = "Número de casos", y = NULL,
     caption = texto_rodape
   ) +
@@ -493,7 +493,7 @@ gD11 <- ggplot(vacinal_dist,
   scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
   labs(
     title    = paste0("Status Vacinal contra COVID-19 — ", escopo_titulo,
-                      " (N = ", format(nrow(base_filtrada), big.mark = "."), ")"),
+                      " (N = ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","), ")"),
     subtitle = "[Não verificado] Completitude deste campo varia muito por período e município.",
     x = "Número de casos", y = NULL,
     caption = texto_rodape
@@ -521,7 +521,7 @@ gD12 <- casos_municipio %>%
   scale_x_continuous(expand = expansion(mult = c(0, 0.3))) +
   labs(
     title    = paste0("Mortalidade por SRAG por Município — 15ª RS Maringá",
-                      " (N = ", format(sum(casos_municipio$obitos_srag), big.mark = "."), " óbitos)"),
+                      " (N = ", format(sum(casos_municipio$obitos_srag), big.mark = ".", decimal.mark = ","), " óbitos)"),
     subtitle = paste0("Por 100.000 habitantes | Pop. IBGE 2025",
                       " | Ano(s): ", paste(anos_carregar, collapse = ", ")),
     x = "Mortalidade por 100.000 hab.", y = "Município",

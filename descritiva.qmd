@@ -237,7 +237,7 @@ tabela_resumo_mun %>%
     `Letalidade (%)`       = letalidade_pct,
     `UTI (%)`              = pct_uti
   ) %>%
-  knitr::kable(format.args = list(big.mark = ".")) %>%
+  knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
   kableExtra::kable_styling(
     bootstrap_options = c("striped", "hover", "condensed"),
     full_width = TRUE,

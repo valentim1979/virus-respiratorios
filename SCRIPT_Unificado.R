@@ -113,7 +113,7 @@ municipios_15rs <- tibble::tribble(
 POPULACAO_15RS_TOTAL <- sum(municipios_15rs$populacao_2025)
 
 message("Municípios: ", nrow(municipios_15rs),
-        " | Pop. total: ", format(POPULACAO_15RS_TOTAL, big.mark = "."))
+        " | Pop. total: ", format(POPULACAO_15RS_TOTAL, big.mark = ".", decimal.mark = ","))
 
 
 # ==============================================================================
@@ -368,7 +368,7 @@ if (length(lista_bases) == 0) stop("Nenhuma base carregada. Verifique a conexão
 base_completa <- bind_rows(lista_bases)
 names(base_completa) <- toupper(names(base_completa))
 
-message("Total de registros: ", format(nrow(base_completa), big.mark = "."))
+message("Total de registros: ", format(nrow(base_completa), big.mark = ".", decimal.mark = ","))
 
 base_completa <- base_completa %>%
   mutate(
@@ -412,8 +412,8 @@ if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE))) {
 anos_contexto <- setdiff(as.character(anos_curva), as.character(anos_carregar))
 
 message("Escopo    : ", escopo_titulo)
-message("Registros : ", format(nrow(base_filtrada), big.mark = "."))
-message("Pop. IBGE : ", format(POPULACAO_ESCOPO, big.mark = "."))
+message("Registros : ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","))
+message("Pop. IBGE : ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ","))
 
 
 # ==============================================================================
@@ -442,7 +442,7 @@ if (length(anos_virus_historico) > 0) {
     )
     message("[OK] base_15rs_historica: ",
             n_distinct(base_15rs_historica$ANO_BASE), " anos | ",
-            format(nrow(base_15rs_historica), big.mark = "."), " registros")
+            format(nrow(base_15rs_historica), big.mark = ".", decimal.mark = ","), " registros")
   } else {
     base_15rs_historica <- base_15rs_completa
     message("  [aviso] Nenhum ano histórico adicional encontrado.")
@@ -506,7 +506,7 @@ if (nrow(casos_semana_ano) > 0) {
   espessuras    <- setNames(ifelse(todos_anos %in% anos_destaque, 2.2, 0.9), todos_anos)
 
   n_por_ano  <- casos_semana_ano %>% group_by(Ano) %>% summarise(n = sum(Total), .groups = "drop")
-  rotulos    <- setNames(paste0(n_por_ano$Ano, "  (N = ", format(n_por_ano$n, big.mark = "."), ")"),
+  rotulos    <- setNames(paste0(n_por_ano$Ano, "  (N = ", format(n_por_ano$n, big.mark = ".", decimal.mark = ","), ")"),
                          n_por_ano$Ano)
 
   g06 <- ggplot(casos_semana_ano,
@@ -619,7 +619,7 @@ if (length(anos_historico) < 2) {
     scale_y_continuous(expand = expansion(mult = c(0, 0.18))) +
     labs(
       title    = paste0("Canal Endêmico de SRAG — ", escopo_titulo,
-                        " (", ano_atual, " | N = ", format(n_atual, big.mark = "."), ")"),
+                        " (", ano_atual, " | N = ", format(n_atual, big.mark = ".", decimal.mark = ","), ")"),
       subtitle = paste0(
         "Zona verde = esperado (P25–P75)  |  Zona amarela = alerta (P75–P90)  |  Acima = epidêmico (> P90)\n",
         "Referência pós-pandêmica: ", label_ref, " (", n_anos_ref, " anos)  |  ",
@@ -654,10 +654,10 @@ g07 <- ggplot(casos_semana, aes(x = factor(SEM_NOT), y = total)) +
   geom_text(aes(label = total), vjust = -0.5, size = 3.2) +
   labs(
     title    = paste0("SRAG por Semana Epidemiológica — ", escopo_titulo,
-                      " (N = ", format(n_semana, big.mark = "."), ")"),
-    subtitle = paste0("N = ", format(n_semana, big.mark = "."),
+                      " (N = ", format(n_semana, big.mark = ".", decimal.mark = ","), ")"),
+    subtitle = paste0("N = ", format(n_semana, big.mark = ".", decimal.mark = ","),
                       " | Taxa: ", incid_100k, " por 100.000 hab.",
-                      " | Pop. IBGE 2025: ", format(POPULACAO_ESCOPO, big.mark = ".")),
+                      " | Pop. IBGE 2025: ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ",")),
     x = "Semana Epidemiológica", y = "Notificações", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -728,8 +728,8 @@ g08 <- ggplot(confirmados_semana, aes(x = factor(SEM_NOT), y = total)) +
   geom_text(aes(label = total), vjust = -0.5, size = 3.2) +
   labs(
     title    = paste0("SRAG Confirmado por Semana Epidemiológica — ", escopo_titulo,
-                      " (N = ", format(n_conf, big.mark = "."), ")"),
-    subtitle = paste0("N = ", format(n_conf, big.mark = ".")),
+                      " (N = ", format(n_conf, big.mark = ".", decimal.mark = ","), ")"),
+    subtitle = paste0("N = ", format(n_conf, big.mark = ".", decimal.mark = ",")),
     x = "Semana Epidemiológica", y = "Casos Confirmados", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -753,9 +753,9 @@ g09 <- casos_municipio %>%
   scale_x_continuous(expand = expansion(mult = c(0, 0.25))) +
   labs(
     title    = paste0("Taxa de Incidência de SRAG por Município — 15ª RS Maringá",
-                      " (N = ", format(sum(casos_municipio$casos), big.mark = "."), ")"),
+                      " (N = ", format(sum(casos_municipio$casos), big.mark = ".", decimal.mark = ","), ")"),
     subtitle = paste0("Por 100.000 habitantes | Pop. IBGE 2025",
-                      " | Pop. total: ", format(POPULACAO_15RS_TOTAL, big.mark = "."),
+                      " | Pop. total: ", format(POPULACAO_15RS_TOTAL, big.mark = ".", decimal.mark = ","),
                       " | Ano(s): ", paste(anos_carregar, collapse = ", ")),
     x = "Incidência por 100.000 hab.", y = "Município", caption = texto_rodape
   ) +
@@ -795,11 +795,11 @@ if ("ID_REGIONA" %in% names(base_pr) && nrow(base_pr) > 0) {
   g10 <- ggplot(casos_regional,
                 aes(x = total, y = fct_reorder(ID_REGIONA, total))) +
     geom_col(fill = "#0057A3") +
-    geom_text(aes(label = format(total, big.mark = ".")), hjust = -0.1, size = 3) +
+    geom_text(aes(label = format(total, big.mark = ".", decimal.mark = ",")), hjust = -0.1, size = 3) +
     scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
     labs(
       title    = paste0("Notificações de SRAG por Regional de Saúde — Paraná",
-                        " (N = ", format(n_pr, big.mark = "."), ")"),
+                        " (N = ", format(n_pr, big.mark = ".", decimal.mark = ","), ")"),
       subtitle = paste(anos_carregar, collapse = ", "),
       x = "Total de Notificações", y = "Regional de Saúde", caption = texto_rodape
     ) +
@@ -829,7 +829,7 @@ g11 <- ggplot(casos_sexo, aes(x = total, y = sexo, fill = sexo)) +
   scale_fill_manual(values = c("Masculino" = "#0057A3", "Feminino" = "#E91E8C")) +
   labs(
     title    = paste0("Distribuição por Sexo — ", escopo_titulo,
-                      " (N = ", format(n_sexo, big.mark = "."), ")"),
+                      " (N = ", format(n_sexo, big.mark = ".", decimal.mark = ","), ")"),
     x = "Notificações", y = NULL, fill = "Sexo", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -866,7 +866,7 @@ g12 <- ggplot(casos_class,
   scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     title    = paste0("Classificação Final — ", escopo_titulo,
-                      " (N = ", format(n_class, big.mark = "."), ")"),
+                      " (N = ", format(n_class, big.mark = ".", decimal.mark = ","), ")"),
     x = "Total de Notificações", y = "Classificação", caption = texto_rodape
   ) +
   theme_minimal()
@@ -908,7 +908,7 @@ g13 <- ggplot(circulacao_viral,
   scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     title    = paste0("Vírus Identificados por RT-PCR — ", escopo_titulo,
-                      " (N = ", format(n_viral, big.mark = "."), ")"),
+                      " (N = ", format(n_viral, big.mark = ".", decimal.mark = ","), ")"),
     x = "Casos Positivos", y = "Vírus", caption = texto_rodape
   ) +
   theme_minimal()
@@ -950,7 +950,7 @@ if (nrow(virus_semanal) > 0) {
     scale_color_brewer(palette = "Set1") +
     labs(
       title    = paste0("Tendência Semanal de Vírus Respiratórios — ", escopo_titulo,
-                        " (N = ", format(n_semanal, big.mark = "."), ")"),
+                        " (N = ", format(n_semanal, big.mark = ".", decimal.mark = ","), ")"),
       subtitle = "Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus",
       x = "Semana Epidemiológica", y = "Casos Positivos",
       color = "Vírus", caption = texto_rodape
@@ -1080,7 +1080,7 @@ if (nrow(influenza_tipos) > 0) {
     scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
     labs(
       title    = paste0("Tipos e Linhagens de Influenza (RT-PCR) — ", escopo_titulo,
-                        " (N = ", format(n_inf, big.mark = "."), ")"),
+                        " (N = ", format(n_inf, big.mark = ".", decimal.mark = ","), ")"),
       x = "Total de Casos", y = "Classificação", caption = texto_rodape
     ) +
     theme_minimal()
@@ -1230,8 +1230,8 @@ g16 <- ggplot(faixa_combinada, aes(x = n, y = faixa_etaria, fill = status)) +
   scale_fill_manual(values = c("Notificados" = "#0057A3", "Confirmados" = "#1A5C38")) +
   labs(
     title    = paste0("Faixa Etária: Notificados vs Confirmados — ", escopo_titulo,
-                      " (Notif.: ", format(n_notif_fe, big.mark = "."),
-                      " | Conf.: ", format(n_conf_fe, big.mark = "."), ")"),
+                      " (Notif.: ", format(n_notif_fe, big.mark = ".", decimal.mark = ","),
+                      " | Conf.: ", format(n_conf_fe, big.mark = ".", decimal.mark = ","), ")"),
     x = "Quantidade", y = "Faixa Etária", fill = "Status", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -1263,7 +1263,7 @@ g17 <- ggplot(piramide_notif, aes(x = faixa_etaria, y = value, fill = sexo)) +
   scale_fill_manual(values = c("Masculino" = "#0057A3", "Feminino" = "#E91E8C")) +
   labs(
     title   = paste0("Pirâmide Etária — Notificados — ", escopo_titulo,
-                     " (N = ", format(n_piramide_notif, big.mark = "."), ")"),
+                     " (N = ", format(n_piramide_notif, big.mark = ".", decimal.mark = ","), ")"),
     x = "Faixa Etária", y = "Número de Casos", fill = "Sexo", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -1297,7 +1297,7 @@ if (nrow(piramide_obitos) > 0) {
     scale_fill_manual(values = c("Masculino" = "#0057A3", "Feminino" = "#E91E8C")) +
     labs(
       title   = paste0("Pirâmide Etária — Óbitos — ", escopo_titulo,
-                       " (N = ", format(n_piramide_obitos, big.mark = "."), ")"),
+                       " (N = ", format(n_piramide_obitos, big.mark = ".", decimal.mark = ","), ")"),
       x = "Faixa Etária", y = "Número de Óbitos", fill = "Sexo", caption = texto_rodape
     ) +
     theme_minimal() +
@@ -1333,7 +1333,7 @@ g19 <- ggplot(casos_evolucao,
   scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     title   = paste0("Casos por Evolução (Desfecho) — ", escopo_titulo,
-                     " (N = ", format(n_evol, big.mark = "."), ")"),
+                     " (N = ", format(n_evol, big.mark = ".", decimal.mark = ","), ")"),
     x = "Número de Casos", y = "Evolução", caption = texto_rodape
   ) +
   theme_minimal()
@@ -1368,7 +1368,7 @@ g20 <- ggplot(casos_raca,
   scale_x_continuous(expand = expansion(mult = c(0, 0.15))) +
   labs(
     title   = paste0("Casos por Raça/Cor — ", escopo_titulo,
-                     " (N = ", format(n_raca, big.mark = "."), ")"),
+                     " (N = ", format(n_raca, big.mark = ".", decimal.mark = ","), ")"),
     x = "Número de Casos", y = "Raça/Cor", caption = texto_rodape
   ) +
   theme_minimal()
@@ -1548,7 +1548,7 @@ if (is.na(col_estab)) {
   )
 
   message("Dados por estabelecimento exportados (Paraná): ",
-          format(nrow(casos_estabelecimento), big.mark = "."), " linhas, ",
+          format(nrow(casos_estabelecimento), big.mark = ".", decimal.mark = ","), " linhas, ",
           n_distinct(casos_estabelecimento$ESTABELECIMENTO), " estabelecimentos, ",
           n_distinct(casos_estabelecimento$REGIONAL), " regionais.")
 
@@ -1603,7 +1603,7 @@ if (is.na(col_estab)) {
     )
 
     message("Circulação viral por estabelecimento exportada: ",
-            format(nrow(circulacao_viral_estab), big.mark = "."), " linhas.")
+            format(nrow(circulacao_viral_estab), big.mark = ".", decimal.mark = ","), " linhas.")
   }
 }
 
@@ -1621,11 +1621,11 @@ message("RESUMO")
 message(strrep("=", 60))
 message("Escopo              : ", escopo_titulo)
 message("Ano(s) analisados   : ", paste(anos_carregar, collapse = ", "))
-message("Pop. IBGE 2025      : ", format(POPULACAO_ESCOPO, big.mark = "."))
-message("Total notificações  : ", format(nrow(base_filtrada), big.mark = "."))
+message("Pop. IBGE 2025      : ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ","))
+message("Total notificações  : ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","))
 message("Tx notif. /100k hab.: ", round(nrow(base_filtrada) / POPULACAO_ESCOPO * 100000, 1))
-message("Confirmados PCR     : ", format(n_pcr_pos, big.mark = "."))
-message("Óbitos (EVOLUCAO=2) : ", format(n_obitos, big.mark = "."))
+message("Confirmados PCR     : ", format(n_pcr_pos, big.mark = ".", decimal.mark = ","))
+message("Óbitos (EVOLUCAO=2) : ", format(n_obitos, big.mark = ".", decimal.mark = ","))
 message("Letalidade          : ", letalidade, "%")
 message("Saída               : ", DIR_GRAFICOS)
 message(strrep("=", 60))

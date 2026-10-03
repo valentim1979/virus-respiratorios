@@ -567,8 +567,266 @@ Importante
 </div>
 </div>
 </section>
-<section id="b.-sintomas-notificação" class="level3">
-<h3 class="anchored" data-anchor-id="b.-sintomas-notificação">2b. Sintomas → Notificação</h3>
+<section id="b.-digitação-no-sivep-gripe-por-unidade-notificadora" class="level3">
+<h3 class="anchored" data-anchor-id="b.-digitação-no-sivep-gripe-por-unidade-notificadora">2b. Digitação no SIVEP-Gripe por Unidade Notificadora</h3>
+<p>Depois de notificado, o caso precisa ser <strong>digitado no SIVEP-Gripe</strong> para aparecer nos dados da vigilância. Esta seção mede o tempo entre a data da notificação e a data da digitação, para os casos notificados pelas unidades da 15ª RS no ano — inclusive de pacientes residentes em outras regionais, já que é a unidade notificadora quem digita.</p>
+<p>A base do SIVEP-Gripe só contém casos <strong>já digitados</strong> — notificações recentes que ainda não foram digitadas (justamente as mais atrasadas) não aparecem nela. Para não favorecer os meses recentes, esta seção considera apenas as notificações feitas até <strong>02/09/2026</strong>, 30 dias antes da digitação mais recente da base.</p>
+<p>O quadro abaixo mostra quanto tempo leva cada etapa, do início dos sintomas até o caso estar disponível no sistema (mediana e tempo em que 90% dos casos já tinham passado pela etapa):</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Etapa</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Casos</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mediana (dias)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">90% dos casos em até (dias)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Início dos sintomas → internação</td>
+<td style="text-align: right;">1.404</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Internação → notificação</td>
+<td style="text-align: right;">1.332</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Notificação → digitação no SIVEP-Gripe</td>
+<td style="text-align: right;">1.412</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Início dos sintomas → digitação (total)</td>
+<td style="text-align: right;">1.414</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">14</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>A maior parte do tempo entre o início dos sintomas e a entrada do caso no sistema costuma estar <strong>antes da internação</strong>, e não na digitação. Mesmo assim, atrasos de digitação concentrados em algumas unidades fazem as semanas recentes do painel parecerem menores do que são (ver a aba “Estimativa (nowcasting)” na página principal).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="descritiva_files/figure-html/digitacao-mes-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="descritiva_files/figure-html/digitacao-mes-1.png" class="img-fluid figure-img" width="1152"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Por unidade notificadora</strong> — ordenadas da menor para a maior proporção de casos digitados em até 1 dia. Unidades com menos de 5 casos no ano estão agrupadas.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Unidade notificadora</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Município</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Casos</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mediana (dias)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">90% em até (dias)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Até 1 dia (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Até 7 dias (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mais de 30 dias</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">UPA 24 HS GUSTAVO FARIAS</td>
+<td style="text-align: left;">Sarandi</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">2,0</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">22,2</td>
+<td style="text-align: right;">55,6</td>
+<td style="text-align: right; font-weight: bold; color: rgba(163, 0, 0, 1) !important;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UNIDADE DE PRONTO ATENDIMENTO UPA ZONA NORTE</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">2,0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">38,0</td>
+<td style="text-align: right;">97,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">METROPOLITANA DE SARANDI</td>
+<td style="text-align: left;">Sarandi</td>
+<td style="text-align: right;">313</td>
+<td style="text-align: right;">2,0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">38,7</td>
+<td style="text-align: right;">98,4</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PRONTO ATENDIMENTO DA CRIANCA PAC</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">251</td>
+<td style="text-align: right;">2,0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">41,0</td>
+<td style="text-align: right;">97,6</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSPITAL REGIONAL CRISTO REI</td>
+<td style="text-align: left;">Astorga</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1,5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">50,0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HOSPITAL MEMORIAL UNINGA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">1,0</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">55,6</td>
+<td style="text-align: right;">66,7</td>
+<td style="text-align: right; font-weight: bold; color: rgba(163, 0, 0, 1) !important;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSP MUN E REG SAGRADO CORACAO DE JESUS NOVA ESPERANCA</td>
+<td style="text-align: left;">Nova Esperanca</td>
+<td style="text-align: right;">121</td>
+<td style="text-align: right;">1,0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">57,0</td>
+<td style="text-align: right;">99,2</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HOSPITAL MUNICIPAL DE MARINGA THELMA VILLANOVA KASPROWICZ</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">1,0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">65,6</td>
+<td style="text-align: right;">96,9</td>
+<td style="text-align: right; font-weight: bold; color: rgba(163, 0, 0, 1) !important;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSPITAL E MATERNIDADE SAO MARCOS</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">70,6</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HOSPITAL E MATERNIDADE SANTA CLARA</td>
+<td style="text-align: left;">Colorado</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">1,0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">72,2</td>
+<td style="text-align: right;">99,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SANTA CASA DE MARINGA HOSPITAL E MAT M AUXILIADORA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">85</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">80,0</td>
+<td style="text-align: right;">98,8</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UNIDADE DE PRONTO ATENDIMENTO UPA ZONA SUL</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">86,9</td>
+<td style="text-align: right;">99,3</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSPITAL DA CRIANCA DE MARINGA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">88,5</td>
+<td style="text-align: right;">90,4</td>
+<td style="text-align: right; font-weight: bold; color: rgba(163, 0, 0, 1) !important;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HOSPITAL BOM SAMARITANO DE MARINGA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSPITAL UNIVERSITARIO REGIONAL DE MARINGA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HOSPITAL SANTA RITA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HOSPITAL PARANA</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Outras unidades (&lt; 5 casos cada)</td>
+<td style="text-align: left;">Floresta, Maringa</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">2,0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">33,3</td>
+<td style="text-align: right;">100,0</td>
+<td style="text-align: right; color: black !important;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>[Inferência] Unidades com mediana acima de 1 dia ou com casos digitados mais de 30 dias após a notificação podem ter sobrecarga da equipe de digitação, fichas preenchidas em papel e digitadas em lote, ou digitação retroativa após o desfecho. Essas hipóteses precisam ser verificadas com cada serviço.</p>
+</section>
+<section id="c.-sintomas-notificação" class="level3">
+<h3 class="anchored" data-anchor-id="c.-sintomas-notificação">2c. Sintomas → Notificação</h3>
 <p>A oportunidade de notificação mede o tempo (em dias) entre o início dos sintomas e o registro do caso no SIVEP-Gripe. Intervalos curtos indicam detecção precoce — fundamental para que a vigilância epidemiológica possa acionar medidas de resposta em tempo hábil.</p>
 <p>O Ministério da Saúde define como referência de oportunidade adequada a notificação realizada em até <strong>7 dias</strong> após o início dos sintomas. A mediana abaixo desse limiar é um indicador de desempenho do sistema de vigilância.</p>
 <p>Valores elevados podem refletir atraso no reconhecimento clínico do caso, dificuldade de acesso ao sistema de notificação, ou digitação retrospectiva após o desfecho.</p>
@@ -577,14 +835,14 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/oportunidade-notif-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="descritiva_files/figure-html/oportunidade-notif-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/oportunidade-notif-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="descritiva_files/figure-html/oportunidade-notif-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="c.-internação-desfecho" class="level3">
-<h3 class="anchored" data-anchor-id="c.-internação-desfecho">2c. Internação → Desfecho</h3>
+<section id="d.-internação-desfecho" class="level3">
+<h3 class="anchored" data-anchor-id="d.-internação-desfecho">2d. Internação → Desfecho</h3>
 <p>Este gráfico mostra o tempo entre a internação e o desfecho — separado entre cura e óbito por SRAG. Distribuições com cauda longa à direita são esperadas em casos graves com complicações.</p>
 <p>[Inferência] Tempos medianos de internação até óbito consistentemente menores do que os de cura podem indicar maior gravidade na apresentação clínica dos casos fatais, com progressão rápida da doença. Essa interpretação baseia-se em padrões descritos na literatura sobre SRAG grave, mas <strong>não pode ser confirmada apenas com os dados do SIVEP-Gripe</strong>, que não registra detalhes clínicos evolutivos.</p>
 <p><strong>Referência:</strong> Ranzani OT et al.&nbsp;<em>Characterisation of the first 250 000 hospital admissions for COVID-19 in Brazil: a retrospective analysis of nationwide data</em>. Lancet Respir Med. 2021;9(4):407–418.</p>
@@ -592,7 +850,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/oportunidade-desf-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="descritiva_files/figure-html/oportunidade-desf-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/oportunidade-desf-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="descritiva_files/figure-html/oportunidade-desf-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -612,7 +870,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/comorbidades-total-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="descritiva_files/figure-html/comorbidades-total-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/comorbidades-total-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="descritiva_files/figure-html/comorbidades-total-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -627,7 +885,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/comorbidades-obitos-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="descritiva_files/figure-html/comorbidades-obitos-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/comorbidades-obitos-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="descritiva_files/figure-html/comorbidades-obitos-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -647,7 +905,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/letalidade-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="descritiva_files/figure-html/letalidade-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/letalidade-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="descritiva_files/figure-html/letalidade-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -672,7 +930,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/letalidade-sexo-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="descritiva_files/figure-html/letalidade-sexo-1.png" class="img-fluid figure-img" width="768"></a></p>
+<p><a href="descritiva_files/figure-html/letalidade-sexo-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="descritiva_files/figure-html/letalidade-sexo-1.png" class="img-fluid figure-img" width="768"></a></p>
 </figure>
 </div>
 </div>
@@ -687,7 +945,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/uti-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="descritiva_files/figure-html/uti-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/uti-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="descritiva_files/figure-html/uti-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -702,7 +960,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/taxas-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="descritiva_files/figure-html/taxas-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/taxas-faixa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="descritiva_files/figure-html/taxas-faixa-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -711,7 +969,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/piramide-taxa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="descritiva_files/figure-html/piramide-taxa-1.png" class="img-fluid figure-img" width="1056"></a></p>
+<p><a href="descritiva_files/figure-html/piramide-taxa-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="descritiva_files/figure-html/piramide-taxa-1.png" class="img-fluid figure-img" width="1056"></a></p>
 </figure>
 </div>
 </div>
@@ -876,7 +1134,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/criterio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="descritiva_files/figure-html/criterio-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/criterio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="descritiva_files/figure-html/criterio-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>
@@ -897,7 +1155,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/antiviral-flu-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="descritiva_files/figure-html/antiviral-flu-1.png" class="img-fluid figure-img" width="960"></a></p>
+<p><a href="descritiva_files/figure-html/antiviral-flu-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="descritiva_files/figure-html/antiviral-flu-1.png" class="img-fluid figure-img" width="960"></a></p>
 </figure>
 </div>
 </div>
@@ -906,7 +1164,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
+<p><a href="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
 </figure>
 </div>
 </div>
@@ -918,7 +1176,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/antiviral-srag-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="descritiva_files/figure-html/antiviral-srag-1.png" class="img-fluid figure-img" width="960"></a></p>
+<p><a href="descritiva_files/figure-html/antiviral-srag-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="descritiva_files/figure-html/antiviral-srag-1.png" class="img-fluid figure-img" width="960"></a></p>
 </figure>
 </div>
 </div>
@@ -927,7 +1185,7 @@ Importante
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
+<p><a href="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
 </figure>
 </div>
 </div>
@@ -1086,7 +1344,7 @@ Aviso
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/vacinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="descritiva_files/figure-html/vacinal-1.png" class="img-fluid figure-img" width="960"></a></p>
+<p><a href="descritiva_files/figure-html/vacinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="descritiva_files/figure-html/vacinal-1.png" class="img-fluid figure-img" width="960"></a></p>
 </figure>
 </div>
 </div>
@@ -1101,7 +1359,7 @@ Aviso
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/vacina-influenza-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="descritiva_files/figure-html/vacina-influenza-1.png" class="img-fluid figure-img" width="1056"></a></p>
+<p><a href="descritiva_files/figure-html/vacina-influenza-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-19"><img src="descritiva_files/figure-html/vacina-influenza-1.png" class="img-fluid figure-img" width="1056"></a></p>
 </figure>
 </div>
 </div>
@@ -1119,7 +1377,7 @@ Aviso
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/mortalidade-municipio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-19"><img src="descritiva_files/figure-html/mortalidade-municipio-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/mortalidade-municipio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-20"><img src="descritiva_files/figure-html/mortalidade-municipio-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>

@@ -717,6 +717,75 @@ if (length(anos_historico) < 2) {
 
 
 # ==============================================================================
+# GRÁFICO 06c — NOWCASTING (CORREÇÃO DO ATRASO DE DIGITAÇÃO)
+# ==============================================================================
+# Modelo e validação em nowcasting.R. Usa os casos do escopo (15ª RS ou o
+# município de MUNICIPIO_ANALISE) de todos os anos carregados, para que a
+# janela de 26 semanas possa atravessar a virada do ano.
+
+source("nowcasting.R")
+
+base_nowcast <- base_15rs_completa %>%
+  { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
+    filter(., CO_MUN_RES == cod_mun) else . }
+data_digitacao_max <- max(parseia_data(substr(
+  base_nowcast$DT_DIGITA[base_nowcast$ANO_BASE == max(anos_carregar)], 1, 10)), na.rm = TRUE)
+
+nowcast_res <- tryCatch(nowcast_srag(base_nowcast, data_digitacao_max),
+                        error = function(e) { message("  [aviso] Nowcasting falhou: ", conditionMessage(e)); NULL })
+nowcast_val <- tryCatch(resumir_validacao(validar_nowcast(base_nowcast, data_digitacao_max)),
+                        error = function(e) { message("  [aviso] Validação do nowcasting falhou: ", conditionMessage(e)); NULL })
+
+if (!is.null(nowcast_res)) {
+  corte_nc <- unique(nowcast_res$data_corte)
+  ultimas  <- tail(nowcast_res, 3)
+  message("Nowcasting — corte ", format(corte_nc, "%d/%m/%Y"), " (SE ", max(nowcast_res$se), "): ",
+          paste0("SE ", ultimas$se, " ", ultimas$observado, " → ", round(ultimas$estimado),
+                 " (", round(ultimas$li_95), "–", round(ultimas$ls_95), ")", collapse = " | "))
+
+  readr::write_csv(
+    nowcast_res %>% transmute(semana_inicio = semana, se, observado,
+                              estimado = round(estimado), ic95_inf = round(li_95), ic95_sup = round(ls_95),
+                              data_corte),
+    file.path("dados", "nowcasting_srag.csv")
+  )
+  if (!is.null(nowcast_val)) {
+    readr::write_csv(nowcast_val, file.path("dados", "nowcasting_validacao.csv"))
+  }
+
+  dados_nc <- nowcast_res %>%
+    mutate(corrigido = estimado - observado > 0.5)
+
+  g06c <- ggplot(dados_nc, aes(x = semana)) +
+    geom_col(aes(y = observado, fill = "Digitados até o corte"), width = 6) +
+    geom_ribbon(data = filter(dados_nc, corrigido | lead(corrigido, default = FALSE)),
+                aes(ymin = li_95, ymax = ls_95, fill = "Intervalo de predição 95%"), alpha = 0.3) +
+    geom_line(aes(y = estimado, color = "Estimativa (nowcasting)"), linewidth = 1) +
+    geom_point(data = filter(dados_nc, corrigido), aes(y = estimado, color = "Estimativa (nowcasting)"), size = 2.5) +
+    geom_text(data = tail(dados_nc, 3),
+              aes(y = ls_95, label = paste0(round(estimado), "\n(", round(li_95), "–", round(ls_95), ")")),
+              vjust = -0.3, size = 2.8, color = "#A30000", lineheight = 0.9) +
+    scale_fill_manual(values = c("Digitados até o corte" = "#9DB9D3", "Intervalo de predição 95%" = "#E57373"), name = NULL) +
+    scale_color_manual(values = c("Estimativa (nowcasting)" = "#A30000"), name = NULL) +
+    scale_x_date(breaks = dados_nc$semana[seq(1, nrow(dados_nc), by = 2)],
+                 labels = paste0("SE ", dados_nc$se[seq(1, nrow(dados_nc), by = 2)])) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    labs(
+      title    = paste0("Nowcasting de SRAG — ", escopo_titulo),
+      subtitle = paste0("Casos por semana de início dos sintomas | Digitações até ",
+                        format(corte_nc, "%d/%m/%Y"), " (fim da SE ", max(dados_nc$se),
+                        ") | Estimativa corrige os casos ainda não digitados"),
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1))
+
+  salvar_grafico(g06c, "06c_nowcasting")
+}
+
+
+# ==============================================================================
 # GRÁFICO 07 — NOTIFICAÇÕES POR SEMANA EPIDEMIOLÓGICA
 # ==============================================================================
 

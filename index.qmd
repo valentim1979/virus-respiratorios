@@ -13,7 +13,7 @@ date-format: "DD/MM/YYYY HH:mm"
 ## Como ler este painel
 
 - **Semana epidemiológica = semana de início dos sintomas** (não a da notificação). Cada caso é contado na semana em que o paciente começou a ter sintomas, o que mostra melhor quando a transmissão aconteceu.
-- **As últimas 2 a 4 semanas estão incompletas.** Casos com sintomas recentes ainda estão sendo internados, notificados e digitados no SIVEP-Gripe. Uma queda no fim das curvas **não significa necessariamente redução de casos** — os números dessas semanas sobem a cada atualização.
+- **As últimas 2 a 4 semanas estão incompletas.** Casos com sintomas recentes ainda estão sendo internados, notificados e digitados no SIVEP-Gripe. Uma queda no fim das curvas **não significa necessariamente redução de casos** — os números dessas semanas sobem a cada atualização. A aba **Estimativa (nowcasting)**, em "Série temporal", mostra o total esperado dessas semanas.
 - **Letalidade = óbitos por SRAG ÷ casos encerrados** (com desfecho registrado: cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada ficam fora do cálculo.
 - **Mortalidade e incidência** são calculadas por 100 mil habitantes (população residente estimada de 2025 — Ministério da Saúde/DATASUS) e permitem comparar municípios de tamanhos diferentes.
 - A data dos dados aparece no rodapé de cada gráfico. A metodologia completa está na página [Sobre](sobre.qmd).
@@ -365,10 +365,58 @@ Circulação viral (RT-PCR) segue os mesmos vírus monitorados nos gráficos ger
 ## Série temporal
 
 ::: {.callout-warning appearance="simple"}
-Séries por **semana de início dos sintomas**. As últimas 2 a 4 semanas ainda vão receber casos (atraso de internação, notificação e digitação) — não interprete a queda no fim da curva como redução real.
+Séries por **semana de início dos sintomas**. As últimas 2 a 4 semanas ainda vão receber casos (atraso de internação, notificação e digitação) — não interprete a queda no fim da curva como redução real. A aba **Estimativa (nowcasting)** mostra quantos casos são esperados nessas semanas depois que toda a digitação for concluída.
 :::
 
 ::: {.panel-tabset}
+
+### Estimativa (nowcasting)
+
+::: {.callout-note}
+**O que é o nowcasting.** Parte dos casos com sintomas nas últimas semanas ainda não foi digitada no SIVEP-Gripe — na 15ª RS, só cerca de 1 em cada 4 casos é digitado na mesma semana do início dos sintomas. O nowcasting usa o padrão de atraso das últimas 26 semanas para **estimar o total de casos de cada semana** depois que toda a digitação for concluída. As barras são os casos já digitados; a linha vermelha é a estimativa, e a faixa rosada é o intervalo de predição de 95% (onde o valor final deve cair em 95% das vezes).
+
+A estimativa vai até a última semana epidemiológica completa (até sábado). Ela é refeita a cada atualização da base e se aproxima dos números finais à medida que os casos são digitados.
+:::
+
+![Nowcasting de SRAG por semana de início dos sintomas — barras: casos já digitados; linha: total estimado; faixa: intervalo de predição de 95%.](graficos/06c_nowcasting.png){.lightbox}
+
+```{ojs}
+//| echo: false
+nowcast = FileAttachment("dados/nowcasting_srag.csv").csv({typed: true})
+nowcast_val = FileAttachment("dados/nowcasting_validacao.csv").csv({typed: true})
+```
+
+```{ojs}
+//| echo: false
+html`<table class="table table-sm" style="max-width:640px">
+  <thead><tr><th>Semana (início dos sintomas)</th><th style="text-align:right">Já digitados</th><th style="text-align:right">Estimativa</th><th style="text-align:right">Intervalo 95%</th></tr></thead>
+  <tbody>${nowcast.slice(-4).map(d => html`<tr>
+    <td>SE ${d.se} (${d3.utcFormat("%d/%m")(d.semana_inicio)})</td>
+    <td style="text-align:right">${d.observado}</td>
+    <td style="text-align:right"><strong>${d.estimado}</strong></td>
+    <td style="text-align:right">${d.ic95_inf}–${d.ic95_sup}</td></tr>`)}</tbody>
+</table>`
+```
+
+::: {.callout-tip collapse="true"}
+## Qual é a precisão da estimativa?
+
+O modelo foi testado refazendo a estimativa em 20 semanas passadas, como se estivéssemos naquele momento, e comparando com o número de casos conhecido hoje. Erro médio, em % do valor final:
+
+```{ojs}
+//| echo: false
+html`<table class="table table-sm" style="max-width:640px">
+  <thead><tr><th>Semana</th><th style="text-align:right">Erro sem correção</th><th style="text-align:right">Erro com nowcasting</th><th style="text-align:right">Valor final dentro do intervalo 95%</th></tr></thead>
+  <tbody>${nowcast_val.map(d => html`<tr>
+    <td>${["Última semana", "Penúltima semana", "Antepenúltima semana"][d.semanas_antes]}</td>
+    <td style="text-align:right">${d.erro_sem_ajuste.toLocaleString("pt-BR")}%</td>
+    <td style="text-align:right"><strong>${d.erro_nowcast.toLocaleString("pt-BR")}%</strong></td>
+    <td style="text-align:right">${d.cobertura_ic95.toLocaleString("pt-BR")}%</td></tr>`)}</tbody>
+</table>`
+```
+
+A estimativa da última semana é a mais incerta (intervalo largo), porque se baseia em poucos casos já digitados. Detalhes do modelo na [metodologia](https://github.com/valentim1979/virus-respiratorios/blob/main/METODOLOGIA.md).
+:::
 
 ### Curva comparativa
 

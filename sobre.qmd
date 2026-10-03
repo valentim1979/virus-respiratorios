@@ -42,6 +42,8 @@ Os gráficos e mapas publicados aqui são gerados a partir de um script R unific
 | Taxas por faixa etária | casos, internações em UTI ou óbitos da faixa ÷ população da faixa × 100.000 |
 | Canal endêmico | percentis 25, 75 e 90 das contagens semanais de 2022 em diante (anos pandêmicos excluídos) |
 
+**Nowcasting:** as semanas mais recentes têm casos ainda não digitados. O painel estima o total esperado dessas semanas com um modelo de atraso de digitação (binomial negativa sobre o "triângulo de notificação" das últimas 26 semanas), com intervalo de predição de 95%, validado retrospectivamente a cada atualização.
+
 **População:** estimativas do Ministério da Saúde por município, sexo e idade (DATASUS), atualizadas uma vez por ano.
 
 **Proteção de dados:** a base do SIVEP-Gripe é anonimizada antes de qualquer análise — nome, nome da mãe, CPF, CNS, telefone, endereço, CEP, data de nascimento e número da notificação são descartados, e o arquivo original é apagado. O site publica apenas dados agregados.

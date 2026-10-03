@@ -118,25 +118,45 @@ A página de estatística descritiva acrescenta:
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são sinalizadas no painel como **[Inferência]**.
 
-## 8. Modelagem (em desenvolvimento)
+## 8. Modelagem
 
-### 8.1 Nowcasting — correção do atraso de notificação (planejado)
+### 8.1 Nowcasting — correção do atraso de digitação
 
-**Problema.** As contagens das semanas mais recentes são subestimadas porque parte dos casos ainda não foi digitada no sistema (atraso de notificação). Isso produz uma falsa tendência de queda no fim da curva.
+**Problema.** As contagens das semanas mais recentes são subestimadas porque parte dos casos ainda não foi digitada no SIVEP-Gripe. Isso produz uma falsa tendência de queda no fim da curva. Na 15ª RS, em 2026, 26% dos casos foram digitados na mesma semana epidemiológica do início dos sintomas, 82% até a semana seguinte, 93% até 2 semanas, 96% até 3 semanas e 98% até 8 semanas.
 
-**Abordagem prevista.** Estimar a distribuição do atraso entre o início dos sintomas (ou a notificação) e a digitação (`DT_DIGITA`), usando a base do ano corrente, e corrigir as contagens das semanas recentes com intervalos de credibilidade ou confiança. Métodos candidatos:
+**Modelo.** Usa-se o modelo do triângulo de notificação (*chain-ladder*) com regressão binomial negativa — versão frequentista da abordagem de Bastos et al. (2019), usada no InfoGripe/Fiocruz. Para cada semana epidemiológica de início dos sintomas *t* (domingo a sábado) e atraso *d* (semanas inteiras entre a semana de início dos sintomas e a semana de digitação, `DT_DIGITA`):
 
-- modelo bayesiano hierárquico de contagens por semana de ocorrência × atraso, como no InfoGripe/Fiocruz (Bastos et al., 2019);
-- função `nowcast()` do pacote R `surveillance` (Meyer, Held & Höhle, 2017).
+n<sub>t,d</sub> ~ Binomial Negativa(μ<sub>t,d</sub>, θ), com log(μ<sub>t,d</sub>) = α<sub>t</sub> + β<sub>d</sub>
 
-Esta seção será detalhada (especificação do modelo, priors, janela de estimação, validação retrospectiva) quando a implementação for concluída.
+- α<sub>t</sub> é o efeito da semana de início dos sintomas (nível da epidemia) e β<sub>d</sub>, o efeito do atraso (distribuição de atraso, suposta constante dentro da janela).
+- **Atraso máximo D = 4:** atrasos de 4 semanas ou mais são agrupados na categoria 4.
+- **Janela de 26 semanas:** o modelo usa as últimas 26 semanas epidemiológicas, inclusive da virada do ano, já que usa os casos de todos os anos carregados.
+- **Corte:** os dados são truncados no último sábado anterior à data da digitação mais recente, para que a semana T (a mais recente) e todas as células observadas correspondam a semanas completas.
+- **Ajuste:** são usadas só as células observáveis (t + d ≤ T), com `MASS::glm.nb`.
+- **Estimativa:** o total da semana *t* é a soma dos casos já digitados com as células ainda não observadas (t + d > T). Essas células são simuladas 4.000 vezes: os coeficientes são sorteados de uma normal multivariada com a matriz de covariância estimada, e as contagens, da binomial negativa com o θ estimado. São reportados a mediana e os percentis 2,5 e 97,5 (intervalo de predição de 95%).
+- **Proteção numérica:** quando a semana mais recente não tem nenhum caso digitado, seu coeficiente fica indeterminado. Por isso o preditor linear simulado é limitado a log(5 × maior total semanal observado na janela).
+- **Escopo:** o modelo é ajustado para o escopo do painel (15ª RS, por município de residência).
+
+**Escolha de D e da janela.** Foram comparados D = 3, 4 e 5 e janelas de 16 e 26 semanas na validação retrospectiva. Com D maior, categorias de atraso longo ficam sem nenhum caso em algumas janelas, o coeficiente diverge e o total estimado explode (erros acima de 200% num teste inicial com D = 8). D = 4 com 26 semanas teve o melhor equilíbrio entre erro e cobertura.
+
+**Validação retrospectiva.** O nowcast foi refeito em 20 cortes semanais passados (sábados), usando só os casos digitados até cada corte. As estimativas das três semanas mais recentes de cada corte foram comparadas com o total conhecido hoje. Só entraram cortes com pelo menos D semanas de seguimento posterior, para que o total de referência estivesse praticamente completo. A validação é refeita automaticamente a cada atualização do painel e publicada junto com a estimativa. Resultado da execução de 03/10/2026, com cortes de 18/04/2026 a 29/08/2026 (a versão mais recente fica em `dados/nowcasting_validacao.csv`):
+
+| Semana em relação ao corte | Erro absoluto médio sem correção | Erro absoluto médio do nowcast | Cobertura do intervalo de 95% |
+|---|---|---|---|
+| Última semana (T) | 74,1% | 27,1% | 90% |
+| Penúltima (T − 1) | 17,5% | 7,2% | 95% |
+| Antepenúltima (T − 2) | 7,5% | 3,2% | 100% |
+
+O erro é a média de |estimado − final| ÷ final (o final é limitado a no mínimo 1), em %.
+
+**Apresentação.** O painel mostra, na aba "Estimativa (nowcasting)", os casos já digitados (barras) e o total estimado com o intervalo de 95% para as 26 semanas da janela, além da tabela das últimas semanas e do desempenho na validação. As demais séries continuam mostrando apenas os casos digitados.
 
 ## 9. Software e reprodutibilidade
 
 Todo o processamento é feito em R e publicado com Quarto como site estático no GitHub Pages:
 
 - **R** 4.6.1;
-- **pacotes:** dplyr 1.2.1, ggplot2 4.0.3, sf 1.1.3, tmap 4.4.1, readr 2.2.0, foreign 0.8.91, writexl 2.0.1, tidytext 0.4.3, knitr 1.52, kableExtra 1.4.1;
+- **pacotes:** MASS 7.3.65 (nowcasting), dplyr 1.2.1, ggplot2 4.0.3, sf 1.1.3, tmap 4.4.1, readr 2.2.0, foreign 0.8.91, writexl 2.0.1, tidytext 0.4.3, knitr 1.52, kableExtra 1.4.1;
 - **Quarto** 1.10.18.
 
 A população por município, sexo e idade é obtida por `baixar_populacao.R`, que preenche automaticamente o formulário do Tabnet (UF Paraná, linha = município, coluna = idade simples, um pedido por sexo). O script verifica se vieram os 399 municípios e se o total estadual está na faixa esperada. A tabela resultante fica versionada no repositório.
@@ -145,11 +165,11 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 ## 10. Limitações
 
-- **Atraso de notificação:** as semanas recentes estão subestimadas até que o nowcasting seja implementado (seção 8.1).
-- **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor, e o nowcasting (seção 8.1) vai corrigir esse viés.
+- **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor e apresenta a estimativa por nowcasting (seção 8.1), mas as demais séries, o canal endêmico e os indicadores do ano corrente continuam usando apenas os casos digitados.
 - **Letalidade entre encerrados:** restringir o denominador aos casos encerrados evita a subestimação pelos casos ainda internados. Em contrapartida, pode superestimar a letalidade no ano corrente se os óbitos forem registrados mais rápido que as altas, e exclui casos com evolução ignorada.
 - **Denominador:** as taxas usam a estimativa populacional mais recente disponível (hoje, 2025) para todos os anos, inclusive o ano corrente, que ainda não tem estimativa publicada. As estimativas municipais por idade e sexo do Ministério da Saúde são projeções e têm incerteza maior em municípios pequenos e nas faixas etárias extremas.
 - **Menores de 1 ano:** a população é publicada por ano de idade, então as taxas não separam 0–6 e 6–11 meses (essa divisão continua disponível nas contagens absolutas). A idade do caso vem de `COD_IDADE`; códigos em dias ou meses entram como 0 ano.
+- **Nowcasting:** o modelo supõe que a distribuição de atraso é constante na janela de 26 semanas. Mudanças operacionais na digitação (mutirões, greves, troca de sistema) violam essa hipótese. A estimativa da última semana é muito incerta (intervalo largo) porque depende de cerca de 1/4 dos casos. O modelo corrige apenas o atraso de digitação de casos que serão notificados — não corrige subnotificação.
 - **Canal endêmico frágil:** o canal é baseado em poucos anos de referência (pós-2022), o que torna os percentis instáveis. Ele não é ajustado por tendência nem pelo tamanho da população.
 - **Qualidade do preenchimento:** comorbidades, vacinação e uso de antiviral dependem da completitude dos campos (seção 6), e o não preenchimento não equivale à ausência da condição.
 - **Casos de residentes fora do estado:** casos de residentes da 15ª RS notificados fora do Paraná podem não constar da exportação estadual. Na base aberta de 2026 isso representou 0,4% dos residentes do PR.
@@ -172,6 +192,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Nowcasting implementado (seção 8.1): triângulo de notificação com regressão binomial negativa, D = 4, janela de 26 semanas, intervalo de predição de 95% por simulação e validação retrospectiva em 20 cortes, publicados na aba "Estimativa (nowcasting)" do painel. |
 | 03/10/2026 | População passa a vir do estudo de estimativas por município, idade e sexo do Ministério da Saúde (DATASUS/Tabnet), baixado por `baixar_populacao.R`, em vez de valores digitados no código (totais idênticos). Novas taxas de incidência, UTI e mortalidade por faixa etária e pirâmide de incidência por sexo (seção 4d da página descritiva). Rótulos de população passam a indicar o ano da estimativa usada. |
 | 03/10/2026 | Página descritiva: indicadores de qualidade (inconsistência, VPP) e os cinco indicadores de oportunidade de Ribeiro & Sanchez (2020), com tabela por município; vacinação contra influenza entre casos e óbitos de influenza; quadro de indicação e posologia do oseltamivir (Guia MS 2023); correção da descrição dos campos de vacinação contra covid-19. |
 | 03/10/2026 | Antiviral: seção passa a separar influenza confirmada e todos os casos de SRAG e ganha o indicador de oportunidade do tratamento (até 2 dias do início dos sintomas). |

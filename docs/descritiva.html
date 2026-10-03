@@ -2,17 +2,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Estatística Descritiva — SRAG – 15ª RS — Vigilância Epidemiológica</title>
 <style>
-code{white-space: pre-wrap;}
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -30,18 +36,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./assets/favicon.ico" rel="icon">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-30e9a4428f9d282bf6329f78bbea72b8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8a5b0047cf64b6df0ea2a3b5b393159a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
@@ -100,6 +104,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Vigilância Universal — SRAG</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link active" href="./descritiva.html" aria-current="page"> 
+<span class="menu-text">Estatística Descritiva</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="./sobre.html"> 
 <span class="menu-text">Sobre</span></a>
   </li>  
@@ -152,6 +160,11 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;environment: R_GlobalEnv&gt;</code></pre>
+</div>
+</div>
 <hr>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -164,6 +177,26 @@ Importante
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Leia antes de interpretar:</strong> os percentuais de comorbidade, vacinação e antiviral dependem diretamente da completitude do preenchimento do SIVEP-Gripe. Um valor baixo nesses gráficos pode refletir subnotificação do campo — não necessariamente ausência da condição. Consulte o gráfico de completitude (seção 1) antes de interpretar qualquer outra análise desta página.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Nota</span>Definições usadas nesta página
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Letalidade</strong> = óbitos por SRAG ÷ <strong>casos encerrados</strong> × 100. Caso encerrado é o que já tem desfecho registrado no SIVEP-Gripe (cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada não entram no cálculo — por isso a letalidade não é subestimada no ano corrente.</li>
+<li><strong>Mortalidade</strong> = óbitos por SRAG ÷ população (IBGE 2025) × 100.000. Mede o impacto na população, não a gravidade entre os casos.</li>
+<li><strong>Semana epidemiológica</strong> = semana de <strong>início dos sintomas</strong>. As semanas mais recentes ainda recebem casos a cada atualização.</li>
+</ul>
+</div>
 </div>
 </div>
 <hr>
@@ -258,8 +291,8 @@ Importante
 <h2 class="anchored" data-anchor-id="desfecho-e-gravidade">4. Desfecho e Gravidade</h2>
 <section id="a.-letalidade-por-faixa-etária" class="level3">
 <h3 class="anchored" data-anchor-id="a.-letalidade-por-faixa-etária">4a. Letalidade por Faixa Etária</h3>
-<p>A letalidade é calculada como o número de óbitos por SRAG dividido pelo total de notificações em cada faixa etária. <strong>Não é uma taxa de mortalidade populacional</strong> — é uma proporção dentro dos casos notificados hospitalizados.</p>
-<p>Faixas com poucos casos (n &lt; 5) foram excluídas para evitar percentuais instáveis. O denominador pequeno em algumas faixas pode gerar variações expressivas a cada atualização da base.</p>
+<p>A letalidade é calculada como o número de óbitos por SRAG dividido pelo número de <strong>casos encerrados</strong> (com desfecho registrado: cura, óbito por SRAG ou óbito por outras causas) em cada faixa etária. <strong>Não é uma taxa de mortalidade populacional</strong> — é uma proporção dentro dos casos hospitalizados que já tiveram desfecho.</p>
+<p>Faixas com poucos casos encerrados (n &lt; 5) foram excluídas para evitar percentuais instáveis. O denominador pequeno em algumas faixas pode gerar variações expressivas a cada atualização da base.</p>
 <p>O aumento da letalidade com a idade é um padrão consistente na literatura sobre SRAG e infecções respiratórias graves. Idosos acima de 60 anos representam historicamente o grupo de maior risco de morte por vírus respiratórios no Brasil.</p>
 <p><strong>Referência:</strong> Souza WM et al.&nbsp;<em>Epidemiological and clinical characteristics of the COVID-19 epidemic in Brazil</em>. Nat Hum Behav. 2020;4(8):856–865.</p>
 <div class="cell">
@@ -277,14 +310,14 @@ Importante
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-body-container">
-<p><strong>Como ler este gráfico:</strong> cada barra mostra a letalidade (%) daquela faixa etária. Abaixo do percentual aparece a fração <strong>óbitos / total notificados</strong> — por exemplo, <code>12,5% (3/24)</code> significa 3 óbitos entre 24 casos notificados naquela faixa.</p>
+<p><strong>Como ler este gráfico:</strong> cada barra mostra a letalidade (%) daquela faixa etária. Abaixo do percentual aparece a fração <strong>óbitos / casos encerrados</strong> — por exemplo, <code>12,5% (3/24)</code> significa 3 óbitos entre 24 casos encerrados naquela faixa.</p>
 </div>
 </div>
 </div>
 </section>
 <section id="b.-letalidade-por-sexo" class="level3">
 <h3 class="anchored" data-anchor-id="b.-letalidade-por-sexo">4b. Letalidade por Sexo</h3>
-<p>Apresenta a proporção de óbitos por SRAG dentro de cada grupo por sexo. Diferenças entre masculino e feminino são documentadas na literatura para diversas infecções respiratórias graves.</p>
+<p>Apresenta a proporção de óbitos por SRAG entre os casos encerrados de cada sexo. Diferenças entre masculino e feminino são documentadas na literatura para diversas infecções respiratórias graves.</p>
 <p>[Inferência] Maior letalidade no sexo masculino, quando observada, pode estar associada a maior prevalência de comorbidades, comportamentos de saúde distintos (como menor adesão ao cuidado preventivo) ou diferenças imunológicas. Essa interpretação está baseada em padrões descritos na literatura — <strong>não pode ser confirmada com os dados do SIVEP-Gripe isoladamente</strong>, que não registra essas variáveis de forma estruturada.</p>
 <p><strong>Referência:</strong> Peckham H et al.&nbsp;<em>Male sex identified by global COVID-19 meta-analysis as a risk factor for death and ITU admission</em>. Nat Commun. 2020;11(1):6317.</p>
 <div class="cell">
@@ -384,7 +417,7 @@ Aviso
 <section id="mortalidade-por-município" class="level2">
 <h2 class="anchored" data-anchor-id="mortalidade-por-município">6. Mortalidade por Município</h2>
 <p>A taxa de mortalidade por SRAG é calculada como o número de óbitos por SRAG dividido pela população municipal estimada pelo IBGE para 2025, expressa por 100.000 habitantes.</p>
-<p>Diferente da letalidade (que mede mortes entre os casos notificados), a mortalidade relaciona os óbitos à população total — o que permite comparação entre municípios de tamanhos diferentes.</p>
+<p>Diferente da letalidade (que mede mortes entre os casos encerrados), a mortalidade relaciona os óbitos à população total — o que permite comparação entre municípios de tamanhos diferentes.</p>
 <p>Municípios menores tendem a apresentar maior variabilidade nas taxas: pequenas diferenças absolutas no número de óbitos resultam em variações percentuais expressivas. Um município com 2.000 habitantes e 2 óbitos terá taxa de 100/100k — o que não significa necessariamente pior desempenho assistencial.</p>
 <p>[Inferência] Municípios com mortalidade consistentemente acima da média regional podem ter características populacionais (maior proporção de idosos, maior prevalência de comorbidades) ou assistenciais (acesso limitado a UTI, distância de hospitais de referência) que explicam o padrão. Essa hipótese não pode ser confirmada com os dados do SIVEP-Gripe isoladamente.</p>
 <div class="cell">
@@ -404,7 +437,8 @@ Aviso
 <ul>
 <li><strong>Incidência /100k:</strong> casos notificados por 100.000 habitantes</li>
 <li><strong>Mortalidade /100k:</strong> óbitos por SRAG por 100.000 habitantes</li>
-<li><strong>Letalidade (%):</strong> proporção de óbitos entre os casos notificados</li>
+<li><strong>Encerrados:</strong> casos com desfecho registrado (cura, óbito por SRAG ou por outras causas)</li>
+<li><strong>Letalidade (%):</strong> óbitos por SRAG ÷ casos encerrados</li>
 <li><strong>UTI (%):</strong> proporção de casos com internação em UTI registrada</li>
 </ul>
 <div class="cell">
@@ -414,6 +448,7 @@ Aviso
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Município</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Casos</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Encerrados</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Óbitos</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">UTI</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Incidência /100k</th>
@@ -425,283 +460,311 @@ Aviso
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Nova Esperanca</td>
-<td style="text-align: right;">105</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">386.9</td>
-<td style="text-align: right;">33.2</td>
-<td style="text-align: right;">8.6</td>
-<td style="text-align: right;">3.8</td>
+<td style="text-align: right;">114</td>
+<td style="text-align: right;">101</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">420,0</td>
+<td style="text-align: right;">36,8</td>
+<td style="text-align: right;">9,9</td>
+<td style="text-align: right;">5,3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Santa Ines</td>
 <td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">286.5</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">286,5</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Uniflor</td>
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">6</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">284.9</td>
-<td style="text-align: right;">47.5</td>
-<td style="text-align: right;">16.7</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">284,9</td>
+<td style="text-align: right;">47,5</td>
+<td style="text-align: right;">16,7</td>
+<td style="text-align: right;">0,0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Ourizona</td>
 <td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">250.5</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">37.5</td>
+<td style="text-align: right;">250,5</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">37,5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Atalaia</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">247,2</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Itaguaje</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">242,8</td>
+<td style="text-align: right;">22,1</td>
+<td style="text-align: right;">10,0</td>
+<td style="text-align: right;">9,1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Sao Jorge Do Ivai</td>
 <td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">232.1</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">25.0</td>
+<td style="text-align: right;">232,1</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">25,0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Atalaia</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">222.4</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: left;">Maringa</td>
+<td style="text-align: right;">970</td>
+<td style="text-align: right;">862</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">287</td>
+<td style="text-align: right;">225,8</td>
+<td style="text-align: right;">18,9</td>
+<td style="text-align: right;">9,4</td>
+<td style="text-align: right;">29,6</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Itaguaje</td>
-<td style="text-align: right;">10</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">220.8</td>
-<td style="text-align: right;">22.1</td>
-<td style="text-align: right;">10.0</td>
-<td style="text-align: right;">10.0</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">Nossa Senhora Das Gracas</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">8</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">218.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">37.5</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Maringa</td>
-<td style="text-align: right;">931</td>
-<td style="text-align: right;">74</td>
-<td style="text-align: right;">269</td>
-<td style="text-align: right;">216.7</td>
-<td style="text-align: right;">17.2</td>
-<td style="text-align: right;">7.9</td>
-<td style="text-align: right;">28.9</td>
+<td style="text-align: right;">218,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">37,5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Santo Inacio</td>
-<td style="text-align: right;">13</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">12</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">201.1</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">15.4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">216,6</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">21,4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Colorado</td>
 <td style="text-align: right;">42</td>
+<td style="text-align: right;">40</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">180.2</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">4.8</td>
+<td style="text-align: right;">180,2</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">4,8</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">Itambe</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">160,6</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">20,0</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">Florai</td>
+<td style="text-align: right;">7</td>
 <td style="text-align: right;">7</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">145.7</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">28.6</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Itambe</td>
-<td style="text-align: right;">9</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">144.5</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">22.2</td>
+<td style="text-align: right;">145,7</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">28,6</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Marialva</td>
+<td style="text-align: right;">65</td>
 <td style="text-align: right;">64</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">30</td>
-<td style="text-align: right;">143.0</td>
-<td style="text-align: right;">4.5</td>
-<td style="text-align: right;">3.1</td>
-<td style="text-align: right;">46.9</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">145,3</td>
+<td style="text-align: right;">4,5</td>
+<td style="text-align: right;">3,1</td>
+<td style="text-align: right;">47,7</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Paranacity</td>
 <td style="text-align: right;">10</td>
+<td style="text-align: right;">10</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">104.7</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">20.0</td>
+<td style="text-align: right;">104,7</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">20,0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Sarandi</td>
-<td style="text-align: right;">126</td>
-<td style="text-align: right;">8</td>
-<td style="text-align: right;">50</td>
-<td style="text-align: right;">98.4</td>
-<td style="text-align: right;">6.2</td>
-<td style="text-align: right;">6.3</td>
-<td style="text-align: right;">39.7</td>
+<td style="text-align: right;">132</td>
+<td style="text-align: right;">129</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">103,0</td>
+<td style="text-align: right;">7,0</td>
+<td style="text-align: right;">7,0</td>
+<td style="text-align: right;">39,4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Munhoz De Melo</td>
 <td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">73.9</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">33.3</td>
+<td style="text-align: right;">73,9</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">33,3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Astorga</td>
-<td style="text-align: right;">18</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">17</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">68.7</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">27.8</td>
+<td style="text-align: right;">72,5</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">26,3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Lobato</td>
 <td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">63.7</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">33.3</td>
+<td style="text-align: right;">63,7</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">33,3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Floresta</td>
-<td style="text-align: right;">6</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">52.1</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">16.7</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">60,8</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">28,6</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Paicandu</td>
 <td style="text-align: right;">24</td>
+<td style="text-align: right;">24</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">15</td>
-<td style="text-align: right;">49.3</td>
-<td style="text-align: right;">2.1</td>
-<td style="text-align: right;">4.2</td>
-<td style="text-align: right;">62.5</td>
+<td style="text-align: right;">49,3</td>
+<td style="text-align: right;">2,1</td>
+<td style="text-align: right;">4,2</td>
+<td style="text-align: right;">62,5</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Mandaguacu</td>
-<td style="text-align: right;">17</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: right;">7</td>
-<td style="text-align: right;">49.2</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">41.2</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">Presidente Castelo Branco</td>
+<td style="text-align: right;">2</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">46.5</td>
-<td style="text-align: right;">23.2</td>
-<td style="text-align: right;">50.0</td>
-<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">46,5</td>
+<td style="text-align: right;">23,2</td>
+<td style="text-align: right;">50,0</td>
+<td style="text-align: right;">0,0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mandaguacu</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">46,3</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">43,8</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Santa Fe</td>
 <td style="text-align: right;">5</td>
+<td style="text-align: right;">5</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">42.6</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">80.0</td>
+<td style="text-align: right;">42,6</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">80,0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Florida</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">36.9</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">100.0</td>
+<td style="text-align: right;">36,9</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">100,0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Mandaguari</td>
 <td style="text-align: right;">14</td>
-<td style="text-align: right;">1</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
 <td style="text-align: right;">11</td>
-<td style="text-align: right;">36.5</td>
-<td style="text-align: right;">2.6</td>
-<td style="text-align: right;">7.1</td>
-<td style="text-align: right;">78.6</td>
+<td style="text-align: right;">36,5</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">78,6</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Iguaracu</td>
 <td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">35.1</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">50.0</td>
+<td style="text-align: right;">35,1</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">50,0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Doutor Camargo</td>
 <td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">30.7</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">0.0</td>
-<td style="text-align: right;">50.0</td>
+<td style="text-align: right;">30,7</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">0,0</td>
+<td style="text-align: right;">50,0</td>
 </tr>
 </tbody>
 </table>

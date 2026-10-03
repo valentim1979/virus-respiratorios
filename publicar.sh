@@ -50,6 +50,9 @@ else
   git commit -m "Atualização de layout/texto — $(date '+%d/%m/%Y')" || echo "Nada novo para commitar."
 fi
 
+# Incorpora commits enviados de outra máquina durante a execução; sem isso o
+# push é recusado e a publicação da noite fica presa só nesta máquina
+git pull --rebase
 git push
 
 echo ""

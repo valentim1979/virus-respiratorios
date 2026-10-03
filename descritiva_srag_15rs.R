@@ -2,29 +2,12 @@
 # VIGILÂNCIA EPIDEMIOLÓGICA — 15ª REGIONAL DE SAÚDE DE MARINGÁ
 # Script complementar: Estatística Descritiva
 # Autor   : Valentim Sala Junior
-# Depende : SCRIPT_Unificado.R (deve ser executado antes)
-#           Os objetos base_filtrada, DIR_GRAFICOS e texto_rodape
-#           devem estar no ambiente.
-# Saída   : pasta graficos/descritiva/ do projeto GitHub Pages
+# Depende : objetos de SCRIPT_Unificado.R (base_filtrada, casos_municipio,
+#           texto_rodape, etc.). Em descritiva.qmd eles vêm de
+#           ~/SIVEP_dados/contexto_descritiva.rds, salvo pelo script principal.
+# Saída   : objetos gD01–gD12 e tabela_resumo_mun, exibidos por
+#           descritiva.qmd, e tabelas/descritiva_15rs_<ano>.xlsx
 # ==============================================================================
-
-
-# ==============================================================================
-# BLOCO D0 — PASTA DE SAÍDA ESPECÍFICA
-# ==============================================================================
-
-DIR_DESC <- file.path(DIR_GRAFICOS, "descritiva")
-if (!dir.exists(DIR_DESC)) dir.create(DIR_DESC, recursive = TRUE)
-message("Saída descritiva: ", DIR_DESC)
-
-salvar_desc <- function(grafico, nome, width = 12, height = 7) {
-  caminho <- file.path(DIR_DESC, paste0(nome, ".png"))
-  ggsave(
-    filename = caminho, plot = grafico,
-    width = width, height = height, units = "in", dpi = 150, bg = "white"
-  )
-  message("Salvo: ", caminho)
-}
 
 
 # ==============================================================================
@@ -91,7 +74,6 @@ gD01 <- ggplot(completitude,
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD01, "D01_completitude_variaveis", height = 8)
 
 
 # ==============================================================================
@@ -138,7 +120,6 @@ gD02 <- ggplot(oportunidade, aes(x = dias_sin_notif)) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD02, "D02_oportunidade_notificacao")
 
 
 # ==============================================================================
@@ -180,7 +161,6 @@ if (nrow(tempo_desfecho) > 0) {
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"), legend.position = "none")
   
-  salvar_desc(gD03, "D03_tempo_internacao_desfecho", height = 8)
 }
 
 
@@ -231,7 +211,6 @@ if (nrow(freq_comorbidade) > 0) {
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"))
   
-  salvar_desc(gD04, "D04_comorbidades_total", height = 8)
 }
 
 
@@ -271,7 +250,6 @@ if (nrow(freq_comorbidade_obitos) > 0) {
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
   
-  salvar_desc(gD05, "D05_comorbidades_obitos", height = 8)
 }
 
 
@@ -312,7 +290,6 @@ gD06 <- ggplot(letalidade_faixa,
     plot.title   = element_text(face = "bold")
   )
 
-salvar_desc(gD06, "D06_letalidade_faixa_etaria")
 
 
 # ==============================================================================
@@ -347,7 +324,6 @@ gD07 <- ggplot(letalidade_sexo,
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD07, "D07_letalidade_sexo", height = 5)
 
 
 # ==============================================================================
@@ -387,7 +363,6 @@ gD08 <- ggplot(uti_faixa,
     plot.title  = element_text(face = "bold")
   )
 
-salvar_desc(gD08, "D08_uti_faixa_etaria")
 
 
 # ==============================================================================
@@ -430,7 +405,6 @@ gD09 <- ggplot(criterio_conf,
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD09, "D09_criterio_confirmacao")
 
 
 # ==============================================================================
@@ -465,7 +439,6 @@ gD10 <- ggplot(antiviral_dist,
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD10, "D10_antiviral", height = 4)
 
 
 # ==============================================================================
@@ -501,7 +474,6 @@ gD11 <- ggplot(vacinal_dist,
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD11, "D11_status_vacinal", height = 4)
 
 
 # ==============================================================================
@@ -530,7 +502,6 @@ gD12 <- casos_municipio %>%
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
-salvar_desc(gD12, "D12_mortalidade_municipio", height = 10)
 
 
 # ==============================================================================
@@ -574,7 +545,6 @@ message("\n", strrep("=", 60))
 message("ESTATÍSTICA DESCRITIVA — RESUMO")
 message(strrep("=", 60))
 message("Gráficos gerados : D01 a D12")
-message("Pasta            : ", DIR_DESC)
 message("Excel            : descritiva_15rs_", paste(anos_carregar, collapse = "_"), ".xlsx")
 message(strrep("-", 60))
 message("Completitude média (campos-chave): ",

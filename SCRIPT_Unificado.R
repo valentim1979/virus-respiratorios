@@ -1609,6 +1609,34 @@ if (is.na(col_estab)) {
 
 
 # ==============================================================================
+# CONTEXTO PARA A PÁGINA DESCRITIVA
+# ==============================================================================
+# descritiva.qmd lê este .rds em vez de rodar este script de novo no render.
+# Contém só os objetos que descritiva_srag_15rs.R usa. Fica em ~/SIVEP_dados
+# (fora do ~/Work, que vai para o OneDrive) porque tem dados por registro.
+
+DIR_SENSIVEIS <- path.expand(Sys.getenv("SIVEP_DADOS", "~/SIVEP_dados"))
+dir.create(DIR_SENSIVEIS, showWarnings = FALSE, recursive = TRUE, mode = "0700")
+CAMINHO_CONTEXTO_DESCRITIVA <- file.path(DIR_SENSIVEIS, "contexto_descritiva.rds")
+saveRDS(
+  list(
+    base_filtrada      = base_filtrada,
+    casos_municipio    = casos_municipio,
+    anos_carregar      = anos_carregar,
+    escopo_titulo      = escopo_titulo,
+    texto_rodape       = texto_rodape,
+    DIR_GRAFICOS       = DIR_GRAFICOS,
+    ORDEM_FAIXAS       = ORDEM_FAIXAS,
+    parseia_data       = parseia_data,
+    criar_faixa_etaria = criar_faixa_etaria,
+    padronizar_sexo    = padronizar_sexo
+  ),
+  CAMINHO_CONTEXTO_DESCRITIVA
+)
+message("Contexto da página descritiva salvo: ", CAMINHO_CONTEXTO_DESCRITIVA)
+
+
+# ==============================================================================
 # RESUMO FINAL
 # ==============================================================================
 

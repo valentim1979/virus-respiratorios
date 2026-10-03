@@ -16,3 +16,7 @@
 
 # Proteção contra clone acidental de outro repo dentro deste (aconteceu em 19/09/2026)
 vigilancia-sentinela/
+
+# Log e trava da rotina de entrada do SIVEP (processar_entrada.sh)
+processar_entrada.log
+.processar_entrada.lock

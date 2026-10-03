@@ -7,7 +7,6 @@ format:
     toc-depth: 2
     toc-title: "Neste painel"
     page-layout: full
-    theme: cosmo
 execute:
   echo: false
   warning: false
@@ -15,7 +14,12 @@ execute:
 ---
 
 ```{r setup}
-source("SCRIPT_Unificado.R")
+# Objetos gerados por SCRIPT_Unificado.R (rode-o antes do quarto render)
+for (pkg in c("dplyr", "ggplot2", "tidyr", "stringr", "forcats", "scales", "writexl")) {
+  library(pkg, character.only = TRUE)
+}
+list2env(readRDS(file.path(Sys.getenv("SIVEP_DADOS", "~/SIVEP_dados"), "contexto_descritiva.rds")),
+         envir = environment())
 source("descritiva_srag_15rs.R")
 
 ano_label <- paste(anos_carregar, collapse = "/")

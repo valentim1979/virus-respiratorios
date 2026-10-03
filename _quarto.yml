@@ -18,6 +18,8 @@ website:
     left:
       - href: index.qmd
         text: "Vigilância Universal — SRAG"
+      - href: descritiva.qmd
+        text: "Estatística Descritiva"
       - href: sobre.qmd
         text: "Sobre"
   page-footer:

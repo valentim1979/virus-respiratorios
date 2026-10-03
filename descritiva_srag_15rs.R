@@ -225,6 +225,99 @@ oport_municipio <- base_filtrada %>%
 
 
 # ==============================================================================
+# BLOCO D2c — OPORTUNIDADE DE DIGITAÇÃO POR UNIDADE NOTIFICADORA
+# ==============================================================================
+# Casos do ano notificados por unidades do escopo (base_notif_escopo, inclui
+# não residentes — quem digita é a unidade). Intervalo principal: notificação
+# (DT_NOTIFIC) → digitação no SIVEP-Gripe (DT_DIGITA). Intervalos negativos
+# são excluídos como erro de data. ID_UNIDADE só existe na base exportada do
+# SIVEP (não no dado aberto da API).
+# A base só contém casos JÁ digitados: notificações recentes ainda não
+# digitadas (as mais atrasadas) não aparecem, o que faria os meses recentes
+# parecerem melhores. Por isso só entram notificações com pelo menos
+# SEGUIMENTO_DIGITACAO dias até a digitação mais recente da base.
+
+digitacao <- NULL
+etapas_digitacao <- NULL
+digitacao_mes <- NULL
+digitacao_unidade <- NULL
+gD02c <- NULL
+if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_notif_escopo) > 0) {
+  digitacao <- base_notif_escopo %>%
+    mutate(
+      sin   = parseia_data(substr(DT_SIN_PRI, 1, 10)),
+      int   = parseia_data(substr(DT_INTERNA, 1, 10)),
+      notif = parseia_data(substr(DT_NOTIFIC, 1, 10)),
+      dig   = parseia_data(substr(DT_DIGITA, 1, 10)),
+      dias  = as.integer(dig - notif)
+    )
+  SEGUIMENTO_DIGITACAO <- 30
+  data_ultima_digitacao <- max(digitacao$dig, na.rm = TRUE)
+  data_limite_notif     <- data_ultima_digitacao - SEGUIMENTO_DIGITACAO
+  digitacao <- digitacao %>% filter(!is.na(notif), notif <= data_limite_notif)
+
+  resumo_intervalo <- function(x) {
+    x <- x[!is.na(x) & x >= 0]
+    tibble::tibble(n = length(x), mediana = median(x), p90 = unname(quantile(x, 0.9, type = 1)))
+  }
+  etapas_digitacao <- dplyr::bind_rows(
+    resumo_intervalo(as.integer(digitacao$int - digitacao$sin))   %>% mutate(etapa = "Início dos sintomas → internação"),
+    resumo_intervalo(as.integer(digitacao$notif - digitacao$int)) %>% mutate(etapa = "Internação → notificação"),
+    resumo_intervalo(digitacao$dias)                               %>% mutate(etapa = "Notificação → digitação no SIVEP-Gripe"),
+    resumo_intervalo(as.integer(digitacao$dig - digitacao$sin))   %>% mutate(etapa = "Início dos sintomas → digitação (total)")
+  ) %>% select(etapa, n, mediana, p90)
+
+  resumir_digitacao <- function(d) {
+    d %>% summarise(
+      casos      = n(),
+      mediana    = median(dias, na.rm = TRUE),
+      p90        = unname(quantile(dias, 0.9, na.rm = TRUE, type = 1)),
+      ate_1_dia  = round(mean(dias <= 1, na.rm = TRUE) * 100, 1),
+      ate_7_dias = round(mean(dias <= 7, na.rm = TRUE) * 100, 1),
+      mais_30    = sum(dias > 30, na.rm = TRUE),
+      .groups = "drop"
+    )
+  }
+  dig_valida <- digitacao %>% filter(!is.na(dias), dias >= 0)
+
+  digitacao_mes <- dig_valida %>%
+    mutate(mes = lubridate::floor_date(notif, "month")) %>%
+    group_by(mes) %>%
+    resumir_digitacao()
+
+  gD02c <- digitacao_mes %>%
+    filter(casos >= 5, lubridate::ceiling_date(mes + 1, "month") - 1 <= data_limite_notif) %>%   # só meses completos
+    ggplot(aes(x = mes, y = ate_1_dia)) +
+    geom_col(fill = "#0057A3", width = 20) +
+    geom_text(aes(label = paste0(format(ate_1_dia, decimal.mark = ","), "%\n(n=", casos, ")")),
+              vjust = -0.3, size = 3, lineheight = 0.9) +
+    scale_x_date(date_labels = "%m/%Y", date_breaks = "1 month") +
+    scale_y_continuous(limits = c(0, 115), breaks = seq(0, 100, 20)) +
+    labs(
+      title    = paste0("Casos Digitados em até 1 Dia da Notificação, por Mês — ", escopo_titulo),
+      subtitle = paste0("Unidades notificadoras do escopo | Notificações até ", format(data_limite_notif, "%d/%m/%Y"),
+                        " (", SEGUIMENTO_DIGITACAO, " dias antes da última digitação) | Meses completos com pelo menos 5 casos"),
+      x = "Mês da notificação", y = "% digitados em até 1 dia", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"))
+
+  if ("ID_UNIDADE" %in% names(dig_valida)) {
+    digitacao_unidade <- dig_valida %>%
+      mutate(unidade = stringr::str_squish(ID_UNIDADE),
+             unidade = if_else(is.na(unidade) | unidade == "", "Unidade não informada", unidade)) %>%
+      group_by(unidade) %>%
+      mutate(casos_unidade = n()) %>%
+      ungroup() %>%
+      mutate(unidade = if_else(casos_unidade < 5, "Outras unidades (< 5 casos cada)", unidade)) %>%
+      group_by(unidade) %>%
+      summarise(municipio = paste(sort(unique(stringr::str_to_title(na.omit(municipio_notif)))), collapse = ", "),
+                resumir_digitacao(pick(everything())), .groups = "drop") %>%
+      arrange(unidade == "Outras unidades (< 5 casos cada)", ate_1_dia, desc(casos))
+  }
+}
+
+# ==============================================================================
 # BLOCO D3 — OPORTUNIDADE: INTERNAÇÃO → DESFECHO
 # ==============================================================================
 
@@ -832,6 +925,8 @@ writexl::write_xlsx(
     "oportunidade"      = oport_regional,
     "taxas_faixa_etaria" = if (is.null(taxas_faixa)) tibble::tibble() else taxas_faixa,
     "oportunidade_mun"  = oport_municipio,
+    "digitacao_unidade" = if (is.null(digitacao_unidade)) tibble::tibble() else digitacao_unidade,
+    "digitacao_mes"     = if (is.null(digitacao_mes)) tibble::tibble() else digitacao_mes,
     "qualidade"         = tabela_qualidade,
     "vacina_influenza"  = vacina_flu,
     "vacinal"           = vacinal_dist

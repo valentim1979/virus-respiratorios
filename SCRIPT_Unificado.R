@@ -1759,6 +1759,18 @@ saveRDS(
     criar_faixa_etaria = criar_faixa_etaria,
     padronizar_sexo    = padronizar_sexo,
     ROTULO_POPULACAO   = ROTULO_POPULACAO,
+    # casos do ano notificados por unidades do escopo (inclusive não
+    # residentes), para a oportunidade de digitação por unidade notificadora
+    base_notif_escopo  = base_completa %>%
+      filter(ANO_BASE %in% anos_carregar,
+             as.integer(CO_MUN_NOT) %in% if (exists("cod_mun") && !is.null(MUNICIPIO_ANALISE) &&
+                                              nzchar(trimws(MUNICIPIO_ANALISE))) cod_mun
+                                          else municipios_15rs$codigo_ibge_6) %>%
+      select(any_of(c("ID_UNIDADE", "CO_UNI_NOT", "CO_MUN_NOT", "DT_SIN_PRI", "DT_INTERNA",
+                      "DT_NOTIFIC", "DT_DIGITA"))) %>%
+      left_join(municipios_15rs %>% transmute(CO_MUN_NOT = as.character(codigo_ibge_6),
+                                              municipio_notif = municipio),
+                by = "CO_MUN_NOT"),
     # população do escopo (15ª RS ou o município de MUNICIPIO_ANALISE) por sexo
     # e idade simples, para as taxas por faixa etária
     pop_idade_escopo   = if (is.null(pop_idade_pr)) NULL else pop_idade_pr %>%

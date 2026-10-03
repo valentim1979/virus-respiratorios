@@ -101,7 +101,51 @@ oport_municipio %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE, font_size = 12)
 ```
 
-### 2b. Sintomas → Notificação
+### 2b. Digitação no SIVEP-Gripe por Unidade Notificadora
+
+Depois de notificado, o caso precisa ser **digitado no SIVEP-Gripe** para aparecer nos dados da vigilância. Esta seção mede o tempo entre a data da notificação e a data da digitação, para os casos notificados pelas unidades da 15ª RS no ano — inclusive de pacientes residentes em outras regionais, já que é a unidade notificadora quem digita.
+
+A base do SIVEP-Gripe só contém casos **já digitados** — notificações recentes que ainda não foram digitadas (justamente as mais atrasadas) não aparecem nela. Para não favorecer os meses recentes, esta seção considera apenas as notificações feitas até **`r if (!is.null(digitacao)) format(data_limite_notif, "%d/%m/%Y")`**, 30 dias antes da digitação mais recente da base.
+
+O quadro abaixo mostra quanto tempo leva cada etapa, do início dos sintomas até o caso estar disponível no sistema (mediana e tempo em que 90% dos casos já tinham passado pela etapa):
+
+```{r etapas-digitacao}
+if (!is.null(etapas_digitacao)) {
+  etapas_digitacao %>%
+    dplyr::rename(Etapa = etapa, Casos = n, `Mediana (dias)` = mediana, `90% dos casos em até (dias)` = p90) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE, font_size = 13)
+}
+```
+
+A maior parte do tempo entre o início dos sintomas e a entrada do caso no sistema costuma estar **antes da internação**, e não na digitação. Mesmo assim, atrasos de digitação concentrados em algumas unidades fazem as semanas recentes do painel parecerem menores do que são (ver a aba "Estimativa (nowcasting)" na página principal).
+
+```{r digitacao-mes, fig.width=12, fig.height=5}
+if (!is.null(gD02c)) gD02c
+```
+
+**Por unidade notificadora** — ordenadas da menor para a maior proporção de casos digitados em até 1 dia. Unidades com menos de 5 casos no ano estão agrupadas.
+
+```{r digitacao-unidade}
+if (!is.null(digitacao_unidade)) {
+  digitacao_unidade %>%
+    dplyr::transmute(
+      `Unidade notificadora` = unidade, `Município` = municipio, Casos = casos,
+      `Mediana (dias)` = mediana, `90% em até (dias)` = p90,
+      `Até 1 dia (%)` = ate_1_dia, `Até 7 dias (%)` = ate_7_dias, `Mais de 30 dias` = mais_30
+    ) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE, font_size = 12) %>%
+    kableExtra::column_spec(8, bold = digitacao_unidade$mais_30 > 0,
+                            color = ifelse(digitacao_unidade$mais_30 > 0, "#A30000", "black"))
+} else {
+  cat("O nome da unidade notificadora só está disponível na base exportada do SIVEP-Gripe (não no dado aberto do Ministério).")
+}
+```
+
+[Inferência] Unidades com mediana acima de 1 dia ou com casos digitados mais de 30 dias após a notificação podem ter sobrecarga da equipe de digitação, fichas preenchidas em papel e digitadas em lote, ou digitação retroativa após o desfecho. Essas hipóteses precisam ser verificadas com cada serviço.
+
+### 2c. Sintomas → Notificação
 
 A oportunidade de notificação mede o tempo (em dias) entre o início dos sintomas e o registro do caso no SIVEP-Gripe. Intervalos curtos indicam detecção precoce — fundamental para que a vigilância epidemiológica possa acionar medidas de resposta em tempo hábil.
 
@@ -115,7 +159,7 @@ Valores elevados podem refletir atraso no reconhecimento clínico do caso, dific
 gD02
 ```
 
-### 2c. Internação → Desfecho
+### 2d. Internação → Desfecho
 
 Este gráfico mostra o tempo entre a internação e o desfecho — separado entre cura e óbito por SRAG. Distribuições com cauda longa à direita são esperadas em casos graves com complicações.
 

@@ -79,7 +79,13 @@ Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020)
 
 A vigilância é considerada oportuna quando a média simples dos cinco indicadores de oportunidade é ≥ 70%. Intervalos negativos contam como oportunos. Intervalos menores que −30 ou maiores que 120 dias são excluídos como erro de digitação. Os indicadores são apresentados para a regional e por município de residência.
 
-### 6.2 Canal endêmico
+### 6.2 Oportunidade de digitação por unidade notificadora
+
+Mede o tempo entre a notificação (`DT_NOTIFIC`) e a digitação no SIVEP-Gripe (`DT_DIGITA`), para os casos do ano notificados por unidades localizadas nos municípios do escopo (`CO_MUN_NOT`), **inclusive de pacientes residentes em outras regionais**, já que a digitação é feita pela unidade notificadora (`ID_UNIDADE`, disponível apenas na base exportada do SIVEP-Gripe). Para cada unidade são apresentados o número de casos, a mediana e o percentil 90 do intervalo, a proporção digitada em até 1 dia e em até 7 dias, e o número de casos digitados mais de 30 dias após a notificação. Unidades com menos de 5 casos no ano são agrupadas. Intervalos negativos são excluídos como erro de data. Também é apresentada a mediana e o percentil 90 de cada etapa da cadeia — início dos sintomas → internação → notificação → digitação — e a proporção mensal de casos digitados em até 1 dia.
+
+**Viés de seleção e correção.** A base contém apenas casos já digitados. Notificações recentes ainda não digitadas — justamente as de maior atraso — não aparecem, o que faria os períodos recentes parecerem mais oportunos. Na primeira versão da análise, por exemplo, setembro e outubro de 2026 apareciam com 81% e 100% de casos digitados em até 1 dia. Por isso só entram notificações com pelo menos 30 dias de acompanhamento até a digitação mais recente da base, e o gráfico mensal só mostra meses completos dentro desse período. Não foi identificada norma do Ministério da Saúde com prazo para a digitação da ficha de SRAG; por isso os percentuais em até 1 e até 7 dias são apresentados como descritores, sem meta.
+
+### 6.3 Canal endêmico
 
 O canal endêmico é construído com as contagens semanais de casos da 15ª RS nos anos de referência **pós-pandêmicos** (de 2022 ao ano anterior ao corrente; 2020 e 2021 são excluídos pelo perfil atípico da pandemia de covid-19). Para cada semana epidemiológica, calculam-se a mediana e os percentis 25, 75 e 90 das contagens dos anos de referência. A contagem da semana do ano corrente é classificada em:
 
@@ -114,6 +120,7 @@ A página de estatística descritiva acrescenta:
 - situação vacinal contra covid-19;
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
 - consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
+- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.2);
 - mortalidade por município, com tabela-resumo municipal.
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são sinalizadas no painel como **[Inferência]**.
@@ -192,6 +199,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Oportunidade de digitação por unidade notificadora (seção 6.2): cadeia de tempos até a digitação, série mensal e tabela por unidade, com corte de 30 dias de acompanhamento para evitar o viés de casos ainda não digitados. |
 | 03/10/2026 | Nowcasting implementado (seção 8.1): triângulo de notificação com regressão binomial negativa, D = 4, janela de 26 semanas, intervalo de predição de 95% por simulação e validação retrospectiva em 20 cortes, publicados na aba "Estimativa (nowcasting)" do painel. |
 | 03/10/2026 | População passa a vir do estudo de estimativas por município, idade e sexo do Ministério da Saúde (DATASUS/Tabnet), baixado por `baixar_populacao.R`, em vez de valores digitados no código (totais idênticos). Novas taxas de incidência, UTI e mortalidade por faixa etária e pirâmide de incidência por sexo (seção 4d da página descritiva). Rótulos de população passam a indicar o ano da estimativa usada. |
 | 03/10/2026 | Página descritiva: indicadores de qualidade (inconsistência, VPP) e os cinco indicadores de oportunidade de Ribeiro & Sanchez (2020), com tabela por município; vacinação contra influenza entre casos e óbitos de influenza; quadro de indicação e posologia do oseltamivir (Guia MS 2023); correção da descrição dos campos de vacinação contra covid-19. |

@@ -60,7 +60,23 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 | Proporção de tratamento antiviral | casos com `ANTIVIRAL = 1` ÷ casos do grupo × 100, para influenza confirmada (`CLASSI_FIN = 1`) e para todos os casos de SRAG |
 | Oportunidade do tratamento antiviral | % dos tratados com início do antiviral (`DT_ANTIVIR`) até 2 dias após o início dos sintomas (`DT_SIN_PRI`) — aproximação da janela de 48 h do Guia de Manejo e Tratamento de Influenza (MS, 2023), já que o sistema registra só datas; são excluídos intervalos negativos ou maiores que 60 dias |
 
-### 6.1 Canal endêmico
+### 6.1 Qualidade e oportunidade da vigilância
+
+Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020), o painel calcula:
+
+| Indicador | Cálculo | Referência |
+|---|---|---|
+| Inconsistência | amostras com `DT_COLETA` anterior a `DT_SIN_PRI` ÷ amostras com as duas datas | aceitável se ≤ 20% |
+| Valor preditivo positivo da definição de caso | casos com `CLASSI_FIN` = 1, 2 ou 5 ÷ casos de SRAG | satisfatório se > 20% |
+| Oportunidade de atendimento | % com `DT_INTERNA` − `DT_SIN_PRI` ≤ 1 dia | — |
+| Oportunidade de notificação | % com `DT_NOTIFIC` − `DT_INTERNA` ≤ 1 dia | — |
+| Oportunidade de tratamento | % dos tratados com `DT_ANTIVIR` − `DT_INTERNA` ≤ 2 dias | — |
+| Oportunidade de coleta | % com `DT_COLETA` − `DT_INTERNA` ≤ 7 dias | — |
+| Oportunidade de encerramento | % dos encerrados com `DT_ENCERRA` − `DT_NOTIFIC` ≤ 60 dias | — |
+
+A vigilância é considerada oportuna quando a média simples dos cinco indicadores de oportunidade é ≥ 70%. Intervalos negativos contam como oportunos. Intervalos menores que −30 ou maiores que 120 dias são excluídos como erro de digitação. Os indicadores são apresentados para a regional e por município de residência.
+
+### 6.2 Canal endêmico
 
 O canal endêmico é construído com as contagens semanais de casos da 15ª RS nos anos de referência **pós-pandêmicos** (de 2022 ao ano anterior ao corrente; 2020 e 2021 são excluídos pelo perfil atípico da pandemia de covid-19). Para cada semana epidemiológica, calculam-se a mediana e os percentis 25, 75 e 90 das contagens dos anos de referência. A contagem da semana do ano corrente é classificada em:
 
@@ -91,7 +107,9 @@ A página de estatística descritiva acrescenta:
 - proporção de UTI por faixa etária;
 - critério de confirmação;
 - uso de antiviral e tempo até o início do tratamento, para influenza confirmada e para todos os casos de SRAG;
-- situação vacinal;
+- situação vacinal contra covid-19;
+- situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
+- consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
 - mortalidade por município, com tabela-resumo municipal.
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são sinalizadas no painel como **[Inferência]**.
@@ -136,6 +154,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Ministério da Saúde. *Instrutivo de preenchimento da ficha de notificação de SRAG hospitalizado*. Brasília: DEVIT/SVS, 2022.
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
 - MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
+- RIBEIRO, I. G.; SANCHEZ, M. N. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiologia e Serviços de Saúde*, v. 29, n. 3, e2020066, 2020.
 - BASTOS, L. S. et al. Modelling reporting delays for outbreak detection in infectious disease data. *Journal of the Royal Statistical Society: Series A*, v. 182, n. 2, p. 535–555, 2019.
 - MEYER, S.; HELD, L.; HÖHLE, M. Spatio-temporal analysis of epidemic phenomena using the R package surveillance. *Journal of Statistical Software*, v. 77, n. 11, 2017.
 
@@ -145,6 +164,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Página descritiva: indicadores de qualidade (inconsistência, VPP) e os cinco indicadores de oportunidade de Ribeiro & Sanchez (2020), com tabela por município; vacinação contra influenza entre casos e óbitos de influenza; quadro de indicação e posologia do oseltamivir (Guia MS 2023); correção da descrição dos campos de vacinação contra covid-19. |
 | 03/10/2026 | Antiviral: seção passa a separar influenza confirmada e todos os casos de SRAG e ganha o indicador de oportunidade do tratamento (até 2 dias do início dos sintomas). |
 | 03/10/2026 | Séries semanais passam da semana de notificação (`SEM_NOT`) para a de início dos sintomas (`SEM_PRI`). Letalidade passa a usar os casos encerrados como denominador (antes: todos os notificados). O painel ganha um quadro "Como ler este painel" e a página Sobre ganha um resumo da metodologia. |
 | 03/10/2026 | Documento criado com a metodologia vigente. Inclusão da base estadual do SIVEP-Gripe (DBF) para o ano corrente, com anonimização por lista de permissão; a página descritiva passa a reutilizar os objetos da análise principal. |

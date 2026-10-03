@@ -55,11 +55,53 @@ Campos com baixa completitude não devem ser descartados da análise, mas seus r
 gD01
 ```
 
+### 1b. Consistência e Valor Preditivo Positivo
+
+Dois atributos de qualidade usados na avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020):
+
+- **Inconsistência:** proporção de amostras com data de coleta **anterior** ao início dos sintomas — combinação impossível, que indica erro de digitação em uma das datas. É considerada aceitável até 20%.
+- **Valor preditivo positivo (VPP) da definição de caso:** proporção dos casos de SRAG com vírus respiratório confirmado (influenza, outro vírus respiratório ou covid-19). Como, segundo a literatura, 20% a 30% dos casos de SRAG têm etiologia viral identificada, um VPP acima de 20% é considerado satisfatório.
+
+```{r qualidade}
+tabela_qualidade %>%
+  knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = TRUE, font_size = 13)
+```
+
+**Referência:** Ribeiro IG, Sanchez MN. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiol Serv Saúde*. 2020;29(3):e2020066.
+
 ---
 
-## 2. Oportunidade de Notificação
+## 2. Oportunidade
 
-### 2a. Sintomas → Notificação
+### 2a. Indicadores de Oportunidade da Vigilância
+
+A oportunidade mede se cada etapa do atendimento e da vigilância aconteceu no prazo. Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020), cada indicador é o percentual de casos com o intervalo dentro do prazo de referência, e a vigilância é considerada **oportuna quando a média dos indicadores é de 70% ou mais**:
+
+| Indicador | Intervalo | Prazo | Casos considerados |
+|---|---|---|---|
+| Atendimento | início dos sintomas → internação | até 1 dia | todos |
+| Notificação | internação → notificação | até 1 dia | todos |
+| Tratamento antiviral | internação → início do antiviral | até 2 dias | tratados com antiviral |
+| Coleta de amostra | internação → coleta | até 7 dias | com amostra coletada |
+| Encerramento | notificação → encerramento | até 60 dias | já encerrados |
+
+Intervalos negativos (por exemplo, antiviral iniciado antes da internação) contam como oportunos. Intervalos menores que −30 ou maiores que 120 dias são tratados como erro de digitação e excluídos. O indicador de encerramento considera apenas os casos já encerrados — no ano corrente, muitos casos recentes ainda estão abertos.
+
+```{r oportunidade-indicadores, fig.width=12, fig.height=5}
+gD02b
+```
+
+**Por município de residência** — percentual oportuno e, entre parênteses, número de casos avaliados. "—" indica que não houve caso a avaliar; na coluna de tratamento antiviral, significa que **nenhum caso do município recebeu antiviral**:
+
+```{r oportunidade-municipio}
+oport_municipio %>%
+  dplyr::rename(Município = municipio) %>%
+  knitr::kable(align = c("l", rep("r", 5))) %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE, font_size = 12)
+```
+
+### 2b. Sintomas → Notificação
 
 A oportunidade de notificação mede o tempo (em dias) entre o início dos sintomas e o registro do caso no SIVEP-Gripe. Intervalos curtos indicam detecção precoce — fundamental para que a vigilância epidemiológica possa acionar medidas de resposta em tempo hábil.
 
@@ -73,7 +115,7 @@ Valores elevados podem refletir atraso no reconhecimento clínico do caso, dific
 gD02
 ```
 
-### 2b. Internação → Desfecho
+### 2c. Internação → Desfecho
 
 Este gráfico mostra o tempo entre a internação e o desfecho — separado entre cura e óbito por SRAG. Distribuições com cauda longa à direita são esperadas em casos graves com complicações.
 
@@ -224,20 +266,74 @@ if (!is.null(av_srag$g_oport)) av_srag$g_oport
 
 [Inferência] Proporção baixa de tratamento entre os casos de influenza, ou início tardio (após 48 h), pode refletir atraso na suspeita clínica, procura tardia pelo serviço de saúde ou indisponibilidade do medicamento. A data de início do antiviral pode ser anterior à internação quando o tratamento começou na atenção ambulatorial.
 
+::: {.callout-note collapse="true"}
+## Indicação e posologia do fosfato de oseltamivir (Tamiflu®) — Guia MS 2023
+
+**Indicação**
+
+- **SRAG:** iniciar **imediatamente** após a suspeita clínica, independentemente da coleta de exames e da situação vacinal. Coletar a amostra respiratória, de preferência, antes da primeira dose. Em pacientes com fatores de risco e SRAG, ainda há benefício se iniciado até 5 dias do início dos sintomas.
+- **Síndrome gripal com condições ou fatores de risco para complicações:** indicado para todos, mesmo em atendimento ambulatorial, independentemente da situação vacinal.
+- **Síndrome gripal sem fatores de risco:** considerar com base no julgamento clínico, de preferência nas primeiras 48 horas; tratar de imediato se surgirem sinais de agravamento.
+- O oseltamivir **não** é indicado para o tratamento de covid-19.
+
+**Condições e fatores de risco:** gestantes em qualquer idade gestacional e puérperas até 2 semanas após o parto; adultos ≥ 60 anos; crianças < 5 anos; população indígena aldeada ou com dificuldade de acesso; menores de 19 anos em uso prolongado de ácido acetilsalicílico; pneumopatias (inclusive asma), tuberculose, cardiovasculopatias (exceto hipertensão isolada), nefropatias, hepatopatias, doenças hematológicas, distúrbios metabólicos (inclusive diabetes), transtornos neurológicos que comprometam a função respiratória, imunossupressão e obesidade (especialmente IMC ≥ 40).
+
+**Posologia — tratamento por 5 dias** (Tabela 4 do Guia)
+
+| Faixa etária | Peso / idade | Dose |
+|---|---|---|
+| Adulto | — | 75 mg, de 12 em 12 horas |
+| Criança ≥ 1 ano | ≤ 15 kg | 30 mg, de 12 em 12 horas |
+| | > 15 a 23 kg | 45 mg, de 12 em 12 horas |
+| | > 23 a 40 kg | 60 mg, de 12 em 12 horas |
+| | > 40 kg | 75 mg, de 12 em 12 horas |
+| Criança < 1 ano | 0 a 8 meses | 3 mg/kg, de 12 em 12 horas |
+| | 9 a 11 meses | 3,5 mg/kg, de 12 em 12 horas |
+| Recém-nascido | < 38 semanas de idade gestacional | 1 mg/kg/dose, de 12 em 12 horas |
+| | 38 a 40 semanas | 1,5 mg/kg/dose, de 12 em 12 horas |
+| | > 40 semanas | 3 mg/kg/dose, de 12 em 12 horas |
+
+**Ajuste na insuficiência renal — tratamento** (Tabela 5 do Guia; clearance de creatinina)
+
+| Comprometimento renal | Dose (tratamento de 5 dias) |
+|---|---|
+| Leve (> 60–90 ml/min) | 75 mg, de 12 em 12 horas |
+| Moderado (> 30–60 ml/min) | 30 mg, de 12 em 12 horas |
+| Grave (> 10–30 ml/min) | 30 mg, 1 vez ao dia |
+| Hemodiálise (≤ 10 ml/min) | 30 mg após cada sessão de hemodiálise (3 doses em 5 dias) |
+| Diálise peritoneal contínua ambulatorial (≤ 10 ml/min) | dose única de 30 mg, logo após a troca da diálise |
+
+Se o pó para suspensão oral não estiver disponível, o conteúdo das cápsulas pode ser diluído em água ou misturado a alimentos açucarados (orientações no Anexo B do Guia).
+
+*Conteúdo transcrito do Guia de Manejo e Tratamento de Influenza 2023 (Ministério da Saúde) para consulta rápida das equipes. Não substitui o Guia nem a avaliação clínica.*
+:::
+
 **Referências:** Brasil. Ministério da Saúde. *Guia de Manejo e Tratamento de Influenza 2023*. Brasília: MS, 2023. Muthuri SG et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *Lancet Respir Med*. 2014;2(5):395–404.
 
 ### 5c. Status Vacinal — COVID-19
 
 ::: {.callout-warning}
-**[Não verificado]** A completitude do campo de vacinação contra COVID-19 no SIVEP-Gripe varia significativamente por período e município. Em muitos registros, o campo permanece como "ignorado". Os percentuais apresentados abaixo refletem apenas os registros com informação disponível — **não representam a cobertura vacinal real da população notificada.**
+A completitude do campo de vacinação contra covid-19 varia entre períodos e municípios, e muitos registros ficam como "ignorado". O gráfico mostra todos os casos, inclusive os ignorados — **os percentuais não representam a cobertura vacinal da população**, apenas o que foi registrado entre os casos hospitalizados.
 :::
 
-O campo `VACINA_COV` registra se o paciente tinha esquema vacinal contra COVID-19 no momento da internação. Não especifica o número de doses, o fabricante ou o tempo desde a última dose — informações necessárias para qualquer análise de efetividade vacinal.
+O campo `VACINA_COV` registra se o paciente recebeu vacina contra covid-19. A ficha também tem as datas das doses (`DOSE_1_COV`, `DOSE_2_COV`, `DOSE_REF`, `DOSE_2REF`, `DOSE_ADIC`), o fabricante (`FAB_COV_1`, `FAB_COV_2`, `FAB_COVRF`…) e o lote, que permitiriam analisar o esquema e o tempo desde a última dose; esses campos ainda não são explorados nesta página. Mesmo com eles, estimar efetividade vacinal exige desenho de estudo próprio (por exemplo, caso-controle teste-negativo).
 
 Este gráfico tem valor descritivo limitado e deve ser interpretado exclusivamente como retrato do preenchimento do campo na base local.
 
 ```{r vacinal, fig.width=10, fig.height=4}
 gD11
+```
+
+### 5d. Vacinação contra Influenza
+
+O campo `VACINA` registra se o paciente recebeu a vacina contra gripe na última campanha. O gráfico compara a situação vacinal entre os **`r n_flu_casos`** casos de influenza confirmada e os **`r n_flu_obitos`** óbitos por influenza.
+
+A vacina contra influenza é oferecida anualmente aos grupos prioritários, que coincidem em grande parte com os grupos de risco para complicações (idosos, crianças pequenas, gestantes, puérperas e pessoas com comorbidades).
+
+[Inferência] Uma proporção alta de não vacinados entre casos e óbitos por influenza é compatível com a proteção conferida pela vacina contra formas graves e reforça a importância da vacinação dos grupos prioritários. Essa comparação é apenas descritiva: **não mede a efetividade da vacina**, que exige comparação com a população não doente e ajuste por idade e comorbidades.
+
+```{r vacina-influenza, fig.width=11, fig.height=4}
+gD11b
 ```
 
 ---

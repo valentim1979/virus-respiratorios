@@ -77,6 +77,37 @@ gD01 <- ggplot(completitude,
 
 
 # ==============================================================================
+# BLOCO D1b — CONSISTÊNCIA E VALOR PREDITIVO POSITIVO
+# ==============================================================================
+# Ribeiro & Sanchez (2020), Epidemiol. Serv. Saúde 29(3):e2020066:
+# - inconsistência: % de amostras com coleta antes do início dos sintomas
+#   (aceitável se <= 20%);
+# - VPP da definição de caso: % de casos de SRAG com vírus respiratório
+#   confirmado (satisfatório se > 20%). Aqui: classificação final influenza,
+#   outro vírus respiratório ou covid-19.
+
+coleta_valida <- base_filtrada %>%
+  mutate(dt_col = parseia_data(DT_COLETA), dt_sin = parseia_data(DT_SIN_PRI)) %>%
+  filter(!is.na(dt_col), !is.na(dt_sin))
+n_incons   <- sum(coleta_valida$dt_col < coleta_valida$dt_sin)
+pct_incons <- round(n_incons / max(nrow(coleta_valida), 1) * 100, 1)
+
+n_virus  <- sum(base_filtrada$CLASSI_FIN %in% c(1, 2, 5))
+pct_vpp  <- round(n_virus / max(nrow(base_filtrada), 1) * 100, 1)
+
+tabela_qualidade <- tibble::tibble(
+  Indicador  = c("Inconsistência (coleta antes do início dos sintomas)",
+                 "Valor preditivo positivo (vírus respiratório confirmado)"),
+  Numerador  = c(n_incons, n_virus),
+  Denominador = c(nrow(coleta_valida), nrow(base_filtrada)),
+  `Valor (%)` = c(pct_incons, pct_vpp),
+  Referência = c("≤ 20%", "> 20%"),
+  Situação   = c(if (pct_incons <= 20) "Aceitável" else "Não aceitável",
+                 if (pct_vpp > 20) "Satisfatório" else "Insatisfatório")
+)
+
+
+# ==============================================================================
 # BLOCO D2 — OPORTUNIDADE: SINTOMAS → NOTIFICAÇÃO
 # ==============================================================================
 # Mede o tempo (em dias) entre o início dos sintomas e a notificação.
@@ -120,6 +151,77 @@ gD02 <- ggplot(oportunidade, aes(x = dias_sin_notif)) +
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"))
 
+
+
+# ==============================================================================
+# BLOCO D2b — INDICADORES DE OPORTUNIDADE DA VIGILÂNCIA
+# ==============================================================================
+# Ribeiro & Sanchez (2020): cada indicador é o % de casos com o intervalo
+# dentro do prazo; o sistema é oportuno se a média simples dos percentuais
+# for >= 70%. Intervalos fora de [-30, 120] dias são tratados como erro de
+# digitação e excluídos.
+
+indicadores_oport <- tibble::tribble(
+  ~indicador,           ~inicio,      ~fim,         ~prazo, ~filtro,
+  "Atendimento",        "DT_SIN_PRI", "DT_INTERNA", 1,      "todos",
+  "Notificação",        "DT_INTERNA", "DT_NOTIFIC", 1,      "todos",
+  "Tratamento antiviral","DT_INTERNA", "DT_ANTIVIR", 2,      "tratados",
+  "Coleta de amostra",  "DT_INTERNA", "DT_COLETA",  7,      "todos",
+  "Encerramento",       "DT_NOTIFIC", "DT_ENCERRA", 60,     "todos"
+)
+descricao_oport <- c(
+  "Atendimento"          = "Início dos sintomas → internação (≤ 1 dia)",
+  "Notificação"          = "Internação → notificação (≤ 1 dia)",
+  "Tratamento antiviral" = "Internação → início do antiviral (≤ 2 dias)",
+  "Coleta de amostra"    = "Internação → coleta da amostra (≤ 7 dias)",
+  "Encerramento"         = "Notificação → encerramento (≤ 60 dias)"
+)
+
+calcular_oportunidade <- function(df) {
+  purrr::pmap_dfr(indicadores_oport, function(indicador, inicio, fim, prazo, filtro) {
+    d <- if (filtro == "tratados") dplyr::filter(df, ANTIVIRAL == 1) else df
+    dias <- as.numeric(parseia_data(d[[fim]]) - parseia_data(d[[inicio]]))
+    dias <- dias[!is.na(dias) & dias >= -30 & dias <= 120]
+    tibble::tibble(indicador = indicador, n = length(dias),
+                   oportunos = sum(dias <= prazo),
+                   pct = if (length(dias) > 0) round(mean(dias <= prazo) * 100, 1) else NA_real_)
+  })
+}
+
+oport_regional <- calcular_oportunidade(base_filtrada)
+media_oport    <- round(mean(oport_regional$pct, na.rm = TRUE), 1)
+
+gD02b <- oport_regional %>%
+  mutate(rotulo = descricao_oport[indicador],
+         rotulo = factor(rotulo, levels = rev(descricao_oport)),
+         situacao = if_else(pct >= 70, "Oportuno (≥ 70%)", "Abaixo da meta")) %>%
+  ggplot(aes(x = pct, y = rotulo, fill = situacao)) +
+  geom_col(width = 0.6) +
+  geom_vline(xintercept = 70, linetype = "dashed", color = "#A30000") +
+  geom_text(aes(label = paste0(format(pct, decimal.mark = ","), "% (", oportunos, "/", n, ")")),
+            hjust = -0.05, size = 3.5) +
+  scale_fill_manual(values = c("Oportuno (≥ 70%)" = "#2E7D32", "Abaixo da meta" = "#FF8F00"), name = NULL) +
+  scale_x_continuous(limits = c(0, 118), breaks = seq(0, 100, 20)) +
+  labs(
+    title    = paste0("Oportunidade da Vigilância de SRAG — ", escopo_titulo),
+    subtitle = paste0("% de casos dentro do prazo | Média dos indicadores: ",
+                      format(media_oport, decimal.mark = ","), "% (meta ≥ 70%) | Linha tracejada = 70%"),
+    x = "% oportuno", y = NULL, caption = texto_rodape
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"), legend.position = "top")
+
+oport_municipio <- base_filtrada %>%
+  dplyr::left_join(dplyr::select(casos_municipio, CO_MUN_RES, municipio), by = "CO_MUN_RES") %>%
+  dplyr::group_split(municipio) %>%
+  purrr::map_dfr(function(d) {
+    calcular_oportunidade(d) %>%
+      dplyr::mutate(municipio = stringr::str_to_title(d$municipio[1]))
+  }) %>%
+  dplyr::mutate(valor = dplyr::if_else(n > 0, paste0(format(pct, decimal.mark = ","), "% (", n, ")"), "—")) %>%
+  dplyr::select(municipio, indicador, valor) %>%
+  tidyr::pivot_wider(names_from = indicador, values_from = valor) %>%
+  dplyr::arrange(municipio)
 
 
 # ==============================================================================
@@ -533,6 +635,51 @@ gD11 <- ggplot(vacinal_dist,
 
 
 # ==============================================================================
+# BLOCO D11b — VACINAÇÃO CONTRA INFLUENZA
+# ==============================================================================
+# VACINA: 1 = Sim, 2 = Não, 9 = Ignorado (vacina contra gripe na última
+# campanha). Comparação entre casos e óbitos de influenza confirmada.
+
+rotular_vacina <- function(x) dplyr::case_when(
+  x == 1 ~ "Vacinado",
+  x == 2 ~ "Não vacinado",
+  TRUE   ~ "Ignorado/Não registrado"
+)
+
+vacina_flu <- dplyr::bind_rows(
+  base_filtrada %>% dplyr::filter(CLASSI_FIN == 1) %>%
+    dplyr::mutate(grupo = "Casos de influenza"),
+  base_filtrada %>% dplyr::filter(CLASSI_FIN == 1, EVOLUCAO == 2) %>%
+    dplyr::mutate(grupo = "Óbitos por influenza")
+) %>%
+  dplyr::mutate(status = factor(rotular_vacina(VACINA),
+                                levels = c("Vacinado", "Não vacinado", "Ignorado/Não registrado"))) %>%
+  dplyr::count(grupo, status, .drop = FALSE) %>%
+  dplyr::group_by(grupo) %>%
+  dplyr::mutate(total = sum(n), pct = round(n / total * 100, 1)) %>%
+  dplyr::ungroup()
+
+n_flu_casos  <- sum(base_filtrada$CLASSI_FIN == 1, na.rm = TRUE)
+n_flu_obitos <- sum(base_filtrada$CLASSI_FIN == 1 & base_filtrada$EVOLUCAO == 2, na.rm = TRUE)
+
+gD11b <- vacina_flu %>%
+  dplyr::mutate(grupo = paste0(grupo, " (N = ", total, ")")) %>%
+  ggplot(aes(x = pct, y = grupo, fill = status)) +
+  geom_col(width = 0.6, position = position_stack(reverse = TRUE)) +
+  geom_text(aes(label = ifelse(pct >= 4, paste0(format(pct, decimal.mark = ","), "%"), "")),
+            position = position_stack(vjust = 0.5, reverse = TRUE), color = "white", size = 3.5) +
+  scale_fill_manual(values = c("Vacinado" = "#2E7D32", "Não vacinado" = "#C62828",
+                               "Ignorado/Não registrado" = "grey60"), name = NULL) +
+  labs(
+    title    = "Vacinação contra Influenza — Casos e Óbitos de Influenza Confirmada",
+    subtitle = paste0(escopo_titulo, " | Vacina contra gripe na última campanha, conforme registrado no SIVEP-Gripe"),
+    x = "% dos casos", y = NULL, caption = texto_rodape
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"), legend.position = "top")
+
+
+# ==============================================================================
 # BLOCO D12 — MORTALIDADE POR MUNICÍPIO (gráfico de barras)
 # ==============================================================================
 # Complementa o mapa já existente com uma visualização ordenada.
@@ -586,6 +733,10 @@ writexl::write_xlsx(
     "criterio_conf"     = criterio_conf,
     "antiviral"         = antiviral_dist,
     "antiviral_influenza" = av_flu$dist,
+    "oportunidade"      = oport_regional,
+    "oportunidade_mun"  = oport_municipio,
+    "qualidade"         = tabela_qualidade,
+    "vacina_influenza"  = vacina_flu,
     "vacinal"           = vacinal_dist
   ),
   file.path(dir_tabelas, paste0("descritiva_15rs_", paste(anos_carregar, collapse = "_"), ".xlsx"))

@@ -372,18 +372,59 @@ Importante
 </section>
 <section id="b.-uso-de-antiviral" class="level3">
 <h3 class="anchored" data-anchor-id="b.-uso-de-antiviral">5b. Uso de Antiviral</h3>
-<p>Registra se o paciente recebeu antiviral durante a internação. No contexto do SIVEP-Gripe, o antiviral de referência para influenza é o oseltamivir. O campo não especifica qual antiviral foi utilizado.</p>
-<p>A proporção de casos tratados com antiviral é um indicador indireto de suspeita clínica de influenza e de acesso ao medicamento na rede hospitalar. Casos de COVID-19 confirmados também podem ter recebido antivirais específicos, mas o campo não distingue por agente etiológico.</p>
-<p>[Inferência] Baixa proporção de uso de antiviral em períodos com alta circulação de influenza confirmada pode indicar subprescrição ou indisponibilidade do medicamento. Essa interpretação exige cruzamento com os dados de circulação viral e não pode ser afirmada apenas com este gráfico.</p>
+<p>O campo <code>ANTIVIRAL</code> registra se o paciente recebeu antiviral para influenza; <code>TP_ANTIVIR</code> indica qual (oseltamivir, zanamivir ou outro) e <code>DT_ANTIVIR</code>, a data de início do tratamento.</p>
+<p>O <em>Guia de Manejo e Tratamento de Influenza</em> do Ministério da Saúde (2023) recomenda <strong>iniciar o fosfato de oseltamivir imediatamente após a suspeita clínica de SRAG, independentemente da coleta de exames</strong> — ou seja, todo caso de SRAG tem indicação de tratamento empírico. O maior benefício clínico ocorre quando o antiviral é iniciado <strong>até 48 horas após o início dos sintomas</strong>, embora possa haver benefício em hospitalizados mesmo depois desse prazo.</p>
+<p>Como o SIVEP-Gripe registra apenas a data (sem hora), a janela de 48 horas é aproximada por <strong>até 2 dias</strong> entre a data de início dos sintomas e a data de início do antiviral.</p>
+<p>Os indicadores abaixo são apresentados para os <strong>casos de influenza confirmada</strong> (classificação final = influenza), grupo em que o tratamento tem benefício comprovado, e para <strong>todos os casos de SRAG</strong>, grupo de referência da recomendação do Ministério.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">Influenza confirmada</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">Todos os casos de SRAG</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>Dos <strong>392</strong> casos de influenza confirmada, <strong>278</strong> (70,9%) receberam antiviral. Entre os tratados com data de início registrada (276), <strong>52,5%</strong> começaram o tratamento em até 2 dias do início dos sintomas (mediana de 2 dias).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/antiviral-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="descritiva_files/figure-html/antiviral-1.png" class="img-fluid figure-img" width="960"></a></p>
+<p><a href="descritiva_files/figure-html/antiviral-flu-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="descritiva_files/figure-html/antiviral-flu-1.png" class="img-fluid figure-img" width="960"></a></p>
 </figure>
 </div>
 </div>
 </div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="descritiva_files/figure-html/antiviral-flu-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<p>Dos <strong>1.522</strong> casos de SRAG, <strong>376</strong> (24,7%) receberam antiviral. Entre os tratados com data de início registrada (371), <strong>51,2%</strong> começaram em até 2 dias do início dos sintomas (mediana de 2 dias).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="descritiva_files/figure-html/antiviral-srag-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="descritiva_files/figure-html/antiviral-srag-1.png" class="img-fluid figure-img" width="960"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="descritiva_files/figure-html/antiviral-srag-oport-1.png" class="img-fluid figure-img" width="1056"></a></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>[Inferência] Proporção baixa de tratamento entre os casos de influenza, ou início tardio (após 48 h), pode refletir atraso na suspeita clínica, procura tardia pelo serviço de saúde ou indisponibilidade do medicamento. A data de início do antiviral pode ser anterior à internação quando o tratamento começou na atenção ambulatorial.</p>
+<p><strong>Referências:</strong> Brasil. Ministério da Saúde. <em>Guia de Manejo e Tratamento de Influenza 2023</em>. Brasília: MS, 2023. Muthuri SG et al.&nbsp;Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. <em>Lancet Respir Med</em>. 2014;2(5):395–404.</p>
 </section>
 <section id="c.-status-vacinal-covid-19" class="level3">
 <h3 class="anchored" data-anchor-id="c.-status-vacinal-covid-19">5c. Status Vacinal — COVID-19</h3>
@@ -406,7 +447,7 @@ Aviso
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/vacinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="descritiva_files/figure-html/vacinal-1.png" class="img-fluid figure-img" width="960"></a></p>
+<p><a href="descritiva_files/figure-html/vacinal-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="descritiva_files/figure-html/vacinal-1.png" class="img-fluid figure-img" width="960"></a></p>
 </figure>
 </div>
 </div>
@@ -424,7 +465,7 @@ Aviso
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><a href="descritiva_files/figure-html/mortalidade-municipio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="descritiva_files/figure-html/mortalidade-municipio-1.png" class="img-fluid figure-img" width="1152"></a></p>
+<p><a href="descritiva_files/figure-html/mortalidade-municipio-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="descritiva_files/figure-html/mortalidade-municipio-1.png" class="img-fluid figure-img" width="1152"></a></p>
 </figure>
 </div>
 </div>

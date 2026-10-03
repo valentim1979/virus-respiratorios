@@ -35,7 +35,7 @@ ano_label <- paste(anos_carregar, collapse = "/")
 ## Definições usadas nesta página
 
 - **Letalidade** = óbitos por SRAG ÷ **casos encerrados** × 100. Caso encerrado é o que já tem desfecho registrado no SIVEP-Gripe (cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada não entram no cálculo — por isso a letalidade não é subestimada no ano corrente.
-- **Mortalidade** = óbitos por SRAG ÷ população (IBGE 2025) × 100.000. Mede o impacto na população, não a gravidade entre os casos.
+- **Mortalidade** = óbitos por SRAG ÷ população residente estimada (Ministério da Saúde/DATASUS) × 100.000. Mede o impacto na população, não a gravidade entre os casos.
 - **Semana epidemiológica** = semana de **início dos sintomas**. As semanas mais recentes ainda recebem casos a cada atualização.
 :::
 
@@ -203,6 +203,36 @@ A completitude desse campo deve ser verificada na seção 1. Registros com UTI =
 
 ```{r uti-faixa, fig.width=12, fig.height=6}
 gD08
+```
+
+### 4d. Taxas por Faixa Etária e Sexo
+
+Os gráficos anteriores mostram **números absolutos** — que dependem do tamanho de cada faixa etária na população. As **taxas por 100 mil habitantes** dividem os casos pela população de cada faixa e mostram o **risco** de adoecer, ser internado em UTI ou morrer por SRAG em cada idade, permitindo comparar faixas de tamanhos diferentes.
+
+O denominador é a população residente estimada pelo Ministério da Saúde por município, sexo e idade (DATASUS), somada para os municípios da 15ª RS. Como a população é publicada por ano de idade, a faixa de menores de 1 ano não é subdividida em meses.
+
+[Inferência] Taxas mais altas nos extremos de idade — crianças pequenas e idosos — são o padrão esperado para SRAG e coincidem com os grupos de risco do Guia de Manejo e Tratamento de Influenza. Diferenças entre os sexos na mesma faixa podem refletir comorbidades, exposição ou procura por atendimento, e não podem ser explicadas apenas com estes dados.
+
+```{r taxas-faixa, fig.width=12, fig.height=9}
+if (!is.null(gD08b)) gD08b
+```
+
+```{r piramide-taxa, fig.width=11, fig.height=6}
+if (!is.null(gD08c)) gD08c
+```
+
+```{r tabela-taxas}
+if (!is.null(taxas_faixa)) {
+  taxas_faixa %>%
+    dplyr::transmute(
+      `Faixa etária` = faixa, `População` = populacao, Casos = casos,
+      `Incidência /100k` = incidencia_100k, UTI = uti, `UTI /100k` = uti_100k,
+      `Óbitos` = obitos, `Mortalidade /100k` = mortalidade_100k
+    ) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                              full_width = TRUE, font_size = 13)
+}
 ```
 
 ---

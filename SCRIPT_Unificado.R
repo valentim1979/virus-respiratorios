@@ -120,6 +120,34 @@ municipios_15rs <- tibble::tribble(
   412830,         "UNIFLOR",                       2106
 )
 
+# População residente: arquivo do Tabnet/DATASUS (estimativas do Ministério da
+# Saúde por município, sexo e idade), baixado por baixar_populacao.R — usa o
+# ano mais recente disponível em sivep_15rs/. A coluna populacao_2025 acima
+# fica como reserva se o arquivo não existir (o nome da coluna foi mantido por
+# compatibilidade; o valor é o do ano em ANO_POPULACAO).
+arquivos_pop <- sort(Sys.glob("sivep_15rs/populacao_pr_idade_sexo_*.csv"), decreasing = TRUE)
+if (length(arquivos_pop) > 0) {
+  ARQUIVO_POPULACAO <- arquivos_pop[1]
+  ANO_POPULACAO     <- as.integer(sub(".*_([0-9]{4})\\.csv$", "\\1", ARQUIVO_POPULACAO))
+  pop_idade_pr <- readr::read_csv(ARQUIVO_POPULACAO, show_col_types = FALSE) %>%
+    mutate(codigo_ibge_6 = as.integer(codigo_ibge_6))
+  pop_total_mun <- pop_idade_pr %>%
+    group_by(codigo_ibge_6) %>%
+    summarise(populacao = sum(populacao), .groups = "drop")
+  municipios_15rs <- municipios_15rs %>%
+    left_join(pop_total_mun, by = "codigo_ibge_6") %>%
+    mutate(populacao_2025 = populacao) %>%
+    select(-populacao)
+  if (anyNA(municipios_15rs$populacao_2025)) {
+    stop("Municípios da 15ª RS sem população em ", ARQUIVO_POPULACAO)
+  }
+} else {
+  ARQUIVO_POPULACAO <- NA_character_
+  ANO_POPULACAO     <- 2025L
+  pop_idade_pr      <- NULL
+}
+ROTULO_POPULACAO <- paste0("Pop. estimada ", ANO_POPULACAO)
+
 POPULACAO_15RS_TOTAL <- sum(municipios_15rs$populacao_2025)
 
 message("Municípios: ", nrow(municipios_15rs),
@@ -707,7 +735,7 @@ g07 <- ggplot(casos_semana, aes(x = factor(SEM_EPI), y = total)) +
                       " (N = ", format(n_semana, big.mark = ".", decimal.mark = ","), ")"),
     subtitle = paste0("N = ", format(n_semana, big.mark = ".", decimal.mark = ","),
                       " | Taxa: ", incid_100k, " por 100.000 hab.",
-                      " | Pop. IBGE 2025: ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ",")),
+                      " | ", ROTULO_POPULACAO, ": ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ",")),
     x = "Semana epidemiológica de início dos sintomas", y = "Notificações", caption = texto_rodape
   ) +
   theme_minimal() +
@@ -804,7 +832,7 @@ g09 <- casos_municipio %>%
   labs(
     title    = paste0("Taxa de Incidência de SRAG por Município — 15ª RS Maringá",
                       " (N = ", format(sum(casos_municipio$casos), big.mark = ".", decimal.mark = ","), ")"),
-    subtitle = paste0("Por 100.000 habitantes | Pop. IBGE 2025",
+    subtitle = paste0("Por 100.000 habitantes | ", ROTULO_POPULACAO,
                       " | Pop. total: ", format(POPULACAO_15RS_TOTAL, big.mark = ".", decimal.mark = ","),
                       " | Ano(s): ", paste(anos_carregar, collapse = ", ")),
     x = "Incidência por 100.000 hab.", y = "Município", caption = texto_rodape
@@ -1476,7 +1504,7 @@ if (file.exists(CAMINHO_SHP_MUNICIPIOS)) {
                 fill.legend = tm_legend(title = "Casos/100 mil hab."),
                 col = "white", lwd = 0.5) +
     tm_text("NM_MUN", size = 0.45, col = "grey20") +
-    tm_title(paste("SRAG — Incidência\n15ª RS Maringá/PR |", titulo_ano, "| Pop. IBGE 2025")) +
+    tm_title(paste("SRAG — Incidência\n15ª RS Maringá/PR |", titulo_ano, "|", ROTULO_POPULACAO)) +
     tm_compass(position = c("right", "top"), size = 1.5) +
     tm_scalebar(position = c("left", "bottom"))
 
@@ -1660,7 +1688,16 @@ saveRDS(
     ORDEM_FAIXAS       = ORDEM_FAIXAS,
     parseia_data       = parseia_data,
     criar_faixa_etaria = criar_faixa_etaria,
-    padronizar_sexo    = padronizar_sexo
+    padronizar_sexo    = padronizar_sexo,
+    ROTULO_POPULACAO   = ROTULO_POPULACAO,
+    # população do escopo (15ª RS ou o município de MUNICIPIO_ANALISE) por sexo
+    # e idade simples, para as taxas por faixa etária
+    pop_idade_escopo   = if (is.null(pop_idade_pr)) NULL else pop_idade_pr %>%
+      filter(codigo_ibge_6 %in% if (exists("cod_mun") && !is.null(MUNICIPIO_ANALISE) &&
+                                     nzchar(trimws(MUNICIPIO_ANALISE))) cod_mun
+                                 else municipios_15rs$codigo_ibge_6) %>%
+      group_by(sexo, idade) %>%
+      summarise(populacao = sum(populacao), .groups = "drop")
   ),
   CAMINHO_CONTEXTO_DESCRITIVA
 )
@@ -1681,7 +1718,7 @@ message("RESUMO")
 message(strrep("=", 60))
 message("Escopo              : ", escopo_titulo)
 message("Ano(s) analisados   : ", paste(anos_carregar, collapse = ", "))
-message("Pop. IBGE 2025      : ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ","))
+message(ROTULO_POPULACAO, "   : ", format(POPULACAO_ESCOPO, big.mark = ".", decimal.mark = ","))
 message("Total notificações  : ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","))
 message("Tx notif. /100k hab.: ", round(nrow(base_filtrada) / POPULACAO_ESCOPO * 100000, 1))
 message("Confirmados PCR     : ", format(n_pcr_pos, big.mark = ".", decimal.mark = ","))

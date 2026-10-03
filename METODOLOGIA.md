@@ -10,7 +10,9 @@ Estudo descritivo, de base populacional, com dados secundários de vigilância, 
 
 ## 2. Área e população
 
-A 15ª Regional de Saúde compreende **30 municípios** do noroeste do Paraná, com **909.489 habitantes** (estimativa populacional do IBGE para 2025, usada como denominador de todas as taxas). A lista de municípios, com código IBGE de 6 dígitos e população, está fixada no `BLOCO 2` do script principal. Para análises estaduais, municípios, regionais e macrorregiões do Paraná (399 municípios, 22 regionais, 4 macrorregiões) vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, do IBGE (2024).
+A 15ª Regional de Saúde compreende **30 municípios** do noroeste do Paraná, com **909.489 habitantes** em 2025. A lista de municípios, com o código IBGE de 6 dígitos, está fixada no `BLOCO 2` do script principal.
+
+**População (denominadores).** As taxas usam a população residente do *Estudo de Estimativas Populacionais por Município, Idade e Sexo 2000-2025* do Ministério da Saúde, disponível no DATASUS/Tabnet. O script `baixar_populacao.R` consulta o Tabnet e baixa a população de todos os municípios do Paraná por sexo e idade simples (0 a 79 anos e "80 anos e mais"). O arquivo é gravado em `sivep_15rs/populacao_pr_idade_sexo_<ano>.csv`. O script principal usa o ano mais recente disponível, tanto para os totais municipais quanto para as taxas por faixa etária e sexo. Os totais municipais de 2025 coincidem exatamente com os valores usados anteriormente no painel (por exemplo, Maringá com 429.660 habitantes). A estimativa é atualizada uma vez por ano, quando o Ministério publica o novo estudo. Para análises estaduais, municípios, regionais e macrorregiões do Paraná (399 municípios, 22 regionais, 4 macrorregiões) vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, do IBGE (2024).
 
 ## 3. Fontes de dados
 
@@ -50,8 +52,9 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 
 | Indicador | Cálculo |
 |---|---|
-| Taxa de incidência de SRAG | casos residentes no período ÷ população IBGE 2025 × 100.000 |
-| Taxa de mortalidade por SRAG | óbitos por SRAG ÷ população IBGE 2025 × 100.000 |
+| Taxa de incidência de SRAG | casos residentes no período ÷ população residente estimada × 100.000 |
+| Taxa de mortalidade por SRAG | óbitos por SRAG ÷ população residente estimada × 100.000 |
+| Taxas específicas por faixa etária | casos, internações em UTI e óbitos por SRAG da faixa ÷ população da faixa × 100.000. Faixas: < 1 ano, 1–4, 5–9, 10–14, 15–19 e decenais de 20 a 79, mais 80 anos e mais. Também é calculada a incidência por faixa etária e sexo |
 | Letalidade | óbitos por SRAG ÷ casos encerrados × 100 (faixas etárias com menos de 5 casos encerrados são omitidas) |
 | Proporção de internação em UTI | casos com `UTI = 1` ÷ casos notificados × 100 |
 | Variação semanal | (casos da semana − casos da semana anterior) ÷ casos da semana anterior × 100 |
@@ -105,6 +108,7 @@ A página de estatística descritiva acrescenta:
 - frequência de comorbidades, no total e entre óbitos;
 - letalidade por faixa etária e sexo;
 - proporção de UTI por faixa etária;
+- taxas de incidência, internação em UTI e mortalidade por 100 mil habitantes por faixa etária, e pirâmide de incidência por faixa etária e sexo;
 - critério de confirmação;
 - uso de antiviral e tempo até o início do tratamento, para influenza confirmada e para todos os casos de SRAG;
 - situação vacinal contra covid-19;
@@ -135,6 +139,8 @@ Todo o processamento é feito em R e publicado com Quarto como site estático no
 - **pacotes:** dplyr 1.2.1, ggplot2 4.0.3, sf 1.1.3, tmap 4.4.1, readr 2.2.0, foreign 0.8.91, writexl 2.0.1, tidytext 0.4.3, knitr 1.52, kableExtra 1.4.1;
 - **Quarto** 1.10.18.
 
+A população por município, sexo e idade é obtida por `baixar_populacao.R`, que preenche automaticamente o formulário do Tabnet (UF Paraná, linha = município, coluna = idade simples, um pedido por sexo). O script verifica se vieram os 399 municípios e se o total estadual está na faixa esperada. A tabela resultante fica versionada no repositório.
+
 O código e o histórico de alterações estão versionados em git (repositório `valentim1979/virus-respiratorios`). O fluxo completo — anonimização, análise, renderização e publicação — é executado automaticamente quando uma nova exportação do SIVEP-Gripe é disponibilizada.
 
 ## 10. Limitações
@@ -142,7 +148,8 @@ O código e o histórico de alterações estão versionados em git (repositório
 - **Atraso de notificação:** as semanas recentes estão subestimadas até que o nowcasting seja implementado (seção 8.1).
 - **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor, e o nowcasting (seção 8.1) vai corrigir esse viés.
 - **Letalidade entre encerrados:** restringir o denominador aos casos encerrados evita a subestimação pelos casos ainda internados. Em contrapartida, pode superestimar a letalidade no ano corrente se os óbitos forem registrados mais rápido que as altas, e exclui casos com evolução ignorada.
-- **Denominador fixo:** as taxas usam a população de 2025 em todos os anos.
+- **Denominador:** as taxas usam a estimativa populacional mais recente disponível (hoje, 2025) para todos os anos, inclusive o ano corrente, que ainda não tem estimativa publicada. As estimativas municipais por idade e sexo do Ministério da Saúde são projeções e têm incerteza maior em municípios pequenos e nas faixas etárias extremas.
+- **Menores de 1 ano:** a população é publicada por ano de idade, então as taxas não separam 0–6 e 6–11 meses (essa divisão continua disponível nas contagens absolutas). A idade do caso vem de `COD_IDADE`; códigos em dias ou meses entram como 0 ano.
 - **Canal endêmico frágil:** o canal é baseado em poucos anos de referência (pós-2022), o que torna os percentis instáveis. Ele não é ajustado por tendência nem pelo tamanho da população.
 - **Qualidade do preenchimento:** comorbidades, vacinação e uso de antiviral dependem da completitude dos campos (seção 6), e o não preenchimento não equivale à ausência da condição.
 - **Casos de residentes fora do estado:** casos de residentes da 15ª RS notificados fora do Paraná podem não constar da exportação estadual. Na base aberta de 2026 isso representou 0,4% dos residentes do PR.
@@ -152,6 +159,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD).
 - BRASIL. Ministério da Saúde. *Guia de Vigilância em Saúde*. 5. ed. Brasília: SVS, 2022.
 - BRASIL. Ministério da Saúde. *Instrutivo de preenchimento da ficha de notificação de SRAG hospitalizado*. Brasília: DEVIT/SVS, 2022.
+- BRASIL. Ministério da Saúde. DATASUS. *População residente – Estudo de estimativas populacionais por município, idade e sexo 2000-2025 – Brasil*. Tabnet. Disponível em: http://tabnet.datasus.gov.br/cgi/deftohtm.exe?ibge/cnv/popsvs2024br.def.
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
 - MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
 - RIBEIRO, I. G.; SANCHEZ, M. N. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiologia e Serviços de Saúde*, v. 29, n. 3, e2020066, 2020.
@@ -164,6 +172,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | População passa a vir do estudo de estimativas por município, idade e sexo do Ministério da Saúde (DATASUS/Tabnet), baixado por `baixar_populacao.R`, em vez de valores digitados no código (totais idênticos). Novas taxas de incidência, UTI e mortalidade por faixa etária e pirâmide de incidência por sexo (seção 4d da página descritiva). Rótulos de população passam a indicar o ano da estimativa usada. |
 | 03/10/2026 | Página descritiva: indicadores de qualidade (inconsistência, VPP) e os cinco indicadores de oportunidade de Ribeiro & Sanchez (2020), com tabela por município; vacinação contra influenza entre casos e óbitos de influenza; quadro de indicação e posologia do oseltamivir (Guia MS 2023); correção da descrição dos campos de vacinação contra covid-19. |
 | 03/10/2026 | Antiviral: seção passa a separar influenza confirmada e todos os casos de SRAG e ganha o indicador de oportunidade do tratamento (até 2 dias do início dos sintomas). |
 | 03/10/2026 | Séries semanais passam da semana de notificação (`SEM_NOT`) para a de início dos sintomas (`SEM_PRI`). Letalidade passa a usar os casos encerrados como denominador (antes: todos os notificados). O painel ganha um quadro "Como ler este painel" e a página Sobre ganha um resumo da metodologia. |

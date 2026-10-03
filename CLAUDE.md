@@ -29,6 +29,7 @@ Boletim epidemiológico de SRAG (SIVEP-Gripe, módulo hospitalar) da 15ª Region
 ```bash
 ./instalar_dependencias.sh          # uma vez: gdal/geos/proj (pacman), udunits + quarto-cli-bin (yay), pacotes R
 Rscript SCRIPT_Unificado.R          # só gera gráficos/tabelas/CSVs (sem publicar)
+Rscript baixar_populacao.R [ano]    # 1x/ano: população PR por município/sexo/idade (Tabnet) → sivep_15rs/
 quarto render                       # gera o site em docs/
 quarto preview                      # servidor local para conferir o site
 ./publicar.sh [--dados-novos]       # R + render + commit + push (ver .claude/commands/publicar.md)
@@ -44,7 +45,7 @@ Requer `DADOS_GOV_TOKEN=...` em `~/.Renviron` (API dados.gov.br). Não há teste
 
 - **`SCRIPT_Unificado.R`** (~1600 linhas) é organizado em blocos numerados (`BLOCO 0` … `BLOCO 5`+). O `BLOCO 0` concentra os parâmetros editáveis (`ANO_ANALISE`, `ANO_INICIO_CANAL`, `MUNICIPIO_ANALISE`, caminhos de arquivos). Gráficos são salvos via `salvar_grafico()` com rodapé `texto_rodape`.
 - **Cache da API** (`baixar_via_api()`): anos encerrados são baixados uma vez e reaproveitados para sempre; o ano corrente só é rebaixado se o CSV não for de hoje; se o download falhar, mantém o cache anterior. `dbf_sivep/` (~4,7 GB) não é versionado.
-- **Recorte da regional:** por município de **residência** (`CO_MUN_RES` ∈ `municipios_15rs$codigo_ibge_6`, código IBGE de 6 dígitos). Municípios e população IBGE 2025 estão fixos no `BLOCO 2` (`municipios_15rs`); regionais/macrorregiões do PR vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, de `sivep_15rs/GIS/Pr_Municipios_2024/`. Não há mapas por bairro hoje (a API não traz `NM_BAIRRO`; a base local traz).
+- **Recorte da regional:** por município de **residência** (`CO_MUN_RES` ∈ `municipios_15rs$codigo_ibge_6`, código IBGE de 6 dígitos). Municípios estão fixos no `BLOCO 2` (`municipios_15rs`); a população vem do arquivo mais recente `sivep_15rs/populacao_pr_idade_sexo_<ano>.csv` (`baixar_populacao.R`, estimativas MS/DATASUS), com os valores digitados no `BLOCO 2` só como reserva; regionais/macrorregiões do PR vêm de `sivep_15rs/parana_macrorregiao.csv`; a malha municipal, de `sivep_15rs/GIS/Pr_Municipios_2024/`. Não há mapas por bairro hoje (a API não traz `NM_BAIRRO`; a base local traz).
 - **Páginas consomem as saídas de formas diferentes:**
   - `index.qmd` — página principal; usa os PNGs de `graficos/` por caminho fixo (o nome do arquivo é o contrato entre script e página) e células `{ojs}` interativas que leem `dados/*.csv` via `FileAttachment` (por isso `dados/**` está em `resources` no `_quarto.yml`).
   - `descritiva.qmd` — executa R no render, mas **não** reroda o script principal: lê `~/SIVEP_dados/contexto_descritiva.rds` (salvo no fim de `SCRIPT_Unificado.R`; pasta configurável por `SIVEP_DADOS`) e faz `source("descritiva_srag_15rs.R")`, que monta os gráficos `gD01`–`gD12` exibidos direto pela página e grava `tabelas/descritiva_15rs_<ano>.xlsx`. Por isso o `.rds` precisa existir antes do `quarto render`; se `descritiva_srag_15rs.R` passar a usar outro objeto do script principal, inclua-o na lista do `saveRDS()`.

@@ -15,7 +15,7 @@ date-format: "DD/MM/YYYY HH:mm"
 - **Semana epidemiológica = semana de início dos sintomas** (não a da notificação). Cada caso é contado na semana em que o paciente começou a ter sintomas, o que mostra melhor quando a transmissão aconteceu.
 - **As últimas 2 a 4 semanas estão incompletas.** Casos com sintomas recentes ainda estão sendo internados, notificados e digitados no SIVEP-Gripe. Uma queda no fim das curvas **não significa necessariamente redução de casos** — os números dessas semanas sobem a cada atualização.
 - **Letalidade = óbitos por SRAG ÷ casos encerrados** (com desfecho registrado: cura, óbito por SRAG ou óbito por outras causas). Casos ainda internados ou sem evolução informada ficam fora do cálculo.
-- **Mortalidade e incidência** são calculadas por 100 mil habitantes (população IBGE 2025) e permitem comparar municípios de tamanhos diferentes.
+- **Mortalidade e incidência** são calculadas por 100 mil habitantes (população residente estimada de 2025 — Ministério da Saúde/DATASUS) e permitem comparar municípios de tamanhos diferentes.
 - A data dos dados aparece no rodapé de cada gráfico. A metodologia completa está na página [Sobre](sobre.qmd).
 :::
 
@@ -422,7 +422,7 @@ A linha tracejada verde representa a mediana histórica semanal (referência cen
 
 ### Incidência por município
 
-![Taxa de incidência de SRAG por município da 15ª RS — casos por 100 mil hab. (Pop. IBGE 2025).](graficos/09_incidencia_por_municipio.png){.lightbox}
+![Taxa de incidência de SRAG por município da 15ª RS — casos por 100 mil hab. (Pop. estimada 2025).](graficos/09_incidencia_por_municipio.png){.lightbox}
 
 ### Regionais do Paraná
 

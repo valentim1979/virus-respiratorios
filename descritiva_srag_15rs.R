@@ -470,6 +470,102 @@ gD08 <- ggplot(uti_faixa,
 
 
 # ==============================================================================
+# BLOCO D8b — TAXAS POR FAIXA ETÁRIA E SEXO (POR 100 MIL HABITANTES)
+# ==============================================================================
+# Numerador: casos, óbitos por SRAG e internações em UTI de base_filtrada.
+# Denominador: população residente do escopo por idade e sexo (estimativas do
+# Ministério da Saúde/DATASUS, ver baixar_populacao.R), em pop_idade_escopo.
+# A população só existe por idade em anos, então < 1 ano não é subdividido.
+# COD_IDADE: 1xxx = dias, 2xxx = meses, 3xxx = anos.
+
+FAIXAS_TAXA <- c("< 1 ano", "1-4", "5-9", "10-14", "15-19", "20-29", "30-39",
+                 "40-49", "50-59", "60-69", "70-79", "80 e mais")
+faixa_taxa <- function(anos) {
+  cut(anos, breaks = c(-Inf, 0, 4, 9, 14, 19, 29, 39, 49, 59, 69, 79, Inf),
+      labels = FAIXAS_TAXA)
+}
+
+taxas_faixa <- NULL
+gD08b <- NULL
+gD08c <- NULL
+if (exists("pop_idade_escopo") && !is.null(pop_idade_escopo)) {
+  casos_idade <- base_filtrada %>%
+    padronizar_sexo() %>%
+    mutate(
+      cod  = suppressWarnings(as.integer(COD_IDADE)),
+      anos = case_when(cod < 3000 ~ 0L, cod < 4000 ~ cod - 3000L, TRUE ~ NA_integer_),
+      faixa = faixa_taxa(anos)
+    ) %>%
+    filter(!is.na(faixa))
+
+  pop_faixa_sexo <- pop_idade_escopo %>%
+    mutate(faixa = faixa_taxa(idade)) %>%
+    group_by(faixa, sexo) %>%
+    summarise(populacao = sum(populacao), .groups = "drop")
+
+  taxas_faixa <- casos_idade %>%
+    group_by(faixa) %>%
+    summarise(casos = n(),
+              obitos = sum(EVOLUCAO == 2, na.rm = TRUE),
+              uti = sum(UTI == 1, na.rm = TRUE), .groups = "drop") %>%
+    tidyr::complete(faixa, fill = list(casos = 0L, obitos = 0L, uti = 0L)) %>%
+    left_join(pop_faixa_sexo %>% group_by(faixa) %>% summarise(populacao = sum(populacao)),
+              by = "faixa") %>%
+    mutate(
+      incidencia_100k  = round(casos  / populacao * 1e5, 1),
+      mortalidade_100k = round(obitos / populacao * 1e5, 1),
+      uti_100k         = round(uti    / populacao * 1e5, 1)
+    )
+
+  gD08b <- taxas_faixa %>%
+    select(faixa, `Incidência` = incidencia_100k, `Internação em UTI` = uti_100k,
+           `Mortalidade` = mortalidade_100k) %>%
+    tidyr::pivot_longer(-faixa, names_to = "indicador", values_to = "taxa") %>%
+    mutate(indicador = factor(indicador, levels = c("Incidência", "Internação em UTI", "Mortalidade"))) %>%
+    ggplot(aes(x = faixa, y = taxa, fill = indicador)) +
+    geom_col(show.legend = FALSE) +
+    geom_text(aes(label = format(taxa, decimal.mark = ",")), vjust = -0.3, size = 2.8) +
+    facet_wrap(~ indicador, ncol = 1, scales = "free_y") +
+    scale_fill_manual(values = c("Incidência" = "#0057A3", "Internação em UTI" = "#FF8F00",
+                                 "Mortalidade" = "#A30000")) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.18))) +
+    labs(
+      title    = paste0("Taxas de SRAG por Faixa Etária — ", escopo_titulo),
+      subtitle = paste0("Por 100.000 habitantes | ", ROTULO_POPULACAO,
+                        " (Ministério da Saúde/DATASUS) | Ano(s): ", paste(anos_carregar, collapse = ", ")),
+      x = "Faixa etária (anos)", y = "Por 100.000 hab.", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), strip.text = element_text(face = "bold"))
+
+  piramide_taxa <- casos_idade %>%
+    filter(sexo %in% c("Masculino", "Feminino")) %>%
+    count(faixa, sexo, name = "casos") %>%
+    tidyr::complete(faixa, sexo, fill = list(casos = 0L)) %>%
+    left_join(pop_faixa_sexo, by = c("faixa", "sexo")) %>%
+    mutate(taxa = round(casos / populacao * 1e5, 1),
+           taxa_plot = if_else(sexo == "Masculino", -taxa, taxa))
+  lim <- max(piramide_taxa$taxa, na.rm = TRUE) * 1.2
+
+  gD08c <- ggplot(piramide_taxa, aes(x = taxa_plot, y = faixa, fill = sexo)) +
+    geom_col(width = 0.8) +
+    geom_text(aes(label = format(taxa, decimal.mark = ","),
+                  hjust = if_else(sexo == "Masculino", 1.1, -0.1)), size = 3) +
+    geom_vline(xintercept = 0, color = "grey40") +
+    scale_x_continuous(labels = function(x) format(abs(x), decimal.mark = ","), limits = c(-lim, lim)) +
+    scale_fill_manual(values = c("Masculino" = "#0057A3", "Feminino" = "#E91E8C"), name = NULL) +
+    labs(
+      title    = paste0("Incidência de SRAG por Faixa Etária e Sexo — ", escopo_titulo),
+      subtitle = paste0("Casos por 100.000 habitantes de cada faixa e sexo | ", ROTULO_POPULACAO),
+      x = "Casos por 100.000 hab.", y = "Faixa etária (anos)", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), legend.position = "top")
+}
+
+
+
+# ==============================================================================
 # BLOCO D9 — CRITÉRIO DE CONFIRMAÇÃO
 # ==============================================================================
 # CRITERIO: 1 = Laboratorial, 2 = Clínico-Epidemiológico,
@@ -697,7 +793,7 @@ gD12 <- casos_municipio %>%
   labs(
     title    = paste0("Mortalidade por SRAG por Município — 15ª RS Maringá",
                       " (N = ", format(sum(casos_municipio$obitos_srag), big.mark = ".", decimal.mark = ","), " óbitos)"),
-    subtitle = paste0("Por 100.000 habitantes | Pop. IBGE 2025",
+    subtitle = paste0("Por 100.000 habitantes | ", ROTULO_POPULACAO,
                       " | Ano(s): ", paste(anos_carregar, collapse = ", ")),
     x = "Mortalidade por 100.000 hab.", y = "Município",
     caption = texto_rodape
@@ -734,6 +830,7 @@ writexl::write_xlsx(
     "antiviral"         = antiviral_dist,
     "antiviral_influenza" = av_flu$dist,
     "oportunidade"      = oport_regional,
+    "taxas_faixa_etaria" = if (is.null(taxas_faixa)) tibble::tibble() else taxas_faixa,
     "oportunidade_mun"  = oport_municipio,
     "qualidade"         = tabela_qualidade,
     "vacina_influenza"  = vacina_flu,

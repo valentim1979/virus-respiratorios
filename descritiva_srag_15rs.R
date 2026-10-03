@@ -782,6 +782,70 @@ analisar_antiviral <- function(df, grupo) {
 av_flu  <- analisar_antiviral(base_filtrada %>% filter(CLASSI_FIN == 1), "Influenza confirmada")
 av_srag <- analisar_antiviral(base_filtrada, "Todos os casos de SRAG")
 
+# --- Óbitos por influenza: tratamento e tempo até o antiviral -------------------
+# Óbitos (EVOLUCAO = 2) entre os casos de influenza confirmada, comparados com
+# os casos de influenza que evoluíram para cura (EVOLUCAO = 1).
+CAT_TRAT <- c("Antiviral em até 2 dias", "Antiviral em 3 a 5 dias", "Antiviral após 5 dias",
+              "Antiviral sem data válida", "Não recebeu antiviral", "Ignorado/Não registrado")
+
+trat_desfecho <- base_filtrada %>%
+  filter(CLASSI_FIN == 1, EVOLUCAO %in% c(1, 2)) %>%
+  mutate(
+    desfecho = if_else(EVOLUCAO == 2, "Óbitos por influenza", "Curados de influenza"),
+    dias = as.numeric(parseia_data(DT_ANTIVIR) - parseia_data(DT_SIN_PRI)),
+    dias = if_else(!is.na(dias) & dias >= 0 & dias <= 60, dias, NA_real_),
+    categoria = case_when(
+      ANTIVIRAL == 1 & !is.na(dias) & dias <= 2 ~ CAT_TRAT[1],
+      ANTIVIRAL == 1 & !is.na(dias) & dias <= 5 ~ CAT_TRAT[2],
+      ANTIVIRAL == 1 & !is.na(dias)             ~ CAT_TRAT[3],
+      ANTIVIRAL == 1                            ~ CAT_TRAT[4],
+      ANTIVIRAL == 2                            ~ CAT_TRAT[5],
+      TRUE                                      ~ CAT_TRAT[6]
+    ),
+    categoria = factor(categoria, levels = CAT_TRAT),
+    desfecho  = factor(desfecho, levels = c("Óbitos por influenza", "Curados de influenza"))
+  )
+
+tabela_trat_desfecho <- trat_desfecho %>%
+  group_by(desfecho) %>%
+  summarise(
+    casos            = n(),
+    tratados         = sum(ANTIVIRAL == 1, na.rm = TRUE),
+    pct_tratados     = round(tratados / casos * 100, 1),
+    nao_tratados     = sum(ANTIVIRAL == 2, na.rm = TRUE),
+    ate_2_dias       = sum(categoria == CAT_TRAT[1]),
+    pct_ate_2_dias   = round(ate_2_dias / pmax(sum(!is.na(dias) & ANTIVIRAL == 1), 1) * 100, 1),
+    mediana_dias     = median(dias[ANTIVIRAL == 1], na.rm = TRUE),
+    .groups = "drop"
+  )
+
+gD10c <- NULL
+if (nrow(trat_desfecho) > 0) {
+  gD10c <- trat_desfecho %>%
+    count(desfecho, categoria, .drop = FALSE) %>%
+    group_by(desfecho) %>%
+    mutate(total = sum(n), pct = if_else(total > 0, n / total * 100, 0)) %>%
+    ungroup() %>%
+    mutate(desfecho_lab = paste0(desfecho, "\n(N = ", total, ")")) %>%
+    ggplot(aes(x = pct, y = desfecho_lab, fill = categoria)) +
+    geom_col(width = 0.6, position = position_stack(reverse = TRUE)) +
+    geom_text(aes(label = ifelse(pct >= 4, paste0(n, "\n", format(round(pct, 1), decimal.mark = ","), "%"), "")),
+              position = position_stack(vjust = 0.5, reverse = TRUE), size = 3, color = "white", lineheight = 0.9) +
+    scale_fill_manual(values = c("Antiviral em até 2 dias" = "#1B5E20", "Antiviral em 3 a 5 dias" = "#66BB6A",
+                                 "Antiviral após 5 dias" = "#FF8F00", "Antiviral sem data válida" = "#8D6E63",
+                                 "Não recebeu antiviral" = "#C62828", "Ignorado/Não registrado" = "grey60"),
+                      name = NULL, drop = FALSE) +
+    guides(fill = guide_legend(nrow = 2)) +
+    labs(
+      title    = "Tratamento Antiviral e Tempo até o Início — Óbitos e Curados de Influenza",
+      subtitle = paste0(escopo_titulo, " | Dias entre o início dos sintomas e o início do antiviral | ",
+                        "Influenza confirmada (classificação final)"),
+      x = "% dos casos", y = NULL, caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), legend.position = "top")
+}
+
 # Mantidos para a planilha Excel e para compatibilidade
 antiviral_dist <- av_srag$dist
 gD10 <- av_srag$g_dist
@@ -922,6 +986,7 @@ writexl::write_xlsx(
     "criterio_conf"     = criterio_conf,
     "antiviral"         = antiviral_dist,
     "antiviral_influenza" = av_flu$dist,
+    "antiviral_desfecho_flu" = tabela_trat_desfecho,
     "oportunidade"      = oport_regional,
     "taxas_faixa_etaria" = if (is.null(taxas_faixa)) tibble::tibble() else taxas_faixa,
     "oportunidade_mun"  = oport_municipio,

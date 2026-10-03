@@ -117,6 +117,7 @@ A página de estatística descritiva acrescenta:
 - taxas de incidência, internação em UTI e mortalidade por 100 mil habitantes por faixa etária, e pirâmide de incidência por faixa etária e sexo;
 - critério de confirmação;
 - uso de antiviral e tempo até o início do tratamento, para influenza confirmada e para todos os casos de SRAG;
+- tratamento antiviral entre os óbitos por influenza (`CLASSI_FIN = 1` e `EVOLUCAO = 2`), comparado aos casos de influenza com cura (`EVOLUCAO = 1`): proporção tratada, proporção com início em até 2 dias e mediana de dias entre o início dos sintomas e o antiviral, em categorias (até 2 dias, 3 a 5, após 5, sem data válida, não tratado, ignorado);
 - situação vacinal contra covid-19;
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
 - consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
@@ -199,6 +200,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Antiviral: tabela e gráfico do tratamento e do tempo até o antiviral entre óbitos e curados de influenza confirmada. |
 | 03/10/2026 | Oportunidade de digitação por unidade notificadora (seção 6.2): cadeia de tempos até a digitação, série mensal e tabela por unidade, com corte de 30 dias de acompanhamento para evitar o viés de casos ainda não digitados. |
 | 03/10/2026 | Nowcasting implementado (seção 8.1): triângulo de notificação com regressão binomial negativa, D = 4, janela de 26 semanas, intervalo de predição de 95% por simulação e validação retrospectiva em 20 cortes, publicados na aba "Estimativa (nowcasting)" do painel. |
 | 03/10/2026 | População passa a vir do estudo de estimativas por município, idade e sexo do Ministério da Saúde (DATASUS/Tabnet), baixado por `baixar_populacao.R`, em vez de valores digitados no código (totais idênticos). Novas taxas de incidência, UTI e mortalidade por faixa etária e pirâmide de incidência por sexo (seção 4d da página descritiva). Rótulos de população passam a indicar o ano da estimativa usada. |

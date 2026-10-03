@@ -324,6 +324,29 @@ av_flu$g_dist
 if (!is.null(av_flu$g_oport)) av_flu$g_oport
 ```
 
+**Óbitos por influenza: receberam antiviral? Em quantos dias?** Comparação entre os casos de influenza confirmada que evoluíram para óbito por SRAG e os que evoluíram para cura (casos ainda sem desfecho não entram):
+
+```{r antiviral-obitos-tabela}
+tabela_trat_desfecho %>%
+  dplyr::transmute(
+    Desfecho = desfecho, Casos = casos,
+    `Receberam antiviral` = paste0(tratados, " (", format(pct_tratados, decimal.mark = ","), "%)"),
+    `Não receberam` = nao_tratados,
+    `Início em até 2 dias¹` = paste0(ate_2_dias, " (", format(pct_ate_2_dias, decimal.mark = ","), "%)"),
+    `Mediana de dias até o antiviral` = mediana_dias
+  ) %>%
+  knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = TRUE, font_size = 13) %>%
+  kableExtra::footnote(general = "¹ Percentual sobre os tratados com data de início do antiviral válida. Dias contados a partir do início dos sintomas.",
+                       general_title = "")
+```
+
+```{r antiviral-obitos-grafico, fig.width=12, fig.height=4.5}
+if (!is.null(gD10c)) gD10c
+```
+
+[Inferência] Uma proporção menor de tratamento — ou um início mais tardio — entre os óbitos do que entre os curados é compatível com o benefício do oseltamivir precoce descrito na literatura. A comparação é apenas descritiva: os óbitos tendem a ser mais idosos e com mais comorbidades, e casos muito graves podem ter morrido antes de o tratamento ser registrado. Por isso, a diferença entre os grupos **não mede o efeito do antiviral**.
+
 #### Todos os casos de SRAG
 
 Dos **`r format(av_srag$n, big.mark = ".", decimal.mark = ",")`** casos de SRAG, **`r av_srag$n_tratados`** (`r format(av_srag$pct_tratados, decimal.mark = ",")`%) receberam antiviral. Entre os tratados com data de início registrada (`r av_srag$n_com_data`), **`r format(av_srag$pct_48h, decimal.mark = ",")`%** começaram em até 2 dias do início dos sintomas (mediana de `r av_srag$mediana_dias` dias).

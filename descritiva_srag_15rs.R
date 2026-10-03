@@ -412,34 +412,88 @@ gD09 <- ggplot(criterio_conf,
 # ==============================================================================
 # BLOCO D10 — USO DE ANTIVIRAL
 # ==============================================================================
-# ANTIVIRAL: 1 = Sim, 2 = Não, 9 = Ignorado
+# ANTIVIRAL: 1 = Sim, 2 = Não, 9 = Ignorado. TP_ANTIVIR: 1 = oseltamivir,
+# 2 = zanamivir, 3 = outro. DT_ANTIVIR: data de início do antiviral.
+# O Guia de Manejo e Tratamento de Influenza (MS, 2023) indica oseltamivir
+# imediato para todo caso de SRAG, com maior benefício até 48 h do início dos
+# sintomas. A página mostra dois grupos: influenza confirmada (CLASSI_FIN = 1)
+# e todos os casos de SRAG.
 
-antiviral_dist <- base_filtrada %>%
-  mutate(
-    antiviral_label = case_when(
-      ANTIVIRAL == 1 ~ "Sim",
-      ANTIVIRAL == 2 ~ "Não",
-      TRUE           ~ "Ignorado/Não registrado"
-    )
-  ) %>%
-  group_by(antiviral_label) %>%
-  summarise(total = n(), .groups = "drop") %>%
-  mutate(pct = round(total / sum(total) * 100, 1))
+analisar_antiviral <- function(df, grupo) {
+  dist <- df %>%
+    mutate(
+      antiviral_label = case_when(
+        ANTIVIRAL == 1 ~ "Sim",
+        ANTIVIRAL == 2 ~ "Não",
+        TRUE           ~ "Ignorado/Não registrado"
+      )
+    ) %>%
+    count(antiviral_label, name = "total") %>%
+    mutate(pct = round(total / sum(total) * 100, 1))
 
-gD10 <- ggplot(antiviral_dist,
-               aes(x = total, y = fct_reorder(antiviral_label, total))) +
-  geom_col(fill = "#457B9D") +
-  geom_text(aes(label = paste0(total, " (", pct, "%)")),
-            hjust = -0.08, size = 3.5) +
-  scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
-  labs(
-    title    = paste0("Uso de Antiviral — ", escopo_titulo,
-                      " (N = ", format(nrow(base_filtrada), big.mark = ".", decimal.mark = ","), ")"),
-    x = "Número de casos", y = NULL,
-    caption = texto_rodape
-  ) +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold"))
+  g_dist <- ggplot(dist, aes(x = total, y = fct_reorder(antiviral_label, total))) +
+    geom_col(fill = "#457B9D") +
+    geom_text(aes(label = paste0(total, " (", format(pct, decimal.mark = ","), "%)")),
+              hjust = -0.08, size = 3.5) +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.22))) +
+    labs(
+      title    = paste0("Uso de Antiviral — ", grupo, " — ", escopo_titulo,
+                        " (N = ", format(nrow(df), big.mark = ".", decimal.mark = ","), ")"),
+      x = "Número de casos", y = NULL, caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"))
+
+  # Oportunidade: dias entre início dos sintomas e início do antiviral
+  tratados <- df %>%
+    filter(ANTIVIRAL == 1) %>%
+    mutate(dias = as.numeric(parseia_data(DT_ANTIVIR) - parseia_data(DT_SIN_PRI))) %>%
+    filter(!is.na(dias), dias >= 0, dias <= 60)
+
+  ate_48h <- sum(tratados$dias <= 2)
+  pct_48h <- if (nrow(tratados) > 0) round(ate_48h / nrow(tratados) * 100, 1) else NA_real_
+
+  g_oport <- NULL
+  if (nrow(tratados) > 0) {
+    g_oport <- tratados %>%
+      mutate(dias_cat = factor(pmin(dias, 14), levels = 0:14,
+                               labels = c(0:13, "14+")),
+             janela   = factor(if_else(dias <= 2, "Até 2 dias (≈ 48 h)", "Após 2 dias"),
+                               levels = c("Até 2 dias (≈ 48 h)", "Após 2 dias"))) %>%
+      count(dias_cat, janela, .drop = FALSE) %>%
+      filter(!(n == 0 & ((as.integer(dias_cat) <= 3 & janela == "Após 2 dias") |
+                         (as.integer(dias_cat) > 3 & janela != "Após 2 dias")))) %>%
+      ggplot(aes(x = dias_cat, y = n, fill = janela)) +
+      geom_col() +
+      geom_text(aes(label = n), vjust = -0.4, size = 3) +
+      scale_fill_manual(values = c("Até 2 dias (≈ 48 h)" = "#2E7D32", "Após 2 dias" = "#FF8F00"), name = NULL) +
+      scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
+      labs(
+        title    = paste0("Tempo entre Início dos Sintomas e Início do Antiviral — ", grupo),
+        subtitle = paste0(format(pct_48h, decimal.mark = ","), "% iniciaram em até 2 dias (",
+                          ate_48h, "/", nrow(tratados), ") | Mediana: ",
+                          median(tratados$dias), " dias | Referência: até 48 h (MS, 2023)"),
+        x = "Dias desde o início dos sintomas", y = "Casos tratados", caption = texto_rodape
+      ) +
+      theme_minimal() +
+      theme(plot.title = element_text(face = "bold"), legend.position = "top")
+  }
+
+  list(
+    dist = dist, g_dist = g_dist, g_oport = g_oport,
+    n = nrow(df), n_tratados = sum(df$ANTIVIRAL == 1, na.rm = TRUE),
+    pct_tratados = round(sum(df$ANTIVIRAL == 1, na.rm = TRUE) / max(nrow(df), 1) * 100, 1),
+    n_com_data = nrow(tratados), ate_48h = ate_48h, pct_48h = pct_48h,
+    mediana_dias = if (nrow(tratados) > 0) median(tratados$dias) else NA_real_
+  )
+}
+
+av_flu  <- analisar_antiviral(base_filtrada %>% filter(CLASSI_FIN == 1), "Influenza confirmada")
+av_srag <- analisar_antiviral(base_filtrada, "Todos os casos de SRAG")
+
+# Mantidos para a planilha Excel e para compatibilidade
+antiviral_dist <- av_srag$dist
+gD10 <- av_srag$g_dist
 
 
 
@@ -531,6 +585,7 @@ writexl::write_xlsx(
     "uti_faixa"         = uti_faixa,
     "criterio_conf"     = criterio_conf,
     "antiviral"         = antiviral_dist,
+    "antiviral_influenza" = av_flu$dist,
     "vacinal"           = vacinal_dist
   ),
   file.path(dir_tabelas, paste0("descritiva_15rs_", paste(anos_carregar, collapse = "_"), ".xlsx"))

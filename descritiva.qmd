@@ -186,15 +186,45 @@ gD09
 
 ### 5b. Uso de Antiviral
 
-Registra se o paciente recebeu antiviral durante a internação. No contexto do SIVEP-Gripe, o antiviral de referência para influenza é o oseltamivir. O campo não especifica qual antiviral foi utilizado.
+O campo `ANTIVIRAL` registra se o paciente recebeu antiviral para influenza; `TP_ANTIVIR` indica qual (oseltamivir, zanamivir ou outro) e `DT_ANTIVIR`, a data de início do tratamento.
 
-A proporção de casos tratados com antiviral é um indicador indireto de suspeita clínica de influenza e de acesso ao medicamento na rede hospitalar. Casos de COVID-19 confirmados também podem ter recebido antivirais específicos, mas o campo não distingue por agente etiológico.
+O *Guia de Manejo e Tratamento de Influenza* do Ministério da Saúde (2023) recomenda **iniciar o fosfato de oseltamivir imediatamente após a suspeita clínica de SRAG, independentemente da coleta de exames** — ou seja, todo caso de SRAG tem indicação de tratamento empírico. O maior benefício clínico ocorre quando o antiviral é iniciado **até 48 horas após o início dos sintomas**, embora possa haver benefício em hospitalizados mesmo depois desse prazo.
 
-[Inferência] Baixa proporção de uso de antiviral em períodos com alta circulação de influenza confirmada pode indicar subprescrição ou indisponibilidade do medicamento. Essa interpretação exige cruzamento com os dados de circulação viral e não pode ser afirmada apenas com este gráfico.
+Como o SIVEP-Gripe registra apenas a data (sem hora), a janela de 48 horas é aproximada por **até 2 dias** entre a data de início dos sintomas e a data de início do antiviral.
 
-```{r antiviral, fig.width=10, fig.height=4}
-gD10
+Os indicadores abaixo são apresentados para os **casos de influenza confirmada** (classificação final = influenza), grupo em que o tratamento tem benefício comprovado, e para **todos os casos de SRAG**, grupo de referência da recomendação do Ministério.
+
+::: {.panel-tabset}
+
+#### Influenza confirmada
+
+Dos **`r av_flu$n`** casos de influenza confirmada, **`r av_flu$n_tratados`** (`r format(av_flu$pct_tratados, decimal.mark = ",")`%) receberam antiviral. Entre os tratados com data de início registrada (`r av_flu$n_com_data`), **`r format(av_flu$pct_48h, decimal.mark = ",")`%** começaram o tratamento em até 2 dias do início dos sintomas (mediana de `r av_flu$mediana_dias` dias).
+
+```{r antiviral-flu, fig.width=10, fig.height=4}
+av_flu$g_dist
 ```
+
+```{r antiviral-flu-oport, fig.width=11, fig.height=5}
+if (!is.null(av_flu$g_oport)) av_flu$g_oport
+```
+
+#### Todos os casos de SRAG
+
+Dos **`r format(av_srag$n, big.mark = ".", decimal.mark = ",")`** casos de SRAG, **`r av_srag$n_tratados`** (`r format(av_srag$pct_tratados, decimal.mark = ",")`%) receberam antiviral. Entre os tratados com data de início registrada (`r av_srag$n_com_data`), **`r format(av_srag$pct_48h, decimal.mark = ",")`%** começaram em até 2 dias do início dos sintomas (mediana de `r av_srag$mediana_dias` dias).
+
+```{r antiviral-srag, fig.width=10, fig.height=4}
+av_srag$g_dist
+```
+
+```{r antiviral-srag-oport, fig.width=11, fig.height=5}
+if (!is.null(av_srag$g_oport)) av_srag$g_oport
+```
+
+:::
+
+[Inferência] Proporção baixa de tratamento entre os casos de influenza, ou início tardio (após 48 h), pode refletir atraso na suspeita clínica, procura tardia pelo serviço de saúde ou indisponibilidade do medicamento. A data de início do antiviral pode ser anterior à internação quando o tratamento começou na atenção ambulatorial.
+
+**Referências:** Brasil. Ministério da Saúde. *Guia de Manejo e Tratamento de Influenza 2023*. Brasília: MS, 2023. Muthuri SG et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *Lancet Respir Med*. 2014;2(5):395–404.
 
 ### 5c. Status Vacinal — COVID-19
 

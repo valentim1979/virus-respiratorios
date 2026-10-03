@@ -57,6 +57,8 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 | Variação semanal | (casos da semana − casos da semana anterior) ÷ casos da semana anterior × 100 |
 | Completitude | registros com preenchimento válido ÷ total de registros × 100, por variável-chave; referência mínima de 80% |
 | Oportunidade de notificação | dias entre o início dos sintomas (`DT_SIN_PRI`) e a notificação (`DT_NOTIFIC`); referência de até 7 dias |
+| Proporção de tratamento antiviral | casos com `ANTIVIRAL = 1` ÷ casos do grupo × 100, para influenza confirmada (`CLASSI_FIN = 1`) e para todos os casos de SRAG |
+| Oportunidade do tratamento antiviral | % dos tratados com início do antiviral (`DT_ANTIVIR`) até 2 dias após o início dos sintomas (`DT_SIN_PRI`) — aproximação da janela de 48 h do Guia de Manejo e Tratamento de Influenza (MS, 2023), já que o sistema registra só datas; são excluídos intervalos negativos ou maiores que 60 dias |
 
 ### 6.1 Canal endêmico
 
@@ -88,7 +90,7 @@ A página de estatística descritiva acrescenta:
 - letalidade por faixa etária e sexo;
 - proporção de UTI por faixa etária;
 - critério de confirmação;
-- uso de antiviral;
+- uso de antiviral e tempo até o início do tratamento, para influenza confirmada e para todos os casos de SRAG;
 - situação vacinal;
 - mortalidade por município, com tabela-resumo municipal.
 
@@ -132,6 +134,8 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD).
 - BRASIL. Ministério da Saúde. *Guia de Vigilância em Saúde*. 5. ed. Brasília: SVS, 2022.
 - BRASIL. Ministério da Saúde. *Instrutivo de preenchimento da ficha de notificação de SRAG hospitalizado*. Brasília: DEVIT/SVS, 2022.
+- BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
+- MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
 - BASTOS, L. S. et al. Modelling reporting delays for outbreak detection in infectious disease data. *Journal of the Royal Statistical Society: Series A*, v. 182, n. 2, p. 535–555, 2019.
 - MEYER, S.; HELD, L.; HÖHLE, M. Spatio-temporal analysis of epidemic phenomena using the R package surveillance. *Journal of Statistical Software*, v. 77, n. 11, 2017.
 
@@ -141,5 +145,6 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Antiviral: seção passa a separar influenza confirmada e todos os casos de SRAG e ganha o indicador de oportunidade do tratamento (até 2 dias do início dos sintomas). |
 | 03/10/2026 | Séries semanais passam da semana de notificação (`SEM_NOT`) para a de início dos sintomas (`SEM_PRI`). Letalidade passa a usar os casos encerrados como denominador (antes: todos os notificados). O painel ganha um quadro "Como ler este painel" e a página Sobre ganha um resumo da metodologia. |
 | 03/10/2026 | Documento criado com a metodologia vigente. Inclusão da base estadual do SIVEP-Gripe (DBF) para o ano corrente, com anonimização por lista de permissão; a página descritiva passa a reutilizar os objetos da análise principal. |

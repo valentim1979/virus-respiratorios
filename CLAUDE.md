@@ -30,6 +30,7 @@ Boletim epidemiológico de SRAG (SIVEP-Gripe, módulo hospitalar) da 15ª Region
 ./instalar_dependencias.sh          # uma vez: gdal/geos/proj (pacman), udunits + quarto-cli-bin (yay), pacotes R
 Rscript SCRIPT_Unificado.R          # só gera gráficos/tabelas/CSVs (sem publicar)
 Rscript baixar_populacao.R [ano]    # 1x/ano: população PR por município/sexo/idade (Tabnet) → sivep_15rs/
+Rscript analise_sensibilidade.R 2024 2025  # 1x/ano, fora do painel: SIVEP × SIH/SUS × SIM (anos fechados) → tabelas/
 quarto render                       # gera o site em docs/
 quarto preview                      # servidor local para conferir o site
 ./publicar.sh [--dados-novos]       # R + render + commit + push (ver .claude/commands/publicar.md)

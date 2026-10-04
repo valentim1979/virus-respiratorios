@@ -92,13 +92,24 @@ A vigilância é considerada oportuna quando a média simples dos cinco indicado
 
 **Representatividade (atributo do protocolo da OMS, 2001).** Para cada município de residência, calcula-se a razão de incidência padronizada por idade (padronização indireta): casos observados ÷ casos esperados, sendo os esperados a soma, nas faixas etárias, da taxa da regional × população do município. O intervalo de confiança de 95% é exato de Poisson (qui-quadrado). A razão é classificada como acima ou abaixo do esperado quando o intervalo exclui 1. Também se apresenta a distribuição dos residentes por local de internação (na regional, em outra regional do Paraná, fora do estado ou não informado).
 
-### 6.3 Oportunidade de digitação por unidade notificadora
+### 6.3 Sensibilidade: comparação com SIH/SUS e SIM (análise anual)
+
+Análise feita fora da rotina do painel, uma vez por ano e só para anos fechados, porque o SIH/SUS e o SIM são publicados com meses de atraso (`analise_sensibilidade.R`). Para os residentes da 15ª RS, compara de forma agregada (sem relacionamento de registros), por ano, município e faixa etária (< 5, 5–59, 60 anos e mais):
+
+- casos do SIVEP-Gripe com data de internação no ano × internações no SUS (SIH/RD, AIH normal, sem duplicidade de número da AIH) com data de internação no ano e diagnóstico principal compatível com SRAG;
+- óbitos por SRAG no SIVEP-Gripe (`EVOLUCAO = 2`, data da evolução no ano) × óbitos no SIM com causa básica compatível com SRAG, no total e só os ocorridos em hospital.
+
+CID compatíveis com SRAG: J09–J18 (influenza e pneumonia), J20–J22 (outras infecções agudas das vias aéreas inferiores), B34.2, U07.1 e U07.2 (covid-19). Para cada ano de internação, o SIH é lido das competências de janeiro do ano a junho do ano seguinte, para incluir o faturamento tardio. Usa-se o SIM final quando publicado e, na falta dele, o preliminar.
+
+As razões SIVEP ÷ SIH e SIVEP ÷ SIM medem a cobertura relativa, não a sensibilidade exata: o SIH cobre só o SUS, enquanto o SIVEP inclui a rede privada; o SIM inclui óbitos fora do hospital e pacientes que não preencheram a definição de caso de SRAG. A estimativa exata exigiria relacionamento probabilístico de registros, inviável com a base anonimizada.
+
+### 6.4 Oportunidade de digitação por unidade notificadora
 
 Mede o tempo entre a notificação (`DT_NOTIFIC`) e a digitação no SIVEP-Gripe (`DT_DIGITA`), para os casos do ano notificados por unidades localizadas nos municípios do escopo (`CO_MUN_NOT`), **inclusive de pacientes residentes em outras regionais**, já que a digitação é feita pela unidade notificadora (`ID_UNIDADE`, disponível apenas na base exportada do SIVEP-Gripe). Para cada unidade são apresentados o número de casos, a mediana e o percentil 90 do intervalo, a proporção digitada em até 1 dia e em até 7 dias, e o número de casos digitados mais de 30 dias após a notificação. Unidades com menos de 5 casos no ano são agrupadas. Intervalos negativos são excluídos como erro de data. Também é apresentada a mediana e o percentil 90 de cada etapa da cadeia — início dos sintomas → internação → notificação → digitação — e a proporção mensal de casos digitados em até 1 dia.
 
 **Viés de seleção e correção.** A base contém apenas casos já digitados. Notificações recentes ainda não digitadas — justamente as de maior atraso — não aparecem, o que faria os períodos recentes parecerem mais oportunos. Na primeira versão da análise, por exemplo, setembro e outubro de 2026 apareciam com 81% e 100% de casos digitados em até 1 dia. Por isso só entram notificações com pelo menos 30 dias de acompanhamento até a digitação mais recente da base, e o gráfico mensal só mostra meses completos dentro desse período. Não foi identificada norma do Ministério da Saúde com prazo para a digitação da ficha de SRAG; por isso os percentuais em até 1 e até 7 dias são apresentados como descritores, sem meta.
 
-### 6.4 Canal endêmico
+### 6.5 Canal endêmico
 
 O canal endêmico é construído com as contagens semanais de casos da 15ª RS nos anos de referência **pós-pandêmicos** (de 2022 ao ano anterior ao corrente; 2020 e 2021 são excluídos pelo perfil atípico da pandemia de covid-19). Para cada semana epidemiológica, calculam-se a mediana e os percentis 25, 75 e 90 das contagens dos anos de referência. A contagem da semana do ano corrente é classificada em:
 
@@ -135,7 +146,7 @@ A página de estatística descritiva acrescenta:
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
 - consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
 - regras de consistência por unidade notificadora e representatividade por município e por local de internação (seção 6.2);
-- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.3);
+- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.4);
 - mortalidade por município, com tabela-resumo municipal.
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são redigidas no painel como hipóteses ("pode indicar", "é compatível com"), separadas da descrição dos resultados.

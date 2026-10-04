@@ -137,6 +137,7 @@ As interpretações que dependem de inferência e não podem ser confirmadas ape
 n<sub>t,d</sub> ~ Binomial Negativa(μ<sub>t,d</sub>, θ), com log(μ<sub>t,d</sub>) = α<sub>t</sub> + β<sub>d</sub>
 
 - α<sub>t</sub> é o efeito da semana de início dos sintomas (nível da epidemia) e β<sub>d</sub>, o efeito do atraso (distribuição de atraso, suposta constante dentro da janela).
+- A estrutura — contagens por semana de ocorrência × atraso, verossimilhança binomial negativa e distribuição de atraso homogênea no tempo, com truncamento à direita — é a do nowcasting proposto por Höhle e an der Heiden (2014). Bastos et al. (2019), McGough et al. (2020) e Günther et al. (2020) estendem a abordagem com modelos bayesianos que suavizam α<sub>t</sub> no tempo (passeio aleatório) e permitem que a distribuição de atraso varie. Essas extensões exigem INLA ou JAGS e são uma evolução possível deste painel.
 - **Atraso máximo D = 4:** atrasos de 4 semanas ou mais são agrupados na categoria 4.
 - **Janela de 26 semanas:** o modelo usa as últimas 26 semanas epidemiológicas, inclusive da virada do ano, já que usa os casos de todos os anos carregados.
 - **Corte:** os dados são truncados no último sábado anterior à data da digitação mais recente, para que a semana T (a mais recente) e todas as células observadas correspondam a semanas completas.
@@ -191,7 +192,10 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
 - MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
 - RIBEIRO, I. G.; SANCHEZ, M. N. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiologia e Serviços de Saúde*, v. 29, n. 3, e2020066, 2020.
-- BASTOS, L. S. et al. A modelling approach for correcting reporting delays in disease surveillance data. *Statistics in Medicine*, v. 38, p. 4363–4377, 2019.
+- BASTOS, L. S. et al. A modelling approach for correcting reporting delays in disease surveillance data. *Statistics in Medicine*, v. 38, p. 4363–4377, 2019. DOI: 10.1002/sim.8303.
+- GÜNTHER, F. et al. Nowcasting the COVID-19 pandemic in Bavaria. *Biometrical Journal*, 2020. DOI: 10.1002/bimj.202000112.
+- HÖHLE, M.; AN DER HEIDEN, M. Bayesian nowcasting during the STEC O104:H4 outbreak in Germany, 2011. *Biometrics*, 2014. DOI: 10.1111/biom.12194.
+- McGOUGH, S. F. et al. Nowcasting by Bayesian Smoothing: a flexible, generalizable model for real-time epidemic tracking. *PLOS Computational Biology*, 2020, e1007735.
 - BASTOS, L. S. et al. COVID-19 e hospitalizações por SRAG no Brasil: uma comparação até a 12ª semana epidemiológica de 2020. *Cadernos de Saúde Pública*, v. 36, n. 4, e00070120, 2020. (Aplicação da correção do atraso de notificação às hospitalizações por SRAG.)
 - MEYER, S.; HELD, L.; HÖHLE, M. Spatio-temporal analysis of epidemic phenomena using the R package surveillance. *Journal of Statistical Software*, v. 77, n. 11, 2017.
 
@@ -201,6 +205,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Nowcasting: incluídas as referências de Höhle & an der Heiden (2014), McGough et al. (2020) e Günther et al. (2020), e a relação do modelo do painel com essa literatura. |
 | 03/10/2026 | Correção da referência de Bastos et al. (2019): o artigo de método do nowcasting do InfoGripe é *Statistics in Medicine* 38:4363–77 (a citação anterior, atribuída ao *JRSS Series A*, estava errada). Incluído Bastos et al. (2020), *Cad Saúde Pública*. |
 | 03/10/2026 | Removidos do painel os rótulos "[Inferência]" e o quadro que os explicava; as interpretações seguem redigidas como hipóteses. |
 | 03/10/2026 | Antiviral: tabela e gráfico do tratamento e do tempo até o antiviral entre óbitos e curados de influenza confirmada. |

@@ -79,13 +79,26 @@ Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020)
 
 A vigilância é considerada oportuna quando a média simples dos cinco indicadores de oportunidade é ≥ 70%. Intervalos negativos contam como oportunos. Intervalos menores que −30 ou maiores que 120 dias são excluídos como erro de digitação. Os indicadores são apresentados para a regional e por município de residência.
 
-### 6.2 Oportunidade de digitação por unidade notificadora
+### 6.2 Consistência por regras e representatividade
+
+**Consistência (atributo do protocolo da OMS, 2001).** Nos casos do ano notificados pelas unidades do escopo, são verificadas regras de coerência entre campos. Onze regras de combinações impossíveis tiveram zero ocorrências na base de 2026, porque o SIVEP-Gripe as bloqueia na digitação: coleta, notificação ou internação antes dos sintomas (exceto infecção hospitalar), evolução antes da internação, saída da UTI antes da entrada, óbito sem data, gestante do sexo masculino, critério laboratorial sem amostra e classificação laboratorial de influenza, outro vírus ou covid-19 sem exame positivo correspondente. O painel mostra as regras que o sistema não bloqueia, com o percentual sobre os registros em que cada uma se aplica e a proporção de registros com pelo menos uma ocorrência por unidade notificadora:
+
+- classificação final sem data de encerramento;
+- evolução sem classificação final;
+- UTI sem data de entrada;
+- antiviral sem data de início;
+- internação mais de 30 dias após o início dos sintomas;
+- evolução mais de 120 dias após a internação.
+
+**Representatividade (atributo do protocolo da OMS, 2001).** Para cada município de residência, calcula-se a razão de incidência padronizada por idade (padronização indireta): casos observados ÷ casos esperados, sendo os esperados a soma, nas faixas etárias, da taxa da regional × população do município. O intervalo de confiança de 95% é exato de Poisson (qui-quadrado). A razão é classificada como acima ou abaixo do esperado quando o intervalo exclui 1. Também se apresenta a distribuição dos residentes por local de internação (na regional, em outra regional do Paraná, fora do estado ou não informado).
+
+### 6.3 Oportunidade de digitação por unidade notificadora
 
 Mede o tempo entre a notificação (`DT_NOTIFIC`) e a digitação no SIVEP-Gripe (`DT_DIGITA`), para os casos do ano notificados por unidades localizadas nos municípios do escopo (`CO_MUN_NOT`), **inclusive de pacientes residentes em outras regionais**, já que a digitação é feita pela unidade notificadora (`ID_UNIDADE`, disponível apenas na base exportada do SIVEP-Gripe). Para cada unidade são apresentados o número de casos, a mediana e o percentil 90 do intervalo, a proporção digitada em até 1 dia e em até 7 dias, e o número de casos digitados mais de 30 dias após a notificação. Unidades com menos de 5 casos no ano são agrupadas. Intervalos negativos são excluídos como erro de data. Também é apresentada a mediana e o percentil 90 de cada etapa da cadeia — início dos sintomas → internação → notificação → digitação — e a proporção mensal de casos digitados em até 1 dia.
 
 **Viés de seleção e correção.** A base contém apenas casos já digitados. Notificações recentes ainda não digitadas — justamente as de maior atraso — não aparecem, o que faria os períodos recentes parecerem mais oportunos. Na primeira versão da análise, por exemplo, setembro e outubro de 2026 apareciam com 81% e 100% de casos digitados em até 1 dia. Por isso só entram notificações com pelo menos 30 dias de acompanhamento até a digitação mais recente da base, e o gráfico mensal só mostra meses completos dentro desse período. Não foi identificada norma do Ministério da Saúde com prazo para a digitação da ficha de SRAG; por isso os percentuais em até 1 e até 7 dias são apresentados como descritores, sem meta.
 
-### 6.3 Canal endêmico
+### 6.4 Canal endêmico
 
 O canal endêmico é construído com as contagens semanais de casos da 15ª RS nos anos de referência **pós-pandêmicos** (de 2022 ao ano anterior ao corrente; 2020 e 2021 são excluídos pelo perfil atípico da pandemia de covid-19). Para cada semana epidemiológica, calculam-se a mediana e os percentis 25, 75 e 90 das contagens dos anos de referência. A contagem da semana do ano corrente é classificada em:
 
@@ -121,7 +134,8 @@ A página de estatística descritiva acrescenta:
 - situação vacinal contra covid-19;
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
 - consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
-- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.2);
+- regras de consistência por unidade notificadora e representatividade por município e por local de internação (seção 6.2);
+- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.3);
 - mortalidade por município, com tabela-resumo municipal.
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são redigidas no painel como hipóteses ("pode indicar", "é compatível com"), separadas da descrição dos resultados.
@@ -188,6 +202,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD).
 - BRASIL. Ministério da Saúde. *Guia de Vigilância em Saúde*. 5. ed. Brasília: SVS, 2022.
 - BRASIL. Ministério da Saúde. *Instrutivo de preenchimento da ficha de notificação de SRAG hospitalizado*. Brasília: DEVIT/SVS, 2022.
+- WORLD HEALTH ORGANIZATION. *Protocol for the assessment of national communicable disease surveillance and response systems: guidelines for assessment teams*. Geneva: WHO, 2001. WHO/CDS/CSR/ISR/2001.2.
 - BRASIL. Ministério da Saúde. DATASUS. *População residente – Estudo de estimativas populacionais por município, idade e sexo 2000-2025 – Brasil*. Tabnet. Disponível em: http://tabnet.datasus.gov.br/cgi/deftohtm.exe?ibge/cnv/popsvs2024br.def.
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
 - MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
@@ -205,6 +220,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 04/10/2026 | Consistência por regras (as que o SIVEP-Gripe não bloqueia) por unidade notificadora e representatividade (razão de incidência padronizada por idade por município e local de internação dos residentes), conforme os atributos do protocolo da OMS (2001). |
 | 03/10/2026 | Nowcasting: incluídas as referências de Höhle & an der Heiden (2014), McGough et al. (2020) e Günther et al. (2020), e a relação do modelo do painel com essa literatura. |
 | 03/10/2026 | Correção da referência de Bastos et al. (2019): o artigo de método do nowcasting do InfoGripe é *Statistics in Medicine* 38:4363–77 (a citação anterior, atribuída ao *JRSS Series A*, estava errada). Incluído Bastos et al. (2020), *Cad Saúde Pública*. |
 | 03/10/2026 | Removidos do painel os rótulos "[Inferência]" e o quadro que os explicava; as interpretações seguem redigidas como hipóteses. |

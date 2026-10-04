@@ -108,6 +108,81 @@ tabela_qualidade <- tibble::tibble(
 
 
 # ==============================================================================
+# BLOCO D1c — CONSISTÊNCIA: REGRAS POR UNIDADE NOTIFICADORA
+# ==============================================================================
+# Combinações impossíveis ou improváveis entre campos da ficha, nos casos do
+# ano notificados pelas unidades do escopo (base_notif_escopo). Cada regra só
+# se aplica aos registros com os campos envolvidos preenchidos.
+
+consistencia_regras <- NULL
+consistencia_unidade <- NULL
+if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_notif_escopo) > 0) {
+  cons <- base_notif_escopo %>%
+    mutate(
+      sin = parseia_data(substr(DT_SIN_PRI, 1, 10)), int = parseia_data(substr(DT_INTERNA, 1, 10)),
+      notif = parseia_data(substr(DT_NOTIFIC, 1, 10)), col = parseia_data(substr(DT_COLETA, 1, 10)),
+      evo = parseia_data(substr(DT_EVOLUCA, 1, 10)), uti_in = parseia_data(substr(DT_ENTUTI, 1, 10)),
+      uti_out = parseia_data(substr(DT_SAIDUTI, 1, 10))
+    )
+  regra <- function(id, descricao, aplicavel, violacao) {
+    list(id = id, descricao = descricao, ap = aplicavel %in% TRUE, vi = (aplicavel & violacao) %in% TRUE)
+  }
+  # O SIVEP-Gripe já bloqueia na digitação as combinações IMPOSSÍVEIS (datas fora
+  # de ordem, gestante do sexo masculino, classificação laboratorial sem exame
+  # positivo etc.): em out/2026, 11 regras desse tipo deram 0 inconsistências.
+  # Ficam aqui as que o sistema NÃO bloqueia — registros incompletos ou
+  # intervalos implausíveis, que a unidade pode revisar.
+  regras <- with(cons, list(
+    regra("encerrado_sem_data", "Classificação final informada sem data de encerramento",
+          !is.na(CLASSI_FIN) & CLASSI_FIN != "", is.na(parseia_data(substr(DT_ENCERRA, 1, 10)))),
+    regra("evolucao_sem_classificacao", "Evolução (cura ou óbito) informada sem classificação final",
+          EVOLUCAO %in% c(1, 2, 3), is.na(CLASSI_FIN) | CLASSI_FIN == ""),
+    regra("uti_sem_data", "Internação em UTI informada sem data de entrada",
+          UTI %in% 1, is.na(uti_in)),
+    regra("antiviral_sem_data", "Antiviral informado sem data de início",
+          ANTIVIRAL %in% 1, is.na(parseia_data(substr(DT_ANTIVIR, 1, 10)))),
+    regra("internacao_tardia", "Internação mais de 30 dias após o início dos sintomas",
+          !is.na(int) & !is.na(sin), as.numeric(int - sin) > 30),
+    regra("evolucao_tardia", "Evolução mais de 120 dias após a internação",
+          !is.na(evo) & !is.na(int), as.numeric(evo - int) > 120)
+  ))
+
+  consistencia_regras <- purrr::map_dfr(regras, function(r) tibble::tibble(
+    regra = r$descricao, aplicaveis = sum(r$ap), inconsistentes = sum(r$vi),
+    pct = if (sum(r$ap) > 0) round(sum(r$vi) / sum(r$ap) * 100, 1) else NA_real_
+  )) %>% arrange(desc(pct))
+
+  violou <- Reduce(`|`, lapply(regras, function(r) r$vi))
+  regra_top <- vapply(seq_len(nrow(cons)), function(i) {
+    ids <- vapply(regras, function(r) if (r$vi[i]) r$descricao else NA_character_, character(1))
+    ids <- ids[!is.na(ids)]
+    if (length(ids)) ids[1] else NA_character_
+  }, character(1))
+
+  consistencia_unidade <- cons %>%
+    mutate(violou = violou, regra_top = regra_top,
+           unidade = stringr::str_squish(ID_UNIDADE),
+           unidade = if_else(is.na(unidade) | unidade == "", "Unidade não informada", unidade)) %>%
+    group_by(unidade) %>% mutate(n_un = n()) %>% ungroup() %>%
+    mutate(unidade = if_else(n_un < 5, "Outras unidades (< 5 casos cada)", unidade)) %>%
+    group_by(unidade) %>%
+    summarise(
+      municipio = paste(sort(unique(stringr::str_to_title(na.omit(municipio_notif)))), collapse = ", "),
+      registros = n(),
+      com_inconsistencia = sum(violou),
+      pct = round(com_inconsistencia / registros * 100, 1),
+      regra_mais_comum = {
+        tb <- sort(table(na.omit(regra_top)), decreasing = TRUE)
+        if (length(tb)) names(tb)[1] else "—"
+      },
+      .groups = "drop"
+    ) %>%
+    arrange(unidade == "Outras unidades (< 5 casos cada)", desc(pct), desc(registros))
+}
+
+
+
+# ==============================================================================
 # BLOCO D2 — OPORTUNIDADE: SINTOMAS → NOTIFICAÇÃO
 # ==============================================================================
 # Mede o tempo (em dias) entre o início dos sintomas e a notificação.
@@ -659,6 +734,82 @@ if (exists("pop_idade_escopo") && !is.null(pop_idade_escopo)) {
 
 
 # ==============================================================================
+# BLOCO D8c — REPRESENTATIVIDADE
+# ==============================================================================
+# 1) Razão de incidência padronizada por idade (padronização indireta) por
+#    município de residência: observados ÷ esperados, sendo os esperados as
+#    taxas da regional por faixa etária aplicadas à população do município.
+#    IC 95% exato de Poisson. Municípios muito acima ou abaixo de 1 indicam
+#    diferença real de risco ou de notificação/acesso.
+# 2) Residentes internados fora da regional (CO_MU_INTE fora do escopo).
+
+rip_municipio <- NULL
+gD08d <- NULL
+internacao_fora <- NULL
+if (exists("pop_mun_idade") && !is.null(pop_mun_idade) && !is.null(taxas_faixa)) {
+  taxa_ref <- taxas_faixa %>% transmute(faixa, taxa_ref = casos / populacao)
+  esperados <- pop_mun_idade %>%
+    mutate(faixa = faixa_taxa(idade)) %>%
+    group_by(codigo_ibge_6, faixa) %>% summarise(populacao = sum(populacao), .groups = "drop") %>%
+    left_join(taxa_ref, by = "faixa") %>%
+    group_by(codigo_ibge_6) %>%
+    # esperados antes de populacao: no summarise, populacao = sum(...) mudaria o valor usado em seguida
+    summarise(esperados = sum(populacao * taxa_ref), populacao = sum(populacao), .groups = "drop")
+  observados <- casos_idade %>% count(codigo_ibge_6 = as.integer(CO_MUN_RES), name = "observados")
+  rip_municipio <- esperados %>%
+    left_join(observados, by = "codigo_ibge_6") %>%
+    mutate(observados = coalesce(observados, 0L)) %>%
+    left_join(municipios_15rs %>% select(codigo_ibge_6, municipio), by = "codigo_ibge_6") %>%
+    mutate(
+      municipio = stringr::str_to_title(municipio),
+      rip = observados / esperados,
+      li  = qchisq(0.025, 2 * observados) / 2 / esperados,
+      ls  = qchisq(0.975, 2 * (observados + 1)) / 2 / esperados,
+      li  = if_else(observados == 0, 0, li),
+      situacao = case_when(li > 1 ~ "acima", ls < 1 ~ "abaixo", TRUE ~ "compativel")
+    ) %>%
+    arrange(desc(rip))
+
+  n_mun <- nrow(rip_municipio)
+  # Escala log: razão 0 (município sem casos) não tem posição; vai ao piso 0,1
+  # com círculo vazado e nota.
+  piso <- 0.1
+  dados_rip <- rip_municipio %>%
+    mutate(rip_plot = pmax(rip, piso), li_plot = pmax(li, piso), sem_casos = observados == 0)
+  gD08d <- ggplot(dados_rip, aes(x = rip_plot, y = forcats::fct_reorder(municipio, rip))) +
+    geom_vline(xintercept = 1, linetype = "dashed", color = "grey40") +
+    geom_errorbarh(aes(xmin = li_plot, xmax = ls, color = situacao), height = 0.3) +
+    geom_point(aes(color = situacao, shape = sem_casos), size = 2.4, fill = "white", stroke = 1.1) +
+    scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 21), guide = "none") +
+    scale_color_manual(values = c("acima" = "#C62828", "abaixo" = "#0057A3", "compativel" = "grey55"),
+                       labels = c("acima" = "Acima do esperado", "abaixo" = "Abaixo do esperado",
+                                  "compativel" = "Compatível com a regional"), name = NULL) +
+    scale_x_continuous(trans = "log2", breaks = c(0.125, 0.25, 0.5, 1, 2, 4), limits = c(piso, 5),
+                       labels = function(x) sub(".", ",", as.character(x), fixed = TRUE)) +
+    labs(
+      title    = paste0("Razão de Incidência Padronizada por Idade, por Município — ", escopo_titulo),
+      subtitle = paste0("Casos observados ÷ esperados pelas taxas da regional por faixa etária | IC 95% | ",
+                        ROTULO_POPULACAO, " | escala logarítmica\nCírculo vazado = município sem casos no ano (razão 0)"),
+      x = "Razão observado/esperado (1 = igual à regional)", y = NULL, caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), legend.position = "top")
+}
+
+if ("CO_MU_INTE" %in% names(base_filtrada)) {
+  cod_escopo <- if (exists("municipios_15rs")) municipios_15rs$codigo_ibge_6 else unique(as.integer(base_filtrada$CO_MUN_RES))
+  mu_inte <- suppressWarnings(as.integer(base_filtrada$CO_MU_INTE))
+  internacao_fora <- tibble::tibble(
+    situacao = c("Internados em município da regional", "Internados fora da regional, no Paraná",
+                 "Internados fora do Paraná", "Município de internação não informado"),
+    casos = c(sum(mu_inte %in% cod_escopo), sum(!is.na(mu_inte) & !(mu_inte %in% cod_escopo) & mu_inte %/% 10000 == 41),
+              sum(!is.na(mu_inte) & mu_inte %/% 10000 != 41), sum(is.na(mu_inte)))
+  ) %>% mutate(pct = round(casos / sum(casos) * 100, 1))
+}
+
+
+
+# ==============================================================================
 # BLOCO D9 — CRITÉRIO DE CONFIRMAÇÃO
 # ==============================================================================
 # CRITERIO: 1 = Laboratorial, 2 = Clínico-Epidemiológico,
@@ -993,6 +1144,10 @@ writexl::write_xlsx(
     "digitacao_unidade" = if (is.null(digitacao_unidade)) tibble::tibble() else digitacao_unidade,
     "digitacao_mes"     = if (is.null(digitacao_mes)) tibble::tibble() else digitacao_mes,
     "qualidade"         = tabela_qualidade,
+    "consistencia_regras" = if (is.null(consistencia_regras)) tibble::tibble() else consistencia_regras,
+    "consistencia_unidade" = if (is.null(consistencia_unidade)) tibble::tibble() else consistencia_unidade,
+    "representatividade_rip" = if (is.null(rip_municipio)) tibble::tibble() else rip_municipio,
+    "internacao_fora"   = if (is.null(internacao_fora)) tibble::tibble() else internacao_fora,
     "vacina_influenza"  = vacina_flu,
     "vacinal"           = vacinal_dist
   ),

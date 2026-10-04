@@ -1767,7 +1767,13 @@ saveRDS(
                                               nzchar(trimws(MUNICIPIO_ANALISE))) cod_mun
                                           else municipios_15rs$codigo_ibge_6) %>%
       select(any_of(c("ID_UNIDADE", "CO_UNI_NOT", "CO_MUN_NOT", "DT_SIN_PRI", "DT_INTERNA",
-                      "DT_NOTIFIC", "DT_DIGITA"))) %>%
+                      "DT_NOTIFIC", "DT_DIGITA",
+                      # campos das regras de consistência (descritiva_srag_15rs.R, D1c)
+                      "DT_COLETA", "DT_EVOLUCA", "DT_ENTUTI", "DT_SAIDUTI", "EVOLUCAO",
+                      "NOSOCOMIAL", "CS_SEXO", "CS_GESTANT", "CLASSI_FIN", "CRITERIO",
+                      "AMOSTRA", "POS_PCRFLU", "POS_AN_FLU", "POS_PCROUT", "POS_AN_OUT",
+                      "PCR_SARS2", "AN_SARS2", "RES_IGG", "RES_IGM", "RES_IGA",
+                      "UTI", "ANTIVIRAL", "DT_ANTIVIR", "DT_ENCERRA"))) %>%
       left_join(municipios_15rs %>% transmute(CO_MUN_NOT = as.character(codigo_ibge_6),
                                               municipio_notif = municipio),
                 by = "CO_MUN_NOT"),
@@ -1778,7 +1784,14 @@ saveRDS(
                                      nzchar(trimws(MUNICIPIO_ANALISE))) cod_mun
                                  else municipios_15rs$codigo_ibge_6) %>%
       group_by(sexo, idade) %>%
-      summarise(populacao = sum(populacao), .groups = "drop")
+      summarise(populacao = sum(populacao), .groups = "drop"),
+    # população por município e idade (sexos somados), para a padronização
+    # indireta da incidência na seção de representatividade
+    pop_mun_idade      = if (is.null(pop_idade_pr)) NULL else pop_idade_pr %>%
+      filter(codigo_ibge_6 %in% municipios_15rs$codigo_ibge_6) %>%
+      group_by(codigo_ibge_6, idade) %>%
+      summarise(populacao = sum(populacao), .groups = "drop"),
+    municipios_15rs    = municipios_15rs
   ),
   CAMINHO_CONTEXTO_DESCRITIVA
 )

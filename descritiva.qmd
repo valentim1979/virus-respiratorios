@@ -70,6 +70,39 @@ tabela_qualidade %>%
 
 **Referência:** Ribeiro IG, Sanchez MN. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiol Serv Saúde*. 2020;29(3):e2020066.
 
+### 1c. Consistência dos Registros
+
+A consistência — um dos atributos de qualidade do protocolo de avaliação de sistemas de vigilância da Organização Mundial da Saúde (2001) — verifica se os campos da ficha combinam entre si.
+
+O próprio SIVEP-Gripe já impede, na digitação, as combinações **impossíveis**: datas fora de ordem (coleta, notificação ou alta antes dos sintomas, saída da UTI antes da entrada), gestante do sexo masculino, óbito sem data, classificação por laboratório sem exame positivo. Verificadas uma a uma na base de 2026, essas regras não tiveram nenhuma ocorrência. As regras abaixo cobrem o que o sistema **não** bloqueia: registros incompletos e intervalos improváveis, que podem ser erro de digitação.
+
+Cada regra só se aplica aos registros que têm os campos envolvidos preenchidos. A análise considera os casos notificados pelas unidades da 15ª RS no ano, inclusive de residentes em outras regionais, porque a correção cabe a quem notifica.
+
+```{r consistencia-regras}
+if (!is.null(consistencia_regras)) {
+  consistencia_regras %>%
+    dplyr::transmute(Regra = regra, `Registros avaliados` = aplicaveis,
+                     Inconsistentes = inconsistentes, `%` = pct) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = TRUE, font_size = 13)
+}
+```
+
+**Por unidade notificadora** — registros com pelo menos uma inconsistência e a regra mais frequente, das unidades com mais registros a revisar para as com menos. Unidades com menos de 5 casos no ano estão agrupadas.
+
+```{r consistencia-unidade}
+if (!is.null(consistencia_unidade)) {
+  consistencia_unidade %>%
+    dplyr::transmute(`Unidade notificadora` = unidade, `Município` = municipio, Registros = registros,
+                     `Com inconsistência` = com_inconsistencia, `%` = pct,
+                     `Regra mais frequente` = regra_mais_comum) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = TRUE, font_size = 12)
+}
+```
+
+Campos de data em branco tiram o caso dos indicadores de oportunidade; intervalos muito longos podem ser data digitada errada e distorcem o nowcasting e o tempo de internação. A correção é feita pela unidade no próprio SIVEP-Gripe.
+
 ---
 
 ## 2. Oportunidade
@@ -278,6 +311,31 @@ if (!is.null(taxas_faixa)) {
                               full_width = TRUE, font_size = 13)
 }
 ```
+
+### 4e. Representatividade
+
+A representatividade — outro atributo do protocolo da OMS (2001) — indica se a vigilância descreve corretamente a ocorrência da doença na população. Dois indicadores:
+
+**Razão de incidência padronizada por idade, por município.** Para cada município, compara os casos observados com os esperados se ele tivesse as mesmas taxas por faixa etária da regional (padronização indireta). Uma razão de 1 significa incidência igual à da regional, já descontada a diferença na estrutura etária; o intervalo de confiança de 95% mostra a incerteza, que é grande nos municípios pequenos.
+
+```{r representatividade-rip, fig.width=11, fig.height=9}
+if (!is.null(gD08d)) gD08d
+```
+
+Municípios muito **acima** do esperado podem ter maior risco real, surtos localizados ou maior acesso à internação; muito **abaixo**, menor risco, mas também possível subnotificação ou dificuldade de acesso a leitos. Essas hipóteses precisam ser verificadas com cada município.
+
+**Onde os residentes foram internados:**
+
+```{r internacao-fora}
+if (!is.null(internacao_fora)) {
+  internacao_fora %>%
+    dplyr::transmute(`Local da internação` = situacao, Casos = casos, `%` = pct) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE, font_size = 13)
+}
+```
+
+Residentes internados fora da regional são notificados por unidades de outras regionais; a proporção mostra quanto da vigilância dos residentes depende de serviços de fora da 15ª RS.
 
 ---
 

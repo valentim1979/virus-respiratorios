@@ -191,7 +191,8 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
 - MUTHURI, S. G. et al. Effectiveness of neuraminidase inhibitors in reducing mortality in patients admitted to hospital with influenza A H1N1pdm09 virus infection: a meta-analysis of individual participant data. *The Lancet Respiratory Medicine*, v. 2, n. 5, p. 395–404, 2014.
 - RIBEIRO, I. G.; SANCHEZ, M. N. Avaliação do sistema de vigilância da síndrome respiratória aguda grave (SRAG) com ênfase em influenza, no Brasil, 2014 a 2016. *Epidemiologia e Serviços de Saúde*, v. 29, n. 3, e2020066, 2020.
-- BASTOS, L. S. et al. Modelling reporting delays for outbreak detection in infectious disease data. *Journal of the Royal Statistical Society: Series A*, v. 182, n. 2, p. 535–555, 2019.
+- BASTOS, L. S. et al. A modelling approach for correcting reporting delays in disease surveillance data. *Statistics in Medicine*, v. 38, p. 4363–4377, 2019.
+- BASTOS, L. S. et al. COVID-19 e hospitalizações por SRAG no Brasil: uma comparação até a 12ª semana epidemiológica de 2020. *Cadernos de Saúde Pública*, v. 36, n. 4, e00070120, 2020. (Aplicação da correção do atraso de notificação às hospitalizações por SRAG.)
 - MEYER, S.; HELD, L.; HÖHLE, M. Spatio-temporal analysis of epidemic phenomena using the R package surveillance. *Journal of Statistical Software*, v. 77, n. 11, 2017.
 
 ---
@@ -200,6 +201,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 03/10/2026 | Correção da referência de Bastos et al. (2019): o artigo de método do nowcasting do InfoGripe é *Statistics in Medicine* 38:4363–77 (a citação anterior, atribuída ao *JRSS Series A*, estava errada). Incluído Bastos et al. (2020), *Cad Saúde Pública*. |
 | 03/10/2026 | Removidos do painel os rótulos "[Inferência]" e o quadro que os explicava; as interpretações seguem redigidas como hipóteses. |
 | 03/10/2026 | Antiviral: tabela e gráfico do tratamento e do tempo até o antiviral entre óbitos e curados de influenza confirmada. |
 | 03/10/2026 | Oportunidade de digitação por unidade notificadora (seção 6.2): cadeia de tempos até a digitação, série mensal e tabela por unidade, com corte de 30 dias de acompanhamento para evitar o viés de casos ainda não digitados. |

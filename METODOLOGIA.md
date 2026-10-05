@@ -101,6 +101,8 @@ Análise feita fora da rotina do painel, uma vez por ano e só para anos fechado
 
 CID compatíveis com SRAG: J09–J18 (influenza e pneumonia), J20–J22 (outras infecções agudas das vias aéreas inferiores), B34.2, U07.1 e U07.2 (covid-19). Para cada ano de internação, o SIH é lido das competências de janeiro do ano a junho do ano seguinte, para incluir o faturamento tardio. Usa-se o SIM final quando publicado e, na falta dele, o preliminar.
 
+Os óbitos também são comparados por grupo de causa: no SIM pela causa básica (influenza J09–J11; covid-19 B34.2, U07; pneumonia e demais J12–J22) e no SIVEP-Gripe pela classificação final (influenza; covid-19; demais). Arquivos do DATASUS obtidos manualmente podem ser colocados em `dbf_sivep/datasus/` (o SIM preliminar com o sufixo `_preliminar`) e a análise roda sem acesso ao FTP com `SENS_OFFLINE=1`.
+
 As razões SIVEP ÷ SIH e SIVEP ÷ SIM medem a cobertura relativa, não a sensibilidade exata: o SIH cobre só o SUS, enquanto o SIVEP inclui a rede privada; o SIM inclui óbitos fora do hospital e pacientes que não preencheram a definição de caso de SRAG. A estimativa exata exigiria relacionamento probabilístico de registros, inviável com a base anonimizada.
 
 ### 6.4 Oportunidade de digitação por unidade notificadora
@@ -231,6 +233,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 05/10/2026 | Sensibilidade: comparação dos óbitos por grupo de causa (SIM × SIVEP) e execução com arquivos locais (`SENS_OFFLINE=1`). Primeira execução só com o SIM (2024 final, 2025 preliminar); o SIH aguarda o restabelecimento do FTP do DATASUS. |
 | 04/10/2026 | Consistência por regras (as que o SIVEP-Gripe não bloqueia) por unidade notificadora e representatividade (razão de incidência padronizada por idade por município e local de internação dos residentes), conforme os atributos do protocolo da OMS (2001). |
 | 03/10/2026 | Nowcasting: incluídas as referências de Höhle & an der Heiden (2014), McGough et al. (2020) e Günther et al. (2020), e a relação do modelo do painel com essa literatura. |
 | 03/10/2026 | Correção da referência de Bastos et al. (2019): o artigo de método do nowcasting do InfoGripe é *Statistics in Medicine* 38:4363–77 (a citação anterior, atribuída ao *JRSS Series A*, estava errada). Incluído Bastos et al. (2020), *Cad Saúde Pública*. |

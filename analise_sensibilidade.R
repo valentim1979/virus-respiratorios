@@ -52,12 +52,26 @@ cid_srag <- function(cid) {
   tres <- substr(cid, 1, 3)
   tres %in% c(sprintf("J%02d", 9:18), "J20", "J21", "J22") | cid %in% c("B342", "U071", "U072")
 }
+# Grupo de causa, para comparar SIM (causa básica) e SIVEP (classificação final)
+grupo_cid <- function(cid) {
+  c4 <- toupper(substr(trimws(cid), 1, 4)); c3 <- substr(c4, 1, 3)
+  case_when(c3 %in% c("J09", "J10", "J11") ~ "Influenza",
+            c4 %in% c("B342", "U071", "U072") ~ "Covid-19",
+            c3 %in% sprintf("J%02d", 12:18) ~ "Pneumonia e demais SRAG",
+            c3 %in% c("J20", "J21", "J22") ~ "Pneumonia e demais SRAG",
+            TRUE ~ NA_character_)
+}
+grupo_sivep <- function(classi) case_when(classi %in% "1" ~ "Influenza", classi %in% "5" ~ "Covid-19",
+                                          TRUE ~ "Pneumonia e demais SRAG")
 faixa <- function(anos) cut(anos, c(-Inf, 4, 59, Inf), labels = c("< 5 anos", "5 a 59 anos", "60 anos e mais"))
 
 # --- Download com novas tentativas (o FTP do DATASUS falha com frequência) ---
-baixar <- function(caminho) {
-  destino <- file.path(DIR_CACHE, basename(caminho))
+# SENS_OFFLINE=1 → usa só o que já está em dbf_sivep/datasus/ (arquivos
+# baixados à mão, por exemplo), sem tentar o FTP.
+baixar <- function(caminho, nome = basename(caminho)) {
+  destino <- file.path(DIR_CACHE, nome)
   if (file.exists(destino) && file.size(destino) > 0) return(destino)
+  if (Sys.getenv("SENS_OFFLINE") == "1") return(NA_character_)
   # curl do sistema: o download.file() do R falha com o FTP instável do DATASUS
   tmp <- paste0(destino, ".parcial")
   for (t in 1:5) {
@@ -79,6 +93,8 @@ ler_sih <- function(ano) {
   comps <- format(seq(as.Date(sprintf("%d-01-01", ano)), as.Date(sprintf("%d-06-01", ano + 1)), by = "month"), "%y%m")
   arqs <- vapply(comps, function(c) baixar(sprintf("SIHSUS/200801_/Dados/RDPR%s.dbc", c)), character(1))
   arqs <- arqs[!is.na(arqs)]
+  if (length(arqs) == 0) { message("  SIH indisponível para ", ano); return(NULL) }
+  if (length(arqs) < length(comps)) message("  [aviso] SIH incompleto: ", length(arqs), " de ", length(comps), " competências")
   bind_rows(lapply(arqs, function(a) {
     read.dbc::read.dbc(a, as.is = TRUE) |>
       select(any_of(c("MUNIC_RES", "DT_INTER", "DIAG_PRINC", "COD_IDADE", "IDADE", "IDENT", "N_AIH"))) |>
@@ -94,9 +110,13 @@ ler_sih <- function(ano) {
 
 # --- SIM: declarações de óbito do Paraná (final ou preliminar) ---------------
 ler_sim <- function(ano) {
+  # o preliminar fica em cache com outro nome, para não ser confundido com o final
   arq <- baixar(sprintf("SIM/CID10/DORES/DOPR%d.dbc", ano))
   fonte <- "final"
-  if (is.na(arq)) { arq <- baixar(sprintf("SIM/PRELIM/DORES/DOPR%d.dbc", ano)); fonte <- "preliminar" }
+  if (is.na(arq)) {
+    arq <- baixar(sprintf("SIM/PRELIM/DORES/DOPR%d.dbc", ano), sprintf("DOPR%d_preliminar.dbc", ano))
+    fonte <- "preliminar"
+  }
   if (is.na(arq)) return(NULL)
   read.dbc::read.dbc(arq, as.is = TRUE) |>
     mutate(across(everything(), as.character),
@@ -125,10 +145,12 @@ ler_sivep <- function() {
 
 sivep <- ler_sivep()
 resultado <- list()
+por_grupo <- list()
 for (ano in ANOS) {
   message("\n== ", ano)
   sih <- ler_sih(ano); sim <- ler_sim(ano)
   if (is.null(sim)) { message("  SIM indisponível para ", ano); next }
+  if (is.null(sih)) sih <- tibble(cod = integer(), anos = integer())
   sv_int <- sivep |> filter(format(interna, "%Y") == as.character(ano))
   sv_obi <- sivep |> filter(EVOLUCAO %in% "2", format(evolucao, "%Y") == as.character(ano))
 
@@ -140,6 +162,16 @@ for (ano in ANOS) {
     mutate(across(where(is.numeric) & !c(cod), ~ coalesce(.x, 0L)), ano = ano,
            fonte_sim = unique(sim$fonte_sim)[1])
   resultado[[as.character(ano)]] <- tab
+
+  # Óbitos por grupo de causa: o SIVEP deve captar quase todos os óbitos com
+  # vírus confirmado; a diferença costuma estar nas pneumonias sem agente.
+  por_grupo[[as.character(ano)]] <- full_join(
+    count(sv_obi, grupo = grupo_sivep(CLASSI_FIN), name = "sivep_obitos"),
+    count(sim, grupo = grupo_cid(CAUSABAS), name = "sim_obitos"), by = "grupo") |>
+    full_join(count(filter(sim, hospital), grupo = grupo_cid(CAUSABAS), name = "sim_obitos_hospital"), by = "grupo") |>
+    mutate(across(where(is.numeric), ~ coalesce(.x, 0L)), ano = ano, fonte_sim = unique(sim$fonte_sim)[1],
+           razao_obitos_hosp = round(sivep_obitos / sim_obitos_hospital, 2)) |>
+    relocate(ano, fonte_sim)
 }
 
 detalhe <- bind_rows(resultado) |>
@@ -151,12 +183,16 @@ resumo <- detalhe |>
   group_by(ano, fonte_sim) |>
   summarise(across(c(sivep_internacoes, sih_internacoes_sus, sivep_obitos, sim_obitos, sim_obitos_hospital), sum),
             .groups = "drop") |>
-  mutate(razao_internacoes   = round(sivep_internacoes / sih_internacoes_sus, 2),
+  mutate(razao_internacoes   = if_else(sih_internacoes_sus > 0, round(sivep_internacoes / sih_internacoes_sus, 2), NA_real_),
          razao_obitos        = round(sivep_obitos / sim_obitos, 2),
          razao_obitos_hosp   = round(sivep_obitos / sim_obitos_hospital, 2))
 write_csv(resumo, "tabelas/sensibilidade_resumo.csv")
+grupos <- bind_rows(por_grupo)
+write_csv(grupos, "tabelas/sensibilidade_obitos_por_grupo.csv")
 
 message("\nResumo (residentes da 15ª RS):")
 print(as.data.frame(resumo), row.names = FALSE)
+message("\nÓbitos por grupo de causa (SIVEP: classificação final; SIM: causa básica):")
+print(as.data.frame(grupos), row.names = FALSE)
 message("\nRazão SIVEP ÷ SIH: o SIH cobre só internações SUS; o SIVEP inclui a rede privada.")
 message("Razão SIVEP ÷ SIM: o SIM inclui óbitos fora do hospital e por causas não notificadas como SRAG.")

@@ -1,0 +1,166 @@
+ano,cod,municipio,faixa,sivep_internacoes,sih_internacoes_sus,sivep_obitos,sim_obitos,sim_obitos_hospital,fonte_sim
+2024,410115,ANGULO,< 5 anos,2,0,0,0,0,final
+2024,410115,ANGULO,5 a 59 anos,1,0,0,0,0,final
+2024,410210,ASTORGA,< 5 anos,9,0,0,0,0,final
+2024,410210,ASTORGA,5 a 59 anos,5,0,0,0,0,final
+2024,410210,ASTORGA,60 anos e mais,5,0,2,23,22,final
+2024,410220,ATALAIA,< 5 anos,3,0,0,0,0,final
+2024,410220,ATALAIA,5 a 59 anos,4,0,0,1,0,final
+2024,410220,ATALAIA,60 anos e mais,5,0,2,4,4,final
+2024,410590,COLORADO,< 5 anos,39,0,0,1,1,final
+2024,410590,COLORADO,5 a 59 anos,28,0,2,1,1,final
+2024,410590,COLORADO,60 anos e mais,14,0,3,18,18,final
+2024,410730,DOUTOR CAMARGO,< 5 anos,2,0,0,0,0,final
+2024,410730,DOUTOR CAMARGO,5 a 59 anos,1,0,0,0,0,final
+2024,410730,DOUTOR CAMARGO,60 anos e mais,1,0,1,6,2,final
+2024,410780,FLORAI,< 5 anos,4,0,1,0,0,final
+2024,410780,FLORAI,5 a 59 anos,1,0,0,1,1,final
+2024,410780,FLORAI,60 anos e mais,1,0,0,7,7,final
+2024,410790,FLORESTA,< 5 anos,15,0,0,0,0,final
+2024,410790,FLORESTA,5 a 59 anos,6,0,0,1,1,final
+2024,410790,FLORESTA,60 anos e mais,7,0,0,5,5,final
+2024,410810,FLORIDA,5 a 59 anos,1,0,1,0,0,final
+2024,410810,FLORIDA,60 anos e mais,2,0,0,3,3,final
+2024,411000,IGUARACU,< 5 anos,2,0,0,0,0,final
+2024,411000,IGUARACU,5 a 59 anos,2,0,0,0,0,final
+2024,411090,ITAGUAJE,< 5 anos,6,0,0,0,0,final
+2024,411090,ITAGUAJE,5 a 59 anos,2,0,0,1,1,final
+2024,411090,ITAGUAJE,60 anos e mais,1,0,0,2,2,final
+2024,411110,ITAMBE,< 5 anos,2,0,0,0,0,final
+2024,411110,ITAMBE,5 a 59 anos,3,0,0,0,0,final
+2024,411110,ITAMBE,60 anos e mais,2,0,0,5,5,final
+2024,411160,IVATUBA,< 5 anos,2,0,0,0,0,final
+2024,411360,LOBATO,< 5 anos,1,0,0,0,0,final
+2024,411360,LOBATO,5 a 59 anos,1,0,0,1,1,final
+2024,411360,LOBATO,60 anos e mais,1,0,0,1,0,final
+2024,411410,MANDAGUACU,< 5 anos,21,0,0,0,0,final
+2024,411410,MANDAGUACU,5 a 59 anos,13,0,0,1,0,final
+2024,411410,MANDAGUACU,60 anos e mais,4,0,0,8,7,final
+2024,411420,MANDAGUARI,< 5 anos,12,0,1,1,1,final
+2024,411420,MANDAGUARI,5 a 59 anos,14,0,0,6,6,final
+2024,411420,MANDAGUARI,60 anos e mais,4,0,0,24,24,final
+2024,411480,MARIALVA,< 5 anos,21,0,0,0,0,final
+2024,411480,MARIALVA,5 a 59 anos,10,0,1,6,6,final
+2024,411480,MARIALVA,60 anos e mais,14,0,1,15,12,final
+2024,411520,MARINGA,< 5 anos,444,0,3,4,4,final
+2024,411520,MARINGA,5 a 59 anos,299,0,16,24,24,final
+2024,411520,MARINGA,60 anos e mais,401,0,73,217,201,final
+2024,411630,MUNHOZ DE MELO,< 5 anos,1,0,0,0,0,final
+2024,411630,MUNHOZ DE MELO,5 a 59 anos,1,0,0,2,2,final
+2024,411640,NOSSA SENHORA DAS GRACAS,5 a 59 anos,2,0,0,1,1,final
+2024,411640,NOSSA SENHORA DAS GRACAS,60 anos e mais,1,0,1,3,2,final
+2024,411690,NOVA ESPERANCA,< 5 anos,14,0,0,0,0,final
+2024,411690,NOVA ESPERANCA,5 a 59 anos,13,0,1,3,3,final
+2024,411690,NOVA ESPERANCA,60 anos e mais,40,0,5,24,23,final
+2024,411740,OURIZONA,< 5 anos,5,0,0,0,0,final
+2024,411740,OURIZONA,5 a 59 anos,1,0,1,1,0,final
+2024,411750,PAICANDU,< 5 anos,30,0,0,1,1,final
+2024,411750,PAICANDU,5 a 59 anos,11,0,0,6,6,final
+2024,411750,PAICANDU,60 anos e mais,8,0,2,26,25,final
+2024,411810,PARANACITY,< 5 anos,13,0,1,0,0,final
+2024,411810,PARANACITY,5 a 59 anos,4,0,0,0,0,final
+2024,411810,PARANACITY,60 anos e mais,6,0,2,4,4,final
+2024,412040,PRESIDENTE CASTELO BRANCO,5 a 59 anos,3,0,0,0,0,final
+2024,412340,SANTA FE,< 5 anos,6,0,0,0,0,final
+2024,412340,SANTA FE,5 a 59 anos,1,0,0,2,2,final
+2024,412360,SANTA INES,< 5 anos,6,0,0,0,0,final
+2024,412360,SANTA INES,5 a 59 anos,1,0,0,0,0,final
+2024,412360,SANTA INES,60 anos e mais,1,0,0,0,0,final
+2024,412450,SANTO INACIO,< 5 anos,16,0,0,0,0,final
+2024,412450,SANTO INACIO,5 a 59 anos,2,0,0,0,0,final
+2024,412450,SANTO INACIO,60 anos e mais,7,0,0,3,3,final
+2024,412530,SAO JORGE DO IVAI,< 5 anos,1,0,0,0,0,final
+2024,412530,SAO JORGE DO IVAI,5 a 59 anos,1,0,0,0,0,final
+2024,412530,SAO JORGE DO IVAI,60 anos e mais,3,0,1,4,3,final
+2024,412625,SARANDI,< 5 anos,88,0,0,0,0,final
+2024,412625,SARANDI,5 a 59 anos,47,0,5,9,9,final
+2024,412625,SARANDI,60 anos e mais,32,0,3,34,28,final
+2024,410115,ANGULO,60 anos e mais,0,0,0,2,1,final
+2024,411160,IVATUBA,60 anos e mais,0,0,0,2,2,final
+2024,411630,MUNHOZ DE MELO,60 anos e mais,0,0,0,2,2,final
+2024,411740,OURIZONA,60 anos e mais,0,0,0,2,2,final
+2024,412040,PRESIDENTE CASTELO BRANCO,60 anos e mais,0,0,0,1,1,final
+2024,412340,SANTA FE,60 anos e mais,0,0,0,7,7,final
+2024,412830,UNIFLOR,60 anos e mais,0,0,0,1,1,final
+2025,410115,ANGULO,< 5 anos,2,0,0,0,0,preliminar
+2025,410115,ANGULO,5 a 59 anos,1,0,0,0,0,preliminar
+2025,410210,ASTORGA,< 5 anos,22,0,1,1,1,preliminar
+2025,410210,ASTORGA,5 a 59 anos,12,0,0,2,2,preliminar
+2025,410210,ASTORGA,60 anos e mais,6,0,2,45,45,preliminar
+2025,410220,ATALAIA,< 5 anos,5,0,0,0,0,preliminar
+2025,410220,ATALAIA,5 a 59 anos,3,0,0,0,0,preliminar
+2025,410220,ATALAIA,60 anos e mais,11,0,3,4,4,preliminar
+2025,410590,COLORADO,< 5 anos,31,0,0,0,0,preliminar
+2025,410590,COLORADO,5 a 59 anos,24,0,0,2,2,preliminar
+2025,410590,COLORADO,60 anos e mais,18,0,0,19,18,preliminar
+2025,410730,DOUTOR CAMARGO,< 5 anos,2,0,0,0,0,preliminar
+2025,410730,DOUTOR CAMARGO,5 a 59 anos,2,0,0,0,0,preliminar
+2025,410730,DOUTOR CAMARGO,60 anos e mais,1,0,0,3,2,preliminar
+2025,410780,FLORAI,< 5 anos,1,0,0,0,0,preliminar
+2025,410780,FLORAI,5 a 59 anos,3,0,0,1,1,preliminar
+2025,410780,FLORAI,60 anos e mais,11,0,0,7,6,preliminar
+2025,410790,FLORESTA,< 5 anos,16,0,0,0,0,preliminar
+2025,410790,FLORESTA,5 a 59 anos,9,0,0,0,0,preliminar
+2025,410790,FLORESTA,60 anos e mais,10,0,1,4,4,preliminar
+2025,410810,FLORIDA,< 5 anos,1,0,0,0,0,preliminar
+2025,410810,FLORIDA,5 a 59 anos,1,0,0,0,0,preliminar
+2025,410810,FLORIDA,60 anos e mais,1,0,0,1,1,preliminar
+2025,411000,IGUARACU,5 a 59 anos,4,0,0,1,1,preliminar
+2025,411000,IGUARACU,60 anos e mais,2,0,0,7,7,preliminar
+2025,411090,ITAGUAJE,< 5 anos,6,0,0,0,0,preliminar
+2025,411090,ITAGUAJE,5 a 59 anos,4,0,0,1,1,preliminar
+2025,411090,ITAGUAJE,60 anos e mais,2,0,0,2,2,preliminar
+2025,411110,ITAMBE,< 5 anos,1,0,0,0,0,preliminar
+2025,411110,ITAMBE,5 a 59 anos,7,0,0,1,1,preliminar
+2025,411110,ITAMBE,60 anos e mais,6,0,0,3,2,preliminar
+2025,411160,IVATUBA,5 a 59 anos,3,0,1,1,0,preliminar
+2025,411160,IVATUBA,60 anos e mais,1,0,0,1,1,preliminar
+2025,411360,LOBATO,< 5 anos,6,0,0,0,0,preliminar
+2025,411360,LOBATO,5 a 59 anos,1,0,0,0,0,preliminar
+2025,411360,LOBATO,60 anos e mais,1,0,1,3,3,preliminar
+2025,411410,MANDAGUACU,< 5 anos,12,0,0,0,0,preliminar
+2025,411410,MANDAGUACU,5 a 59 anos,11,0,0,1,1,preliminar
+2025,411410,MANDAGUACU,60 anos e mais,14,0,1,9,6,preliminar
+2025,411420,MANDAGUARI,< 5 anos,15,0,0,1,1,preliminar
+2025,411420,MANDAGUARI,5 a 59 anos,12,0,0,1,1,preliminar
+2025,411420,MANDAGUARI,60 anos e mais,9,0,1,29,27,preliminar
+2025,411480,MARIALVA,< 5 anos,12,0,0,0,0,preliminar
+2025,411480,MARIALVA,5 a 59 anos,20,0,0,3,3,preliminar
+2025,411480,MARIALVA,60 anos e mais,37,0,2,23,16,preliminar
+2025,411520,MARINGA,< 5 anos,353,0,0,0,0,preliminar
+2025,411520,MARINGA,5 a 59 anos,333,0,13,20,18,preliminar
+2025,411520,MARINGA,60 anos e mais,570,0,74,185,166,preliminar
+2025,411630,MUNHOZ DE MELO,< 5 anos,2,0,1,1,1,preliminar
+2025,411630,MUNHOZ DE MELO,60 anos e mais,1,0,0,6,6,preliminar
+2025,411640,NOSSA SENHORA DAS GRACAS,< 5 anos,3,0,0,0,0,preliminar
+2025,411640,NOSSA SENHORA DAS GRACAS,5 a 59 anos,1,0,0,0,0,preliminar
+2025,411640,NOSSA SENHORA DAS GRACAS,60 anos e mais,6,0,0,0,0,preliminar
+2025,411690,NOVA ESPERANCA,< 5 anos,56,0,0,0,0,preliminar
+2025,411690,NOVA ESPERANCA,5 a 59 anos,43,0,1,1,1,preliminar
+2025,411690,NOVA ESPERANCA,60 anos e mais,106,0,7,23,23,preliminar
+2025,411740,OURIZONA,< 5 anos,1,0,0,0,0,preliminar
+2025,411740,OURIZONA,5 a 59 anos,3,0,0,0,0,preliminar
+2025,411740,OURIZONA,60 anos e mais,5,0,2,3,3,preliminar
+2025,411750,PAICANDU,< 5 anos,39,0,0,0,0,preliminar
+2025,411750,PAICANDU,5 a 59 anos,14,0,1,5,5,preliminar
+2025,411750,PAICANDU,60 anos e mais,7,0,0,23,22,preliminar
+2025,411810,PARANACITY,< 5 anos,5,0,0,0,0,preliminar
+2025,411810,PARANACITY,5 a 59 anos,3,0,0,1,1,preliminar
+2025,411810,PARANACITY,60 anos e mais,7,0,0,4,4,preliminar
+2025,412040,PRESIDENTE CASTELO BRANCO,60 anos e mais,3,0,0,2,1,preliminar
+2025,412340,SANTA FE,< 5 anos,3,0,1,1,1,preliminar
+2025,412340,SANTA FE,5 a 59 anos,3,0,1,3,3,preliminar
+2025,412340,SANTA FE,60 anos e mais,1,0,0,10,9,preliminar
+2025,412360,SANTA INES,< 5 anos,3,0,0,0,0,preliminar
+2025,412360,SANTA INES,5 a 59 anos,2,0,0,0,0,preliminar
+2025,412450,SANTO INACIO,< 5 anos,17,0,0,0,0,preliminar
+2025,412450,SANTO INACIO,5 a 59 anos,3,0,0,1,1,preliminar
+2025,412450,SANTO INACIO,60 anos e mais,8,0,0,2,1,preliminar
+2025,412530,SAO JORGE DO IVAI,5 a 59 anos,2,0,1,1,1,preliminar
+2025,412530,SAO JORGE DO IVAI,60 anos e mais,4,0,0,4,2,preliminar
+2025,412625,SARANDI,< 5 anos,61,0,0,1,1,preliminar
+2025,412625,SARANDI,5 a 59 anos,58,0,7,13,12,preliminar
+2025,412625,SARANDI,60 anos e mais,71,0,3,22,19,preliminar
+2025,412830,UNIFLOR,60 anos e mais,2,0,0,2,2,preliminar
+2025,410115,ANGULO,60 anos e mais,0,0,0,5,5,preliminar
+2025,412360,SANTA INES,60 anos e mais,0,0,0,1,1,preliminar

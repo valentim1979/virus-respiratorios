@@ -70,7 +70,7 @@ Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020)
 | Indicador | Cálculo | Referência |
 |---|---|---|
 | Inconsistência | amostras com `DT_COLETA` anterior a `DT_SIN_PRI` ÷ amostras com as duas datas | aceitável se ≤ 20% |
-| Valor preditivo positivo da definição de caso | casos com `CLASSI_FIN` = 1, 2 ou 5 ÷ casos de SRAG | satisfatório se > 20% |
+| Proporção com vírus respiratório confirmado ("VPP" em Ribeiro & Sanchez, 2020) | casos com `CLASSI_FIN` = 1, 2 ou 5 ÷ casos de SRAG | satisfatório se > 20% |
 | Oportunidade de atendimento | % com `DT_INTERNA` − `DT_SIN_PRI` ≤ 1 dia | — |
 | Oportunidade de notificação | % com `DT_NOTIFIC` − `DT_INTERNA` ≤ 1 dia | — |
 | Oportunidade de tratamento | % dos tratados com `DT_ANTIVIR` − `DT_INTERNA` ≤ 2 dias | — |
@@ -78,6 +78,21 @@ Seguindo a avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020)
 | Oportunidade de encerramento | % dos encerrados com `DT_ENCERRA` − `DT_NOTIFIC` ≤ 60 dias | — |
 
 A vigilância é considerada oportuna quando a média simples dos cinco indicadores de oportunidade é ≥ 70%. Intervalos negativos contam como oportunos. Intervalos menores que −30 ou maiores que 120 dias são excluídos como erro de digitação. Os indicadores são apresentados para a regional e por município de residência.
+
+O indicador que Ribeiro e Sanchez (2020) chamam de "valor preditivo positivo da definição de caso" é, na prática, a proporção de casos com vírus respiratório confirmado. O valor preditivo positivo no sentido das diretrizes do CDC (2001) — casos notificados que de fato têm a condição sob vigilância ÷ casos notificados — exigiria um padrão-ouro externo. Avaliações internacionais apontam o uso da positividade como "VPP" como um erro frequente; por isso o painel usa o nome descritivo e cita a origem.
+
+**Metas da OPAS.** Para os casos notificados pelas unidades do escopo, o painel calcula os indicadores das diretrizes operacionais da OPAS para a vigilância sentinela de SRAG (PAHO, 2014, Anexo 7) que dependem só das datas da ficha:
+
+| Indicador (OPAS, 2014) | Cálculo no painel | Meta |
+|---|---|---|
+| Oportunidade da notificação | mediana de `DT_NOTIFIC` − `DT_INTERNA` | ≤ 1 dia |
+| Cobertura de investigação | casos com classificação final e `DT_ENCERRA` ÷ casos com evolução (1, 2 ou 3) registrada há pelo menos 30 dias | 90% |
+| Cobertura de amostragem | casos com amostra (`AMOSTRA` = 1) coletada até 10 dias do início dos sintomas ÷ casos de SRAG | 90% |
+| Oportunidade da coleta | mediana de `DT_COLETA` − `DT_INTERNA` | ≤ 2 dias |
+| Cobertura de amostragem em UTI | casos com `UTI` = 1 e amostra ÷ casos com `UTI` = 1 | 100% |
+| Cobertura de amostragem nos óbitos | óbitos por SRAG com amostra ÷ óbitos por SRAG | 100% |
+
+Intervalos negativos ou maiores que 120 dias são excluídos das medianas. Os demais indicadores do Anexo 7 (notificação dos denominadores semanais, captação comparada à busca ativa, qualidade, recebimento e processamento do espécime, oportunidade do boletim) exigem dados que a ficha do SIVEP-Gripe não traz.
 
 ### 6.2 Consistência por regras e representatividade
 
@@ -146,7 +161,7 @@ A página de estatística descritiva acrescenta:
 - tratamento antiviral entre os óbitos por influenza (`CLASSI_FIN = 1` e `EVOLUCAO = 2`), comparado aos casos de influenza com cura (`EVOLUCAO = 1`): proporção tratada, proporção com início em até 2 dias e mediana de dias entre o início dos sintomas e o antiviral, em categorias (até 2 dias, 3 a 5, após 5, sem data válida, não tratado, ignorado);
 - situação vacinal contra covid-19;
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
-- consistência, valor preditivo positivo e indicadores de oportunidade da vigilância (seção 6.1);
+- consistência, proporção com vírus respiratório confirmado, indicadores de oportunidade e metas da OPAS (seção 6.1);
 - regras de consistência por unidade notificadora e representatividade por município e por local de internação (seção 6.2);
 - tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.4);
 - mortalidade por município, com tabela-resumo municipal.
@@ -206,6 +221,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 - **Denominador:** as taxas usam a estimativa populacional mais recente disponível (hoje, 2025) para todos os anos, inclusive o ano corrente, que ainda não tem estimativa publicada. As estimativas municipais por idade e sexo do Ministério da Saúde são projeções e têm incerteza maior em municípios pequenos e nas faixas etárias extremas.
 - **Menores de 1 ano:** a população é publicada por ano de idade, então as taxas não separam 0–6 e 6–11 meses (essa divisão continua disponível nas contagens absolutas). A idade do caso vem de `COD_IDADE`; códigos em dias ou meses entram como 0 ano.
 - **Nowcasting:** o modelo supõe que a distribuição de atraso é constante na janela de 26 semanas. Mudanças operacionais na digitação (mutirões, greves, troca de sistema) violam essa hipótese. A estimativa da última semana é muito incerta (intervalo largo) porque depende de cerca de 1/4 dos casos. O modelo corrige apenas o atraso de digitação de casos que serão notificados — não corrige subnotificação.
+- **Mudança na definição de caso:** a Nota Técnica nº 11/2026-CGCOVID/DEDT/SVSA/MS (agosto de 2026) passou a definir SRAG como síndrome gripal hospitalizada com dispneia, taquipneia e/ou saturação de O₂ ≤ 94% em ar ambiente; a ficha do SIVEP-Gripe (2023) ainda registra o critério de saturação < 95% e está em atualização. Quando a ficha mudar, contagens de anos anteriores e posteriores podem não ser diretamente comparáveis, o que afeta a curva comparativa, o canal endêmico e o nowcasting.
 - **Canal endêmico frágil:** o canal é baseado em poucos anos de referência (pós-2022), o que torna os percentis instáveis. Ele não é ajustado por tendência nem pelo tamanho da população.
 - **Qualidade do preenchimento:** comorbidades, vacinação e uso de antiviral dependem da completitude dos campos (seção 6), e o não preenchimento não equivale à ausência da condição.
 - **Casos de residentes fora do estado:** casos de residentes da 15ª RS notificados fora do Paraná podem não constar da exportação estadual. Na base aberta de 2026 isso representou 0,4% dos residentes do PR.
@@ -215,6 +231,8 @@ O código e o histórico de alterações estão versionados em git (repositório
 - BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD).
 - BRASIL. Ministério da Saúde. *Guia de Vigilância em Saúde*. 5. ed. Brasília: SVS, 2022.
 - BRASIL. Ministério da Saúde. *Instrutivo de preenchimento da ficha de notificação de SRAG hospitalizado*. Brasília: DEVIT/SVS, 2022.
+- PAN AMERICAN HEALTH ORGANIZATION. *Operational guidelines for sentinel severe acute respiratory infection (SARI) surveillance*. Washington, DC: PAHO, 2014.
+- BRASIL. Ministério da Saúde. Nota Técnica nº 11/2026-CGCOVID/DEDT/SVSA/MS. Brasília: Ministério da Saúde, 2026.
 - WORLD HEALTH ORGANIZATION. *Protocol for the assessment of national communicable disease surveillance and response systems: guidelines for assessment teams*. Geneva: WHO, 2001. WHO/CDS/CSR/ISR/2001.2.
 - BRASIL. Ministério da Saúde. DATASUS. *População residente – Estudo de estimativas populacionais por município, idade e sexo 2000-2025 – Brasil*. Tabnet. Disponível em: http://tabnet.datasus.gov.br/cgi/deftohtm.exe?ibge/cnv/popsvs2024br.def.
 - BRASIL. Ministério da Saúde. *Guia de manejo e tratamento de influenza 2023*. Brasília: MS, 2023.
@@ -233,6 +251,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 08/10/2026 | Metas da OPAS (2014, Anexo 7) calculáveis com a ficha; o "VPP" passa a ser chamado de proporção com vírus respiratório confirmado, com a ressalva conceitual; registrada como limitação a nova definição de caso de SRAG (NT 11/2026, saturação ≤ 94%). |
 | 05/10/2026 | Sensibilidade: comparação dos óbitos por grupo de causa (SIM × SIVEP) e execução com arquivos locais (`SENS_OFFLINE=1`). Primeira execução só com o SIM (2024 final, 2025 preliminar); o SIH aguarda o restabelecimento do FTP do DATASUS. |
 | 04/10/2026 | Consistência por regras (as que o SIVEP-Gripe não bloqueia) por unidade notificadora e representatividade (razão de incidência padronizada por idade por município e local de internação dos residentes), conforme os atributos do protocolo da OMS (2001). |
 | 03/10/2026 | Nowcasting: incluídas as referências de Höhle & an der Heiden (2014), McGough et al. (2020) e Günther et al. (2020), e a relação do modelo do painel com essa literatura. |

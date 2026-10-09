@@ -77,7 +77,7 @@ gD01 <- ggplot(completitude,
 
 
 # ==============================================================================
-# BLOCO D1b — CONSISTÊNCIA E VALOR PREDITIVO POSITIVO
+# BLOCO D1b — CONSISTÊNCIA E CONFIRMAÇÃO VIRAL
 # ==============================================================================
 # Ribeiro & Sanchez (2020), Epidemiol. Serv. Saúde 29(3):e2020066:
 # - inconsistência: % de amostras com coleta antes do início dos sintomas
@@ -97,7 +97,7 @@ pct_vpp  <- round(n_virus / max(nrow(base_filtrada), 1) * 100, 1)
 
 tabela_qualidade <- tibble::tibble(
   Indicador  = c("Inconsistência (coleta antes do início dos sintomas)",
-                 "Valor preditivo positivo (vírus respiratório confirmado)"),
+                 "Proporção com vírus respiratório confirmado (\"VPP\" de Ribeiro & Sanchez, 2020)"),
   Numerador  = c(n_incons, n_virus),
   Denominador = c(nrow(coleta_valida), nrow(base_filtrada)),
   `Valor (%)` = c(pct_incons, pct_vpp),
@@ -390,6 +390,52 @@ if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_noti
                 resumir_digitacao(pick(everything())), .groups = "drop") %>%
       arrange(unidade == "Outras unidades (< 5 casos cada)", ate_1_dia, desc(casos))
   }
+}
+
+# ==============================================================================
+# BLOCO D2e — INDICADORES DA OPAS COM META (Operational Guidelines for Sentinel
+# SARI Surveillance, 2014, Anexo 7)
+# ==============================================================================
+# Só os que podem ser calculados com as datas da ficha do SIVEP-Gripe. Ficam de
+# fora: notificação dos denominadores, captação × busca ativa, qualidade,
+# recebimento e processamento do espécime (dados de laboratório que a ficha não
+# traz). Casos notificados pelas unidades do escopo (base_notif_escopo). Para a
+# cobertura de investigação, só casos com evolução há pelo menos 30 dias.
+
+opas_indicadores <- NULL
+if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_notif_escopo) > 0) {
+  op <- base_notif_escopo %>%
+    mutate(sin = parseia_data(substr(DT_SIN_PRI, 1, 10)), int = parseia_data(substr(DT_INTERNA, 1, 10)),
+           notif = parseia_data(substr(DT_NOTIFIC, 1, 10)), col = parseia_data(substr(DT_COLETA, 1, 10)),
+           evo = parseia_data(substr(DT_EVOLUCA, 1, 10)), enc = parseia_data(substr(DT_ENCERRA, 1, 10)),
+           dig = parseia_data(substr(DT_DIGITA, 1, 10)))
+  ref_data <- max(op$dig, na.rm = TRUE)
+  med <- function(x) { x <- x[!is.na(x) & x >= 0 & x <= 120]; if (length(x)) median(x) else NA_real_ }
+  pct <- function(num, den) if (sum(den) > 0) round(sum(num & den) / sum(den) * 100, 1) else NA_real_
+  com_amostra <- op$AMOSTRA %in% 1
+  coleta_10d  <- com_amostra & !is.na(op$col) & !is.na(op$sin) & as.numeric(op$col - op$sin) <= 10
+  evoluidos   <- op$EVOLUCAO %in% c(1, 2, 3) & !is.na(op$evo) & op$evo <= ref_data - 30
+  encerrados  <- !is.na(op$CLASSI_FIN) & op$CLASSI_FIN != "" & !is.na(op$enc)
+  uti         <- op$UTI %in% 1
+  obito       <- op$EVOLUCAO %in% 2
+
+  opas_indicadores <- tibble::tibble(
+    indicador = c("Oportunidade da notificação (internação → notificação, mediana)",
+                  "Cobertura de investigação (casos com desfecho já encerrados)",
+                  "Cobertura de amostragem (SRAG com amostra coletada até 10 dias dos sintomas)",
+                  "Oportunidade da coleta (internação → coleta, mediana)",
+                  "Cobertura de amostragem em UTI",
+                  "Cobertura de amostragem nos óbitos"),
+    unidade = c("dias", "%", "%", "dias", "%", "%"),
+    meta    = c(1, 90, 90, 2, 100, 100),
+    valor   = c(med(as.numeric(op$notif - op$int)), pct(encerrados, evoluidos),
+                pct(coleta_10d, rep(TRUE, nrow(op))), med(as.numeric(op$col - op$int)),
+                pct(com_amostra, uti), pct(com_amostra, obito)),
+    n       = c(sum(!is.na(op$notif - op$int)), sum(evoluidos), nrow(op), sum(com_amostra & !is.na(op$col)),
+                sum(uti), sum(obito))
+  ) %>%
+    mutate(atinge = if_else(unidade == "dias", valor <= meta, valor >= meta),
+           situacao = case_when(is.na(valor) ~ "—", atinge ~ "Atinge a meta", TRUE ~ "Abaixo da meta"))
 }
 
 # ==============================================================================
@@ -1141,6 +1187,7 @@ writexl::write_xlsx(
     "oportunidade"      = oport_regional,
     "taxas_faixa_etaria" = if (is.null(taxas_faixa)) tibble::tibble() else taxas_faixa,
     "oportunidade_mun"  = oport_municipio,
+    "metas_opas"        = if (is.null(opas_indicadores)) tibble::tibble() else opas_indicadores,
     "digitacao_unidade" = if (is.null(digitacao_unidade)) tibble::tibble() else digitacao_unidade,
     "digitacao_mes"     = if (is.null(digitacao_mes)) tibble::tibble() else digitacao_mes,
     "qualidade"         = tabela_qualidade,

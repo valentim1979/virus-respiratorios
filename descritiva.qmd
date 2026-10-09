@@ -55,12 +55,12 @@ Campos com baixa completitude não devem ser descartados da análise, mas seus r
 gD01
 ```
 
-### 1b. Consistência e Valor Preditivo Positivo
+### 1b. Consistência e Confirmação Viral
 
 Dois atributos de qualidade usados na avaliação nacional da vigilância de SRAG (Ribeiro & Sanchez, 2020):
 
 - **Inconsistência:** proporção de amostras com data de coleta **anterior** ao início dos sintomas — combinação impossível, que indica erro de digitação em uma das datas. É considerada aceitável até 20%.
-- **Valor preditivo positivo (VPP) da definição de caso:** proporção dos casos de SRAG com vírus respiratório confirmado (influenza, outro vírus respiratório ou covid-19). Como, segundo a literatura, 20% a 30% dos casos de SRAG têm etiologia viral identificada, um VPP acima de 20% é considerado satisfatório.
+- **Proporção com vírus respiratório confirmado:** casos de SRAG com vírus respiratório confirmado (influenza, outro vírus respiratório ou covid-19). Como, segundo a literatura, 20% a 30% dos casos de SRAG têm etiologia viral identificada, uma proporção acima de 20% é considerada satisfatória. Ribeiro & Sanchez (2020) chamam esse indicador de "valor preditivo positivo", mas ele é uma proporção de confirmação viral: o valor preditivo positivo no sentido clássico (CDC, 2001) exigiria saber quantos casos notificados são de fato a condição sob vigilância, o que pede um padrão-ouro externo.
 
 ```{r qualidade}
 tabela_qualidade %>%
@@ -124,6 +124,26 @@ Intervalos negativos (por exemplo, antiviral iniciado antes da internação) con
 ```{r oportunidade-indicadores, fig.width=12, fig.height=5}
 gD02b
 ```
+
+**Metas da Organização Pan-Americana da Saúde.** As diretrizes da OPAS para a vigilância sentinela de SRAG (2014, Anexo 7) definem metas para indicadores operacionais. A tabela traz os que podem ser calculados com as datas da ficha do SIVEP-Gripe, para os casos notificados pelas unidades da 15ª RS; os indicadores de laboratório (recebimento, qualidade e processamento da amostra) e a captação comparada à busca ativa exigem dados que a ficha não tem.
+
+```{r metas-opas}
+if (!is.null(opas_indicadores)) {
+  opas_indicadores %>%
+    dplyr::transmute(
+      Indicador = indicador,
+      `Meta OPAS` = dplyr::if_else(unidade == "dias", paste0("≤ ", meta, " dia", dplyr::if_else(meta > 1, "s", "")), paste0(meta, "%")),
+      `15ª RS` = dplyr::if_else(unidade == "dias", paste0(format(valor, decimal.mark = ","), " dia", dplyr::if_else(valor == 1, "", "s")),
+                                paste0(format(valor, decimal.mark = ","), "%")),
+      `Casos avaliados` = n, `Situação` = situacao
+    ) %>%
+    knitr::kable(format.args = list(big.mark = ".", decimal.mark = ",")) %>%
+    kableExtra::kable_styling(bootstrap_options = c("striped", "condensed"), full_width = TRUE, font_size = 13) %>%
+    kableExtra::column_spec(5, bold = TRUE, color = ifelse(opas_indicadores$atinge %in% TRUE, "#2E7D32", "#C62828"))
+}
+```
+
+**Referência:** Pan American Health Organization. *Operational Guidelines for Sentinel Severe Acute Respiratory Infection (SARI) Surveillance*. Washington, DC: PAHO; 2014. Anexo 7.
 
 **Por município de residência** — percentual oportuno e, entre parênteses, número de casos avaliados. "—" indica que não houve caso a avaliar; na coluna de tratamento antiviral, significa que **nenhum caso do município recebeu antiviral**:
 

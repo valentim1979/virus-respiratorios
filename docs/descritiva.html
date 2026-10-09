@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-8a5b0047cf64b6df0ea2a3b5b393159a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -215,12 +215,12 @@ Importante
 </div>
 </div>
 </div>
-<section id="b.-consistência-e-valor-preditivo-positivo" class="level3">
-<h3 class="anchored" data-anchor-id="b.-consistência-e-valor-preditivo-positivo">1b. Consistência e Valor Preditivo Positivo</h3>
+<section id="b.-consistência-e-confirmação-viral" class="level3">
+<h3 class="anchored" data-anchor-id="b.-consistência-e-confirmação-viral">1b. Consistência e Confirmação Viral</h3>
 <p>Dois atributos de qualidade usados na avaliação nacional da vigilância de SRAG (Ribeiro &amp; Sanchez, 2020):</p>
 <ul>
 <li><strong>Inconsistência:</strong> proporção de amostras com data de coleta <strong>anterior</strong> ao início dos sintomas — combinação impossível, que indica erro de digitação em uma das datas. É considerada aceitável até 20%.</li>
-<li><strong>Valor preditivo positivo (VPP) da definição de caso:</strong> proporção dos casos de SRAG com vírus respiratório confirmado (influenza, outro vírus respiratório ou covid-19). Como, segundo a literatura, 20% a 30% dos casos de SRAG têm etiologia viral identificada, um VPP acima de 20% é considerado satisfatório.</li>
+<li><strong>Proporção com vírus respiratório confirmado:</strong> casos de SRAG com vírus respiratório confirmado (influenza, outro vírus respiratório ou covid-19). Como, segundo a literatura, 20% a 30% dos casos de SRAG têm etiologia viral identificada, uma proporção acima de 20% é considerada satisfatória. Ribeiro &amp; Sanchez (2020) chamam esse indicador de “valor preditivo positivo”, mas ele é uma proporção de confirmação viral: o valor preditivo positivo no sentido clássico (CDC, 2001) exigiria saber quantos casos notificados são de fato a condição sob vigilância, o que pede um padrão-ouro externo.</li>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
@@ -245,7 +245,7 @@ Importante
 <td style="text-align: left;">Aceitável</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Valor preditivo positivo (vírus respiratório confirmado)</td>
+<td style="text-align: left;">Proporção com vírus respiratório confirmado ("VPP" de Ribeiro &amp; Sanchez, 2020)</td>
 <td style="text-align: right;">888</td>
 <td style="text-align: right;">1.540</td>
 <td style="text-align: right;">57,7</td>
@@ -545,6 +545,67 @@ Importante
 </div>
 </div>
 </div>
+<p><strong>Metas da Organização Pan-Americana da Saúde.</strong> As diretrizes da OPAS para a vigilância sentinela de SRAG (2014, Anexo 7) definem metas para indicadores operacionais. A tabela traz os que podem ser calculados com as datas da ficha do SIVEP-Gripe, para os casos notificados pelas unidades da 15ª RS; os indicadores de laboratório (recebimento, qualidade e processamento da amostra) e a captação comparada à busca ativa exigem dados que a ficha não tem.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped table-condensed caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Indicador</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Meta OPAS</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">15ª RS</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Casos avaliados</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Oportunidade da notificação (internação → notificação, mediana)</td>
+<td style="text-align: left;">≤ 1 dia</td>
+<td style="text-align: left;">1,0 dia</td>
+<td style="text-align: right;">1.550</td>
+<td style="text-align: left; font-weight: bold; color: rgba(46, 125, 50, 1) !important;">Atinge a meta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cobertura de investigação (casos com desfecho já encerrados)</td>
+<td style="text-align: left;">90%</td>
+<td style="text-align: left;">99,9%</td>
+<td style="text-align: right;">1.361</td>
+<td style="text-align: left; font-weight: bold; color: rgba(46, 125, 50, 1) !important;">Atinge a meta</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cobertura de amostragem (SRAG com amostra coletada até 10 dias dos sintomas)</td>
+<td style="text-align: left;">90%</td>
+<td style="text-align: left;">92,9%</td>
+<td style="text-align: right;">1.564</td>
+<td style="text-align: left; font-weight: bold; color: rgba(46, 125, 50, 1) !important;">Atinge a meta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Oportunidade da coleta (internação → coleta, mediana)</td>
+<td style="text-align: left;">≤ 2 dias</td>
+<td style="text-align: left;">0,0 dias</td>
+<td style="text-align: right;">1.557</td>
+<td style="text-align: left; font-weight: bold; color: rgba(46, 125, 50, 1) !important;">Atinge a meta</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cobertura de amostragem em UTI</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">99,8%</td>
+<td style="text-align: right;">485</td>
+<td style="text-align: left; font-weight: bold; color: rgba(198, 40, 40, 1) !important;">Abaixo da meta</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cobertura de amostragem nos óbitos</td>
+<td style="text-align: left;">100%</td>
+<td style="text-align: left;">100,0%</td>
+<td style="text-align: right;">116</td>
+<td style="text-align: left; font-weight: bold; color: rgba(46, 125, 50, 1) !important;">Atinge a meta</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Referência:</strong> Pan American Health Organization. <em>Operational Guidelines for Sentinel Severe Acute Respiratory Infection (SARI) Surveillance</em>. Washington, DC: PAHO; 2014. Anexo 7.</p>
 <p><strong>Por município de residência</strong> — percentual oportuno e, entre parênteses, número de casos avaliados. “—” indica que não houve caso a avaliar; na coluna de tratamento antiviral, significa que <strong>nenhum caso do município recebeu antiviral</strong>:</p>
 <div class="cell">
 <div class="cell-output-display">

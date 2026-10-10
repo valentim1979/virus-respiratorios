@@ -400,7 +400,11 @@ if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_noti
 # fora: notificação dos denominadores, captação × busca ativa, qualidade,
 # recebimento e processamento do espécime (dados de laboratório que a ficha não
 # traz). Casos notificados pelas unidades do escopo (base_notif_escopo). Para a
-# cobertura de investigação, só casos com evolução há pelo menos 30 dias.
+# cobertura de investigação, só casos com evolução há pelo menos 30 dias. Na
+# cobertura de amostragem, o denominador são os casos com critério válido para
+# coleta: internados até 10 dias do início dos sintomas (depois disso a amostra
+# já não serve ao diagnóstico viral). O valor sobre todos os casos fica em
+# opas_amostragem_todos, como descritor.
 
 opas_indicadores <- NULL
 if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_notif_escopo) > 0) {
@@ -414,6 +418,7 @@ if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_noti
   pct <- function(num, den) if (sum(den) > 0) round(sum(num & den) / sum(den) * 100, 1) else NA_real_
   com_amostra <- op$AMOSTRA %in% 1
   coleta_10d  <- com_amostra & !is.na(op$col) & !is.na(op$sin) & as.numeric(op$col - op$sin) <= 10
+  elegivel_10d <- !is.na(op$int) & !is.na(op$sin) & as.numeric(op$int - op$sin) <= 10
   evoluidos   <- op$EVOLUCAO %in% c(1, 2, 3) & !is.na(op$evo) & op$evo <= ref_data - 30
   encerrados  <- !is.na(op$CLASSI_FIN) & op$CLASSI_FIN != "" & !is.na(op$enc)
   uti         <- op$UTI %in% 1
@@ -422,20 +427,24 @@ if (exists("base_notif_escopo") && !is.null(base_notif_escopo) && nrow(base_noti
   opas_indicadores <- tibble::tibble(
     indicador = c("Oportunidade da notificação (internação → notificação, mediana)",
                   "Cobertura de investigação (casos com desfecho já encerrados)",
-                  "Cobertura de amostragem (SRAG com amostra coletada até 10 dias dos sintomas)",
+                  "Cobertura de amostragem (internados até 10 dias dos sintomas com amostra coletada até o 10º dia)",
                   "Oportunidade da coleta (internação → coleta, mediana)",
                   "Cobertura de amostragem em UTI",
                   "Cobertura de amostragem nos óbitos"),
     unidade = c("dias", "%", "%", "dias", "%", "%"),
     meta    = c(1, 90, 90, 2, 100, 100),
     valor   = c(med(as.numeric(op$notif - op$int)), pct(encerrados, evoluidos),
-                pct(coleta_10d, rep(TRUE, nrow(op))), med(as.numeric(op$col - op$int)),
+                pct(coleta_10d, elegivel_10d), med(as.numeric(op$col - op$int)),
                 pct(com_amostra, uti), pct(com_amostra, obito)),
-    n       = c(sum(!is.na(op$notif - op$int)), sum(evoluidos), nrow(op), sum(com_amostra & !is.na(op$col)),
+    n       = c(sum(!is.na(op$notif - op$int)), sum(evoluidos), sum(elegivel_10d), sum(com_amostra & !is.na(op$col)),
                 sum(uti), sum(obito))
   ) %>%
     mutate(atinge = if_else(unidade == "dias", valor <= meta, valor >= meta),
            situacao = case_when(is.na(valor) ~ "—", atinge ~ "Atinge a meta", TRUE ~ "Abaixo da meta"))
+  opas_amostragem_todos <- list(
+    total = nrow(op), valor = pct(coleta_10d, rep(TRUE, nrow(op))),
+    internacao_tardia = sum(!is.na(op$int) & !is.na(op$sin) & as.numeric(op$int - op$sin) > 10),
+    sem_amostra = sum(!com_amostra))
 }
 
 # ==============================================================================

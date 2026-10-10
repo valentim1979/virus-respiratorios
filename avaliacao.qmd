@@ -148,6 +148,8 @@ if (!is.null(opas_indicadores)) {
 }
 ```
 
+Na cobertura de amostragem, a OPAS conta no denominador só os casos com critério válido para coleta, já que a amostra deve ser colhida até 10 dias do início dos sintomas. O painel usa os casos internados até o 10º dia de sintomas, primeiro momento em que a unidade pode coletar.`r if (exists("opas_amostragem_todos")) paste0(" Sobre todos os ", format(opas_amostragem_todos$total, big.mark = "."), " casos notificados, a cobertura seria de ", format(opas_amostragem_todos$valor, decimal.mark = ","), "%. A diferença vem sobretudo dos ", opas_amostragem_todos$internacao_tardia, " pacientes internados com mais de 10 dias de sintomas; só ", opas_amostragem_todos$sem_amostra, " casos não tiveram amostra.")`
+
 **Referência:** Pan American Health Organization. *Operational Guidelines for Sentinel Severe Acute Respiratory Infection (SARI) Surveillance*. Washington, DC: PAHO; 2014. Anexo 7.
 
 **Por município de residência** — percentual oportuno e, entre parênteses, número de casos avaliados. "—" indica que não houve caso a avaliar; na coluna de tratamento antiviral, significa que **nenhum caso do município recebeu antiviral**:

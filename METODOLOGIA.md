@@ -87,12 +87,12 @@ O indicador que Ribeiro e Sanchez (2020) chamam de "valor preditivo positivo da 
 |---|---|---|
 | Oportunidade da notificação | mediana de `DT_NOTIFIC` − `DT_INTERNA` | ≤ 1 dia |
 | Cobertura de investigação | casos com classificação final e `DT_ENCERRA` ÷ casos com evolução (1, 2 ou 3) registrada há pelo menos 30 dias | 90% |
-| Cobertura de amostragem | casos com amostra (`AMOSTRA` = 1) coletada até 10 dias do início dos sintomas ÷ casos de SRAG | 90% |
+| Cobertura de amostragem | casos com amostra (`AMOSTRA` = 1) coletada até 10 dias do início dos sintomas ÷ casos com critério válido para coleta (internados até 10 dias do início dos sintomas, `DT_INTERNA` − `DT_SIN_PRI` ≤ 10) | 90% |
 | Oportunidade da coleta | mediana de `DT_COLETA` − `DT_INTERNA` | ≤ 2 dias |
 | Cobertura de amostragem em UTI | casos com `UTI` = 1 e amostra ÷ casos com `UTI` = 1 | 100% |
 | Cobertura de amostragem nos óbitos | óbitos por SRAG com amostra ÷ óbitos por SRAG | 100% |
 
-Intervalos negativos ou maiores que 120 dias são excluídos das medianas. Os demais indicadores do Anexo 7 (notificação dos denominadores semanais, captação comparada à busca ativa, qualidade, recebimento e processamento do espécime, oportunidade do boletim) exigem dados que a ficha do SIVEP-Gripe não traz.
+Intervalos negativos ou maiores que 120 dias são excluídos das medianas. Na cobertura de amostragem, a OPAS restringe o denominador aos casos com critério válido para coleta, porque a amostra deve ser colhida até 10 dias do início dos sintomas; o painel usa como critério a internação até o 10º dia, primeiro momento em que a unidade pode coletar. O valor sobre todos os casos é apresentado como descritor: a diferença vem sobretudo de pacientes internados tardiamente, o que não depende da vigilância. Os demais indicadores do Anexo 7 (notificação dos denominadores semanais, captação comparada à busca ativa, qualidade, recebimento e processamento do espécime, oportunidade do boletim) exigem dados que a ficha do SIVEP-Gripe não traz.
 
 ### 6.2 Consistência por regras e representatividade
 
@@ -256,6 +256,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 10/10/2026 | Cobertura de amostragem (metas da OPAS) passa a usar no denominador os casos com critério válido para coleta (internados até 10 dias do início dos sintomas), como no Anexo 7; antes eram todos os casos de SRAG. Com a exportação de 09/10/2026: 98,5% (1.431 casos), ante 92,9% sobre todos os 1.537. |
 | 09/10/2026 | A página "Estatística Descritiva" foi dividida em "Perfil dos Casos" (`descritiva.qmd`) e "Avaliação da Vigilância" (`avaliacao.qmd`), esta organizada pelos atributos de avaliação (qualidade dos dados, oportunidade, representatividade). Nenhum cálculo mudou. |
 | 09/10/2026 | Exemplos numéricos do nowcasting (seção 8.1) atualizados para a exportação de 09/10/2026: distribuição do atraso de digitação e resultado da validação retrospectiva (cortes de 25/04 a 05/09/2026). |
 | 08/10/2026 | Metas da OPAS (2014, Anexo 7) calculáveis com a ficha; o "VPP" passa a ser chamado de proporção com vírus respiratório confirmado, com a ressalva conceitual; registrada como limitação a nova definição de caso de SRAG (NT 11/2026, saturação ≤ 94%). |

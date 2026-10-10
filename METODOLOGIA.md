@@ -177,7 +177,7 @@ As interpretações que dependem de inferência e não podem ser confirmadas ape
 
 ### 8.1 Nowcasting — correção do atraso de digitação
 
-**Problema.** As contagens das semanas mais recentes são subestimadas porque parte dos casos ainda não foi digitada no SIVEP-Gripe. Isso produz uma falsa tendência de queda no fim da curva. Na 15ª RS, em 2026, 26% dos casos foram digitados na mesma semana epidemiológica do início dos sintomas, 82% até a semana seguinte, 93% até 2 semanas, 96% até 3 semanas e 98% até 8 semanas.
+**Problema.** As contagens das semanas mais recentes são subestimadas porque parte dos casos ainda não foi digitada no SIVEP-Gripe. Isso produz uma falsa tendência de queda no fim da curva. Na 15ª RS, em 2026 (exportação de 09/10/2026), 27% dos casos foram digitados na mesma semana epidemiológica do início dos sintomas, 82% até a semana seguinte, 93% até 2 semanas, 96% até 3 semanas e 98% até 8 semanas.
 
 **Modelo.** Usa-se o modelo do triângulo de notificação (*chain-ladder*) com regressão binomial negativa — versão frequentista da abordagem de Bastos et al. (2019), usada no InfoGripe/Fiocruz. Para cada semana epidemiológica de início dos sintomas *t* (domingo a sábado) e atraso *d* (semanas inteiras entre a semana de início dos sintomas e a semana de digitação, `DT_DIGITA`):
 
@@ -195,13 +195,13 @@ n<sub>t,d</sub> ~ Binomial Negativa(μ<sub>t,d</sub>, θ), com log(μ<sub>t,d</s
 
 **Escolha de D e da janela.** Foram comparados D = 3, 4 e 5 e janelas de 16 e 26 semanas na validação retrospectiva. Com D maior, categorias de atraso longo ficam sem nenhum caso em algumas janelas, o coeficiente diverge e o total estimado explode (erros acima de 200% num teste inicial com D = 8). D = 4 com 26 semanas teve o melhor equilíbrio entre erro e cobertura.
 
-**Validação retrospectiva.** O nowcast foi refeito em 20 cortes semanais passados (sábados), usando só os casos digitados até cada corte. As estimativas das três semanas mais recentes de cada corte foram comparadas com o total conhecido hoje. Só entraram cortes com pelo menos D semanas de seguimento posterior, para que o total de referência estivesse praticamente completo. A validação é refeita automaticamente a cada atualização do painel e publicada junto com a estimativa. Resultado da execução de 03/10/2026, com cortes de 18/04/2026 a 29/08/2026 (a versão mais recente fica em `dados/nowcasting_validacao.csv`):
+**Validação retrospectiva.** O nowcast foi refeito em 20 cortes semanais passados (sábados), usando só os casos digitados até cada corte. As estimativas das três semanas mais recentes de cada corte foram comparadas com o total conhecido hoje. Só entraram cortes com pelo menos D semanas de seguimento posterior, para que o total de referência estivesse praticamente completo. A validação é refeita automaticamente a cada atualização do painel e publicada junto com a estimativa. Resultado da execução de 09/10/2026, com cortes de 25/04/2026 a 05/09/2026 (a versão mais recente fica em `dados/nowcasting_validacao.csv`):
 
 | Semana em relação ao corte | Erro absoluto médio sem correção | Erro absoluto médio do nowcast | Cobertura do intervalo de 95% |
 |---|---|---|---|
-| Última semana (T) | 74,1% | 27,1% | 90% |
-| Penúltima (T − 1) | 17,5% | 7,2% | 95% |
-| Antepenúltima (T − 2) | 7,5% | 3,2% | 100% |
+| Última semana (T) | 74,6% | 24,3% | 95% |
+| Penúltima (T − 1) | 17,4% | 7,6% | 95% |
+| Antepenúltima (T − 2) | 7,3% | 3,6% | 100% |
 
 O erro é a média de |estimado − final| ÷ final (o final é limitado a no mínimo 1), em %.
 
@@ -257,6 +257,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 | Data | Alteração |
 |---|---|
 | 09/10/2026 | A página "Estatística Descritiva" foi dividida em "Perfil dos Casos" (`descritiva.qmd`) e "Avaliação da Vigilância" (`avaliacao.qmd`), esta organizada pelos atributos de avaliação (qualidade dos dados, oportunidade, representatividade). Nenhum cálculo mudou. |
+| 09/10/2026 | Exemplos numéricos do nowcasting (seção 8.1) atualizados para a exportação de 09/10/2026: distribuição do atraso de digitação e resultado da validação retrospectiva (cortes de 25/04 a 05/09/2026). |
 | 08/10/2026 | Metas da OPAS (2014, Anexo 7) calculáveis com a ficha; o "VPP" passa a ser chamado de proporção com vírus respiratório confirmado, com a ressalva conceitual; registrada como limitação a nova definição de caso de SRAG (NT 11/2026, saturação ≤ 94%). |
 | 05/10/2026 | Sensibilidade: comparação dos óbitos por grupo de causa (SIM × SIVEP) e execução com arquivos locais (`SENS_OFFLINE=1`). Primeira execução só com o SIM (2024 final, 2025 preliminar); o SIH aguarda o restabelecimento do FTP do DATASUS. |
 | 04/10/2026 | Consistência por regras (as que o SIVEP-Gripe não bloqueia) por unidade notificadora e representatividade (razão de incidência padronizada por idade por município e local de internação dos residentes), conforme os atributos do protocolo da OMS (2001). |

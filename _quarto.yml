@@ -18,7 +18,9 @@ website:
       - href: index.qmd
         text: "Vigilância Universal — SRAG"
       - href: descritiva.qmd
-        text: "Estatística Descritiva"
+        text: "Perfil dos Casos"
+      - href: avaliacao.qmd
+        text: "Avaliação da Vigilância"
       - href: sobre.qmd
         text: "Sobre"
   page-footer:

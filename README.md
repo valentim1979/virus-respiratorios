@@ -30,17 +30,18 @@ O recorte é por município de **residência** e as séries semanais usam a
   (triângulo de notificação com regressão binomial negativa, D = 4,
   janela de 26 semanas, intervalo de predição de 95%), com validação
   retrospectiva em 20 cortes semanais publicada junto da estimativa.
-- **Estatística descritiva:** completitude, oportunidade de notificação,
-  tempo até o desfecho, comorbidades, letalidade entre casos encerrados,
+- **Perfil dos casos:** tempo até o desfecho, comorbidades, letalidade entre casos encerrados,
   UTI, taxas por 100 mil por faixa etária e sexo, critério de
   confirmação, antiviral (uso e oportunidade, inclusive entre óbitos e
   curados de influenza) e situação vacinal contra covid-19 e influenza.
-- **Avaliação da vigilância:**
-  - inconsistência, valor preditivo positivo e os cinco indicadores de
+- **Avaliação da vigilância** (página própria, organizada pelos atributos
+  do CDC e da OMS):
+  - completitude, inconsistência, valor preditivo positivo e os cinco indicadores de
     oportunidade de Ribeiro & Sanchez (2020);
   - consistência por regras e representatividade (razão de incidência
     padronizada por idade), atributos do protocolo da OMS (2001);
-  - oportunidade de digitação por unidade notificadora.
+  - oportunidade de digitação por unidade notificadora;
+  - metas operacionais da OPAS (2014).
 
 As interpretações que dependem de inferência são redigidas como
 hipóteses, separadas da descrição dos resultados.
@@ -87,7 +88,7 @@ sincronizadas com a nuvem. O painel publica apenas dados agregados.
 | `colunas_permitidas.txt` | Lista de variáveis mantidas na anonimização |
 | `baixar_populacao.R` | Download da população do PR por município, sexo e idade simples (Tabnet) |
 | `analise_sensibilidade.R` | Análise anual SIVEP-Gripe × SIH/SUS × SIM, fora do painel |
-| `index.qmd`, `descritiva.qmd`, `sobre.qmd` | Páginas do site |
+| `index.qmd`, `descritiva.qmd` (Perfil dos Casos), `avaliacao.qmd` (Avaliação da Vigilância), `sobre.qmd` | Páginas do site |
 | `_quarto.yml` | Configuração do projeto Quarto |
 | `dbf_sivep/` | Cache local dos CSVs baixados da API e arquivos do DATASUS (não versionado, exceto `.gitkeep`) |
 | `sivep_15rs/` | Dados de apoio: população, regionais e macrorregiões do PR, shapefiles (malha municipal do PR, bairros de Maringá e Sarandi) |

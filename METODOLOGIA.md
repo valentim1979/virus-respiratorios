@@ -147,24 +147,29 @@ Para o ano corrente, o painel apresenta:
 - distribuição por sexo, raça/cor, faixa etária (pirâmides de notificados e de óbitos), classificação final e evolução;
 - circulação viral: total, tendência semanal, tipos e linhagens de influenza, composição por faixa etária e variação anual desde 2022.
 
-A página de estatística descritiva acrescenta:
+O site tem duas páginas de detalhamento, que leem o mesmo contexto salvo pelo script principal.
 
-- completitude das variáveis-chave;
-- oportunidade de notificação;
-- tempo de internação até o desfecho (cura ou óbito, entre 0 e 120 dias);
+A página **Perfil dos Casos** (`descritiva.qmd`) descreve os casos:
+
 - frequência de comorbidades, no total e entre óbitos;
 - letalidade por faixa etária e sexo;
 - proporção de UTI por faixa etária;
+- tempo de internação até o desfecho (cura ou óbito, entre 0 e 120 dias);
 - taxas de incidência, internação em UTI e mortalidade por 100 mil habitantes por faixa etária, e pirâmide de incidência por faixa etária e sexo;
 - critério de confirmação;
 - uso de antiviral e tempo até o início do tratamento, para influenza confirmada e para todos os casos de SRAG;
 - tratamento antiviral entre os óbitos por influenza (`CLASSI_FIN = 1` e `EVOLUCAO = 2`), comparado aos casos de influenza com cura (`EVOLUCAO = 1`): proporção tratada, proporção com início em até 2 dias e mediana de dias entre o início dos sintomas e o antiviral, em categorias (até 2 dias, 3 a 5, após 5, sem data válida, não tratado, ignorado);
 - situação vacinal contra covid-19;
 - situação vacinal contra influenza (`VACINA`) entre casos e óbitos de influenza confirmada;
-- consistência, proporção com vírus respiratório confirmado, indicadores de oportunidade e metas da OPAS (seção 6.1);
-- regras de consistência por unidade notificadora e representatividade por município e por local de internação (seção 6.2);
-- tempo de cada etapa até a digitação e oportunidade de digitação por unidade notificadora e por mês (seção 6.4);
 - mortalidade por município, com tabela-resumo municipal.
+
+A página **Avaliação da Vigilância** (`avaliacao.qmd`) organiza os indicadores da seção 6 pelos atributos das diretrizes do CDC (2001) e da OMS (2001, 2006):
+
+- qualidade dos dados: completitude das variáveis-chave, inconsistência, proporção com vírus respiratório confirmado (seção 6.1) e regras de consistência por unidade notificadora (seção 6.2);
+- oportunidade: os cinco indicadores de Ribeiro & Sanchez (2020), regionais e por município, as metas da OPAS (seção 6.1), o tempo de cada etapa até a digitação e a oportunidade de digitação por unidade notificadora e por mês (seção 6.4) e o intervalo entre o início dos sintomas e a notificação;
+- representatividade: razão de incidência padronizada por idade, por município, e local de internação dos residentes (seção 6.2).
+
+Sensibilidade, valor preditivo positivo, aceitabilidade, simplicidade, flexibilidade e estabilidade não são calculados no painel.
 
 As interpretações que dependem de inferência e não podem ser confirmadas apenas com os dados descritivos são redigidas no painel como hipóteses ("pode indicar", "é compatível com"), separadas da descrição dos resultados.
 
@@ -251,6 +256,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 09/10/2026 | A página "Estatística Descritiva" foi dividida em "Perfil dos Casos" (`descritiva.qmd`) e "Avaliação da Vigilância" (`avaliacao.qmd`), esta organizada pelos atributos de avaliação (qualidade dos dados, oportunidade, representatividade). Nenhum cálculo mudou. |
 | 08/10/2026 | Metas da OPAS (2014, Anexo 7) calculáveis com a ficha; o "VPP" passa a ser chamado de proporção com vírus respiratório confirmado, com a ressalva conceitual; registrada como limitação a nova definição de caso de SRAG (NT 11/2026, saturação ≤ 94%). |
 | 05/10/2026 | Sensibilidade: comparação dos óbitos por grupo de causa (SIM × SIVEP) e execução com arquivos locais (`SENS_OFFLINE=1`). Primeira execução só com o SIM (2024 final, 2025 preliminar); o SIH aguarda o restabelecimento do FTP do DATASUS. |
 | 04/10/2026 | Consistência por regras (as que o SIVEP-Gripe não bloqueia) por unidade notificadora e representatividade (razão de incidência padronizada por idade por município e local de internação dos residentes), conforme os atributos do protocolo da OMS (2001). |

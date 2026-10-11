@@ -191,6 +191,7 @@ n_caiu <- sum(atual$mantida != "TRUE")
 n_lim  <- sum(atual$mantida == "TRUE" & atual$no_limite == "TRUE")
 
 linhas <- c(
+  "---", "fontsize: 9pt", "---", "",
   "# Monitoramento das conclusões do artigo",
   "",
   sprintf("Dados até **%s** (%s casos residentes). Versões registradas: %d (%s).",
@@ -206,7 +207,7 @@ linhas <- c(
 for (b in unique(atual$bloco)) {
   linhas <- c(linhas, paste("##", b), "",
               "| Conclusão | Critério | Valor atual | Situação | Desde | Trajetória |",
-              "|---|---|---|---|---|---|")
+              "|--------------------------|----------------|----------|-----------|------------|--------------------|")
   for (i in which(atual$bloco == b)) {
     r <- atual[i, ]
     linhas <- c(linhas, sprintf("| %s | %s | %s | %s | %s | %s |", r$texto, r$criterio, r$valor,

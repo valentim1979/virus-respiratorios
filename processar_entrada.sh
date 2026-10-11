@@ -41,5 +41,10 @@ fi
 
 git pull --rebase
 "$PROJETO/publicar.sh" --dados-novos
+# Monitoramento das conclusões do artigo: grava o histórico na pasta de
+# pesquisa, fora do repositório; uma falha aqui não desfaz a publicação.
+MONITOR="$(Rscript "$PROJETO/monitor_conclusoes.R" 2>>"$LOG" | tail -1)" || MONITOR="Monitoramento das conclusões falhou (veja $LOG)"
+echo "$MONITOR"
+avisar "Conclusões do artigo" "$MONITOR"
 
 avisar "Boletim publicado" "https://valentim1979.github.io/virus-respiratorios/"

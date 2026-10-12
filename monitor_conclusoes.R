@@ -14,7 +14,7 @@ suppressPackageStartupMessages({
 })
 
 PROJETO <- normalizePath(".")
-SAIDA   <- path.expand("~/Work/research_notes/Avaliação da vigilância respiratória/monitoramento")
+SAIDA   <- path.expand("~/Work/Avaliação do Sistema de Vigilância/pesquisa/monitoramento")
 dir.create(SAIDA, recursive = TRUE, showWarnings = FALSE)
 
 # --- Indicadores (os mesmos objetos da página Avaliação da Vigilância) ---------

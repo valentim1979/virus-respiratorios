@@ -205,7 +205,7 @@ n<sub>t,d</sub> ~ Binomial Negativa(μ<sub>t,d</sub>, θ), com log(μ<sub>t,d</s
 
 O erro é a média de |estimado − final| ÷ final (o final é limitado a no mínimo 1), em %.
 
-**Apresentação.** O painel mostra, na aba "Estimativa (nowcasting)", os casos já digitados (barras) e o total estimado com o intervalo de 95% para as 26 semanas da janela, além da tabela das últimas semanas e do desempenho na validação. As demais séries continuam mostrando apenas os casos digitados.
+**Apresentação.** O painel mostra, na aba "Estimativa (nowcasting)", os casos já digitados (barras) e o total estimado com o intervalo de 95% para as 26 semanas da janela, além da tabela das últimas semanas e do desempenho na validação. Um segundo gráfico (`graficos/06d_nowcasting_validacao.png`) mostra a validação semana a semana: para cada um dos 20 cortes, a estimativa da última semana do corte (mediana e intervalo de 95%) e os casos digitados até o corte, sobre o total conhecido hoje. As demais séries continuam mostrando apenas os casos digitados.
 
 ## 9. Software e reprodutibilidade
 
@@ -256,6 +256,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 25/10/2026 | Nowcasting: novo gráfico da validação retrospectiva semana a semana (estimativa feita na época × total conhecido hoje) e número de casos digitados dentro das colunas do gráfico da estimativa. Gráfico de tendência viral ganha aviso sobre o atraso do resultado do RT-PCR. Nenhum cálculo mudou. |
 | 10/10/2026 | Cobertura de amostragem (metas da OPAS) passa a usar no denominador os casos com critério válido para coleta (internados até 10 dias do início dos sintomas), como no Anexo 7; antes eram todos os casos de SRAG. Com a exportação de 09/10/2026: 98,5% (1.431 casos), ante 92,9% sobre todos os 1.537. |
 | 09/10/2026 | A página "Estatística Descritiva" foi dividida em "Perfil dos Casos" (`descritiva.qmd`) e "Avaliação da Vigilância" (`avaliacao.qmd`), esta organizada pelos atributos de avaliação (qualidade dos dados, oportunidade, representatividade). Nenhum cálculo mudou. |
 | 09/10/2026 | Exemplos numéricos do nowcasting (seção 8.1) atualizados para a exportação de 09/10/2026: distribuição do atraso de digitação e resultado da validação retrospectiva (cortes de 25/04 a 05/09/2026). |

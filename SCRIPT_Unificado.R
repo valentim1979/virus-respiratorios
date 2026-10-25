@@ -733,8 +733,9 @@ data_digitacao_max <- max(parseia_data(substr(
 
 nowcast_res <- tryCatch(nowcast_srag(base_nowcast, data_digitacao_max),
                         error = function(e) { message("  [aviso] Nowcasting falhou: ", conditionMessage(e)); NULL })
-nowcast_val <- tryCatch(resumir_validacao(validar_nowcast(base_nowcast, data_digitacao_max)),
-                        error = function(e) { message("  [aviso] Validação do nowcasting falhou: ", conditionMessage(e)); NULL })
+nowcast_val_sem <- tryCatch(validar_nowcast(base_nowcast, data_digitacao_max),
+                            error = function(e) { message("  [aviso] Validação do nowcasting falhou: ", conditionMessage(e)); NULL })
+nowcast_val <- if (!is.null(nowcast_val_sem)) resumir_validacao(nowcast_val_sem)
 
 if (!is.null(nowcast_res)) {
   corte_nc <- unique(nowcast_res$data_corte)
@@ -758,6 +759,8 @@ if (!is.null(nowcast_res)) {
 
   g06c <- ggplot(dados_nc, aes(x = semana)) +
     geom_col(aes(y = observado, fill = "Digitados até o corte"), width = 6) +
+    geom_text(data = filter(dados_nc, observado > 0),
+              aes(y = observado / 2, label = observado), size = 2.6, color = "#1F3A56") +
     geom_ribbon(data = filter(dados_nc, corrigido | lead(corrigido, default = FALSE)),
                 aes(ymin = li_95, ymax = ls_95, fill = "Intervalo de predição 95%"), alpha = 0.3) +
     geom_line(aes(y = estimado, color = "Estimativa (nowcasting)"), linewidth = 1) +
@@ -782,6 +785,39 @@ if (!is.null(nowcast_res)) {
           axis.text.x = element_text(angle = 45, hjust = 1))
 
   salvar_grafico(g06c, "06c_nowcasting")
+}
+
+# GRÁFICO 06d — VALIDAÇÃO RETROSPECTIVA DO NOWCASTING
+# Para cada semana dos cortes passados, a estimativa feita quando ela era a
+# última semana do corte (semanas_antes = 0), comparada com o total conhecido hoje.
+if (!is.null(nowcast_val_sem)) {
+  dados_val <- nowcast_val_sem %>%
+    filter(semanas_antes == 0) %>%
+    mutate(dentro = verdadeiro >= li_95 & verdadeiro <= ls_95)
+
+  g06d <- ggplot(dados_val, aes(x = semana)) +
+    geom_col(aes(y = verdadeiro, fill = "Total conhecido hoje"), width = 6) +
+    geom_errorbar(aes(ymin = li_95, ymax = ls_95, color = "Estimativa feita na época (IC 95%)"),
+                  width = 2.5, linewidth = 0.6) +
+    geom_point(aes(y = estimado, color = "Estimativa feita na época (IC 95%)"), size = 2.5) +
+    geom_point(aes(y = observado, color = "Digitados na época (sem correção)"), shape = 4, size = 2.5, stroke = 1) +
+    scale_fill_manual(values = c("Total conhecido hoje" = "#9DB9D3"), name = NULL) +
+    scale_color_manual(values = c("Estimativa feita na época (IC 95%)" = "#A30000",
+                                  "Digitados na época (sem correção)" = "#555555"), name = NULL) +
+    scale_x_date(breaks = dados_val$semana, labels = paste0("SE ", dados_val$se)) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+    labs(
+      title    = paste0("Validação do nowcasting — ", escopo_titulo),
+      subtitle = paste0("Estimativa da última semana de cada corte passado × total conhecido hoje | ",
+                        sum(dados_val$dentro), " de ", nrow(dados_val),
+                        " semanas com o total dentro do intervalo de 95%"),
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"), legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1))
+
+  salvar_grafico(g06d, "06d_nowcasting_validacao")
 }
 
 
@@ -1098,7 +1134,9 @@ if (nrow(virus_semanal) > 0) {
     labs(
       title    = paste0("Tendência Semanal de Vírus Respiratórios — ", escopo_titulo,
                         " (N = ", format(n_semanal, big.mark = ".", decimal.mark = ","), ")"),
-      subtitle = "Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus",
+      subtitle = paste0("Influenza, Covid-19, VSR, Rinovírus, Adenovírus, Metapneumovírus\n",
+                        "Atenção: o resultado do RT-PCR é digitado dias ou semanas depois da notificação:\n",
+                        "as últimas semanas ainda vão receber positivos e a queda no fim das curvas não indica redução."),
       x = "Semana epidemiológica de início dos sintomas", y = "Casos Positivos",
       color = "Vírus", caption = texto_rodape
     ) +

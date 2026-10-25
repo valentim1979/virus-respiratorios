@@ -415,6 +415,10 @@ html`<table class="table table-sm" style="max-width:640px">
 </table>`
 ```
 
+O gráfico abaixo mostra cada uma dessas semanas: a barra é o total conhecido hoje, o ponto vermelho com a barra de erro é a estimativa feita quando aquela era a última semana disponível, e o ✕ cinza é quantos casos já estavam digitados naquele momento. Quando a barra azul termina dentro da barra de erro, a estimativa acertou.
+
+![Validação retrospectiva do nowcasting — estimativa feita na época × total conhecido hoje.](graficos/06d_nowcasting_validacao.png){.lightbox}
+
 A estimativa da última semana é a mais incerta (intervalo largo), porque se baseia em poucos casos já digitados. Detalhes do modelo na [metodologia](https://github.com/valentim1979/virus-respiratorios/blob/main/METODOLOGIA.md).
 :::
 

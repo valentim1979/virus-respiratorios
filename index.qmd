@@ -362,6 +362,90 @@ Circulação viral (RT-PCR) segue os mesmos vírus monitorados nos gráficos ger
 
 ---
 
+## Cenário epidemiológico — Plano de Contingência do Paraná
+
+::: {.callout-note collapse="true"}
+## Como o cenário é calculado
+
+O painel aplica à 15ª RS a metodologia do **Plano de Contingência para Vírus Respiratórios do Estado do Paraná** (SESA-PR, 2ª ed., setembro de 2026, seção 9):
+
+- **Diagrama de controle:** casos de SRAG hospitalizado por semana de início dos sintomas, comparados com os **5 anos anteriores, sem 2020 e 2021** (pandemia). A **mediana (Q2)** é a linha central e o **3º quartil (Q3)** é o **limiar epidêmico**; a faixa entre os dois é o canal endêmico.
+- **Diagrama por vírus:** a mesma construção com os casos confirmados por RT-PCR (Influenza A, Influenza B, SARS-CoV-2, VSR e Rinovírus). Adenovírus, Metapneumovírus e Parainfluenza têm poucos casos na regional e ficam só com a tendência, analisada de forma qualitativa, como o Plano prevê.
+- **Tendência:** regressão linear nas **6 semanas anteriores às 2 mais recentes** (que ainda estão incompletas). Um vírus entra como critério quando a tendência é de aumento **e** a última semana da janela passa do Q3.
+- **Óbitos:** alerta quando o número de óbitos por SRAG sobe por **3 semanas seguidas** nas últimas 8 semanas.
+
+| Cenário | Critérios (Quadro 3 do Plano) |
+|---|---|
+| 0 — Normalidade | nenhum vírus acima do limiar com tendência de aumento |
+| 1 — Mobilização | algum vírus acima do limiar com tendência de aumento; SRAG geral abaixo do limiar |
+| 2 — Alerta | SRAG geral **e** algum vírus acima do limiar, com tendência de aumento |
+| 3 — Situação de emergência | critérios do Cenário 2 **e** óbitos em ascensão por 3 semanas |
+| 4 — Crise | Cenário 3 por mais de 2 semanas **e** colapso assistencial — depende da ocupação de leitos, que não está no SIVEP-Gripe, por isso não é calculado aqui |
+
+Com poucos casos por semana, o limiar de alguns vírus é zero em boa parte do ano (por exemplo, Influenza B): um único caso com tendência de aumento já cumpre o critério. Leia o cenário junto com os gráficos.
+:::
+
+```{ojs}
+//| echo: false
+cenarios = FileAttachment("dados/cenario_semanal.csv").csv({typed: true})
+criterios = FileAttachment("dados/cenario_criterios.csv").csv({typed: true})
+cen_atual = cenarios[cenarios.length - 1]
+```
+
+```{ojs}
+//| echo: false
+{
+  const cores = ["#2E7D32", "#F9A825", "#EF6C00", "#C62828"];
+  const fmt = v => v == null ? "—" : v.toLocaleString("pt-BR");
+  const sim = v => v === 1 ? "sim" : (v === 0 ? "não" : "—");
+  return html`<div style="border-left:6px solid ${cores[cen_atual.cenario]};background:#f7f7f7;padding:12px 16px;margin-bottom:12px">
+    <div style="font-size:1.4em;font-weight:bold;color:${cores[cen_atual.cenario]}">Cenário ${cen_atual.cenario} — ${cen_atual.cenario_nome}</div>
+    <div>Semana avaliada: <strong>SE ${cen_atual.se_avaliada}</strong> · janela da tendência: ${cen_atual.janela} · SRAG hospitalizado na SE ${cen_atual.se_ref}: <strong>${cen_atual.srag_ref}</strong> casos (${cen_atual.srag_zona})</div>
+    <div>Vírus acima do limiar com tendência de aumento: <strong>${cen_atual.virus_criterio || "nenhum"}</strong> · Óbitos em ascensão por 3 semanas: <strong>${cen_atual.obitos_ascensao ? "sim" : "não"}</strong></div>
+    ${cen_atual.virus_so_tendencia_alta ? html`<div>Tendência de aumento (vírus sem canal, avaliação qualitativa): ${cen_atual.virus_so_tendencia_alta}</div>` : ""}
+    ${cen_atual.persistente_3 ? html`<div style="color:#C62828"><strong>Cenário 3 há mais de 2 semanas: avaliar o Cenário 4 (Crise) com a ocupação de leitos.</strong></div>` : ""}
+  </div>
+  <table class="table table-sm" style="max-width:820px">
+    <thead><tr><th>Série</th><th style="text-align:right">Casos na SE ${cen_atual.se_ref}</th><th style="text-align:right">Mediana (Q2)</th><th style="text-align:right">Limiar (Q3)</th><th style="text-align:right">Tendência (casos/semana)</th><th>Acima do limiar?</th><th>Critério</th></tr></thead>
+    <tbody>${criterios.map(d => html`<tr>
+      <td>${d.serie}</td>
+      <td style="text-align:right">${d.casos_ref}</td>
+      <td style="text-align:right">${fmt(d.q2)}</td>
+      <td style="text-align:right">${fmt(d.q3)}</td>
+      <td style="text-align:right">${d.inclinacao > 0 ? "↑ " : ""}${fmt(d.inclinacao)}</td>
+      <td>${sim(d.acima_q3)}</td>
+      <td>${d.tipo === "geral" ? "SRAG geral" : (d.tipo === "vírus só tendência" ? "só tendência (qualitativo)" : (d.criterio ? html`<strong style="color:#C62828">cumpre</strong>` : "não cumpre"))}</td></tr>`)}</tbody>
+  </table>`;
+}
+```
+
+::: {.panel-tabset}
+
+### Diagrama geral
+
+![Diagrama de controle de SRAG hospitalizado por semana de início dos sintomas — faixa laranja = canal endêmico (mediana a Q3), linha vermelha = limiar epidêmico (Q3), faixa azul = janela da tendência.](graficos/06b_canal_endemico.png){.lightbox}
+
+### Diagrama por vírus
+
+![Diagrama de controle por vírus (RT-PCR) — Influenza A, Influenza B, SARS-CoV-2, VSR e Rinovírus.](graficos/06e_diagrama_por_virus.png){.lightbox}
+
+### Vírus sem canal
+
+![Adenovírus, Metapneumovírus e Parainfluenza — casos positivos por semana e tendência linear na janela de análise.](graficos/06f_virus_tendencia.png){.lightbox}
+
+### Óbitos
+
+![Óbitos por SRAG hospitalizado por semana de início dos sintomas, com a janela das últimas 8 semanas.](graficos/06g_obitos_semanais.png){.lightbox}
+
+### Cenário semana a semana
+
+![Cenário epidemiológico calculado para cada semana do ano.](graficos/06h_cenario_semanal.png){.lightbox}
+
+:::
+
+---
+
+
 ## Série temporal
 
 ::: {.callout-warning appearance="simple"}
@@ -425,32 +509,6 @@ A estimativa da última semana é a mais incerta (intervalo largo), porque se ba
 ### Curva comparativa
 
 ![Curva epidêmica por semana epidemiológica de início dos sintomas — comparativo anual (2024–2026). A linha mais espessa representa o ano corrente.](graficos/06_curva_epidemica_comparativa.png){.lightbox}
-
-### Canal endêmico
-
-::: {.callout-note}
-**Nota metodológica — Canal endêmico**
-
-O canal endêmico delimita zonas de referência para o número esperado de casos de SRAG por semana epidemiológica, com base no comportamento histórico observado no período pós-pandêmico.
-
-**Período de referência:** 2022–2025.
-
-Os anos de 2020 e 2021 foram excluídos por representarem perfil epidemiológico atípico decorrente da pandemia de COVID-19, com padrão de circulação viral incompatível com a vigilância de rotina. O ano de 2019 foi excluído por ser pré-pandêmico, período anterior à reorganização do perfil de vírus respiratórios que se estabeleceu após 2022.
-
-**Zonas de classificação:**
-
-- 🟢 **Esperado:** entre o P25 e P75 do histórico — comportamento dentro do padrão
-- 🟡 **Alerta:** entre o P75 e P90 do histórico — atenção reforçada recomendada
-- 🔴 **Epidêmico:** acima do P90 do histórico — situação que requer resposta imediata
-
-A linha tracejada verde representa a mediana histórica semanal (referência central).
-
-**Limitação:** com quatro anos de referência (2022–2025), os percentis são estimativas com maior incerteza do que o recomendado internacionalmente (mínimo de 5 anos). O canal se estabilizará progressivamente à medida que novos anos pós-pandêmicos forem incorporados. Os resultados devem ser interpretados com cautela, especialmente nas semanas com menor volume histórico de casos.
-
-**Fonte:** SIVEP-Gripe (módulo hospitalar) | Elaboração: SCVGE — 15ª RS
-:::
-
-![Canal endêmico de SRAG por semana epidemiológica de início dos sintomas — zona verde = esperado (P25–P75), zona amarela = alerta (P75–P90), pontos acima da zona amarela = nível epidêmico (> P90). Linha tracejada = mediana histórica pós-pandêmica (2022–2025).](graficos/06b_canal_endemico.png){.lightbox}
 
 ### Notificações semanais
 

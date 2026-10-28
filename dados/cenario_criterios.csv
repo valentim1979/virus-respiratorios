@@ -1,0 +1,10 @@
+serie,casos_ref,q2,q3,inclinacao,tipo,acima_q3,tendencia,criterio
+SRAG hospitalizado,17,34,44,0.74,geral,0,1,0
+Influenza A,0,1,3,-0.09,vírus com canal,0,0,0
+Influenza B,0,0,1,0,vírus com canal,0,0,0
+SARS-CoV-2,0,2,3,0.09,vírus com canal,0,1,0
+VSR,0,0,0,-0.11,vírus com canal,0,0,0
+Rinovírus,3,2,6,0.71,vírus com canal,0,1,0
+Adenovírus,3,NA,NA,0.63,vírus só tendência,NA,1,0
+Metapneumovírus,2,NA,NA,0.83,vírus só tendência,NA,1,0
+Parainfluenza,2,NA,NA,0.37,vírus só tendência,NA,1,0

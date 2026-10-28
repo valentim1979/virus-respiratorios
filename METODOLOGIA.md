@@ -39,7 +39,7 @@ Por manter idade, sexo, município, bairro e datas, a base em nível de registro
 
 - **Caso de SRAG:** toda notificação de SRAG hospitalizado no SIVEP-Gripe cujo município de **residência** (`CO_MUN_RES`) pertence à 15ª RS. As análises estaduais de notificação usam a UF de notificação (`SG_UF_NOT = PR`), e as de estabelecimento usam o município de internação (`CO_MU_INTE`).
 - **Ano do caso:** ano do arquivo de origem (`ANO_BASE`). Nos arquivos do Ministério e nas exportações anuais, notificação e início dos sintomas pertencem ao mesmo ano.
-- **Semana epidemiológica:** semana epidemiológica de **início dos sintomas** (`SEM_PRI`), padrão do InfoGripe/Fiocruz e do Ministério da Saúde para análise de tendência, por aproximar o momento da infecção. Todas as séries semanais (curva epidêmica, canal endêmico, notificados, confirmados, variação semanal, tendência viral e séries por estabelecimento) usam essa semana.
+- **Semana epidemiológica:** semana epidemiológica de **início dos sintomas** (`SEM_PRI`), padrão do InfoGripe/Fiocruz e do Ministério da Saúde para análise de tendência, por aproximar o momento da infecção. Todas as séries semanais (curva epidêmica, diagrama de controle, notificados, confirmados, variação semanal, tendência viral e séries por estabelecimento) usam essa semana.
 - **Classificação final** (`CLASSI_FIN`): 1 = influenza; 2 = outro vírus respiratório; 3 = outro agente etiológico; 4 = SRAG não especificada; 5 = covid-19. **Caso confirmado** (etiologia definida): classificações 1, 2, 3 ou 5.
 - **Óbito por SRAG:** `EVOLUCAO = 2`. Óbito por outras causas: `EVOLUCAO = 3`.
 - **Caso encerrado:** caso com desfecho registrado — `EVOLUCAO` igual a 1 (cura), 2 (óbito por SRAG) ou 3 (óbito por outras causas). Casos com evolução ignorada (9) ou em branco não são considerados encerrados.
@@ -126,16 +126,20 @@ Mede o tempo entre a notificação (`DT_NOTIFIC`) e a digitação no SIVEP-Gripe
 
 **Viés de seleção e correção.** A base contém apenas casos já digitados. Notificações recentes ainda não digitadas — justamente as de maior atraso — não aparecem, o que faria os períodos recentes parecerem mais oportunos. Na primeira versão da análise, por exemplo, setembro e outubro de 2026 apareciam com 81% e 100% de casos digitados em até 1 dia. Por isso só entram notificações com pelo menos 30 dias de acompanhamento até a digitação mais recente da base, e o gráfico mensal só mostra meses completos dentro desse período. Não foi identificada norma do Ministério da Saúde com prazo para a digitação da ficha de SRAG; por isso os percentuais em até 1 e até 7 dias são apresentados como descritores, sem meta.
 
-### 6.5 Canal endêmico
+### 6.5 Diagrama de controle e cenário epidemiológico
 
-O canal endêmico é construído com as contagens semanais de casos da 15ª RS nos anos de referência **pós-pandêmicos** (de 2022 ao ano anterior ao corrente; 2020 e 2021 são excluídos pelo perfil atípico da pandemia de covid-19). Para cada semana epidemiológica, calculam-se a mediana e os percentis 25, 75 e 90 das contagens dos anos de referência. A contagem da semana do ano corrente é classificada em:
+Segue a metodologia do Plano de Contingência para Vírus Respiratórios do Estado do Paraná (SESA-PR, 2ª ed., setembro de 2026, seção 9), aplicada aos residentes do escopo do painel (15ª RS ou um município) em vez do estado inteiro (`diagrama_controle.R`).
 
-- **abaixo do esperado:** menor que P25;
-- **esperado:** de P25 a P75;
-- **alerta:** maior que P75 e até P90;
-- **epidêmico:** maior que P90.
+- **Série:** casos de SRAG hospitalizado (`HOSPITAL` = 1) por semana epidemiológica de início dos sintomas. O ano e a semana epidemiológica são calculados a partir de `DT_SIN_PRI` (calendário MMWR), de modo que um caso com sintomas no fim de dezembro, notificado no ano seguinte, entra no ano epidemiológico correto. Semanas sem casos contam como zero.
+- **Anos de referência:** os 5 anos epidemiológicos mais recentes antes do ano corrente, excluídos 2020 e 2021 (pandemia). Para 2026: 2019, 2022, 2023, 2024 e 2025. Os anos anteriores vêm da base aberta (API dados.gov.br).
+- **Canal endêmico:** para cada semana, a mediana (Q2) das contagens dos anos de referência é a linha central e o 3º quartil (Q3, `quantile` tipo 7 do R) é o limite superior, ou **limiar epidêmico**. A SE 53 usa os limites da SE 52.
+- **Diagrama por vírus:** mesma construção com os casos com RT-PCR positivo para Influenza A (`POS_PCRFLU` = 1 e `TP_FLU_PCR` = 1), Influenza B (`TP_FLU_PCR` = 2), SARS-CoV-2, VSR e Rinovírus. Adenovírus, Metapneumovírus e Parainfluenza (1 a 4) têm série irregular na regional; para eles o Plano prevê só a tendência, analisada de forma qualitativa, e eles não entram no cálculo automático do cenário.
+- **Semana avaliada e tendência:** a semana avaliada (t) é a última semana completa antes da exportação da base. A tendência é a inclinação de uma regressão linear simples das contagens nas semanas t−7 a t−2 (as 8 últimas semanas sem as 2 mais recentes, que ainda estão incompletas). O Plano não define teste de significância; qualquer inclinação positiva conta como tendência de aumento. Um vírus **cumpre o critério** quando a inclinação é positiva **e** a contagem da semana t−2 passa do Q3 dessa semana.
+- **Óbitos:** óbitos por SRAG (`EVOLUCAO` = 2) entre os hospitalizados, por semana de início dos sintomas. Há ascensão quando o número sobe por 3 semanas seguidas (3 aumentos consecutivos) dentro das semanas t−7 a t.
+- **Cenário (Quadro 3 do Plano):** 0 — Normalidade, se nenhum vírus cumpre o critério; 1 — Mobilização, se algum vírus cumpre o critério e o SRAG geral está até o Q3; 2 — Alerta, se algum vírus cumpre o critério e o SRAG geral passa do Q3; 3 — Situação de emergência, critérios do Cenário 2 mais ascensão de óbitos. O Cenário 4 (Crise) exige a persistência do Cenário 3 por mais de 2 semanas e colapso assistencial (ocupação de leitos), que não está no SIVEP-Gripe; o painel só sinaliza quando o Cenário 3 se mantém por 3 semanas seguidas. SRAG geral acima do Q3 sem vírus que cumpra o critério não tem cenário próprio no Quadro 3 e fica no Cenário 0, com a zona do SRAG geral informada.
+- **Histórico:** o cenário é recalculado para cada semana do ano corrente como se ela fosse a mais recente, com os dados disponíveis hoje (portanto, mais completos do que estavam na época).
 
-O canal só é gerado com pelo menos dois anos de referência.
+O canal anterior (percentis 25, 75 e 90 de 2022 em diante, até 25/10/2026) foi substituído por este método para o painel usar os mesmos limiares da SESA-PR.
 
 ## 7. Análises descritivas
 
@@ -221,13 +225,13 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 ## 10. Limitações
 
-- **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor e apresenta a estimativa por nowcasting (seção 8.1), mas as demais séries, o canal endêmico e os indicadores do ano corrente continuam usando apenas os casos digitados.
+- **Semanas recentes incompletas:** como as séries usam a semana de início dos sintomas, as semanas mais recentes acumulam casos ainda não internados, notificados ou digitados. O efeito é mais intenso do que com a semana de notificação. O painel alerta o leitor e apresenta a estimativa por nowcasting (seção 8.1), mas as demais séries, o diagrama de controle e os indicadores do ano corrente continuam usando apenas os casos digitados.
 - **Letalidade entre encerrados:** restringir o denominador aos casos encerrados evita a subestimação pelos casos ainda internados. Em contrapartida, pode superestimar a letalidade no ano corrente se os óbitos forem registrados mais rápido que as altas, e exclui casos com evolução ignorada.
 - **Denominador:** as taxas usam a estimativa populacional mais recente disponível (hoje, 2025) para todos os anos, inclusive o ano corrente, que ainda não tem estimativa publicada. As estimativas municipais por idade e sexo do Ministério da Saúde são projeções e têm incerteza maior em municípios pequenos e nas faixas etárias extremas.
 - **Menores de 1 ano:** a população é publicada por ano de idade, então as taxas não separam 0–6 e 6–11 meses (essa divisão continua disponível nas contagens absolutas). A idade do caso vem de `COD_IDADE`; códigos em dias ou meses entram como 0 ano.
 - **Nowcasting:** o modelo supõe que a distribuição de atraso é constante na janela de 26 semanas. Mudanças operacionais na digitação (mutirões, greves, troca de sistema) violam essa hipótese. A estimativa da última semana é muito incerta (intervalo largo) porque depende de cerca de 1/4 dos casos. O modelo corrige apenas o atraso de digitação de casos que serão notificados — não corrige subnotificação.
-- **Mudança na definição de caso:** a Nota Técnica nº 11/2026-CGCOVID/DEDT/SVSA/MS (agosto de 2026) passou a definir SRAG como síndrome gripal hospitalizada com dispneia, taquipneia e/ou saturação de O₂ ≤ 94% em ar ambiente; a ficha do SIVEP-Gripe (2023) ainda registra o critério de saturação < 95% e está em atualização. Quando a ficha mudar, contagens de anos anteriores e posteriores podem não ser diretamente comparáveis, o que afeta a curva comparativa, o canal endêmico e o nowcasting.
-- **Canal endêmico frágil:** o canal é baseado em poucos anos de referência (pós-2022), o que torna os percentis instáveis. Ele não é ajustado por tendência nem pelo tamanho da população.
+- **Mudança na definição de caso:** a Nota Técnica nº 11/2026-CGCOVID/DEDT/SVSA/MS (agosto de 2026) passou a definir SRAG como síndrome gripal hospitalizada com dispneia, taquipneia e/ou saturação de O₂ ≤ 94% em ar ambiente; a ficha do SIVEP-Gripe (2023) ainda registra o critério de saturação < 95% e está em atualização. Quando a ficha mudar, contagens de anos anteriores e posteriores podem não ser diretamente comparáveis, o que afeta a curva comparativa, o diagrama de controle e o nowcasting.
+- **Diagrama de controle com poucos casos:** o Plano foi desenhado para o estado inteiro. Na regional, as contagens semanais por vírus são pequenas e o Q3 de alguns vírus é zero em boa parte do ano (Influenza B em 48 das 53 semanas), de modo que um único caso com inclinação positiva cumpre o critério e leva ao Cenário 1. Em 2026, com a exportação de 25/10/2026, 18 das 42 semanas avaliadas ficaram em Cenário 1 e uma (SE 28) em Cenário 2. Com 5 anos de referência os quartis são instáveis, 2019 (anterior à pandemia) tem notificação menor que os anos seguintes, e o canal não é ajustado pelo tamanho da população. A tendência em 6 pontos sem teste de significância é sensível a flutuações aleatórias.
 - **Qualidade do preenchimento:** comorbidades, vacinação e uso de antiviral dependem da completitude dos campos (seção 6), e o não preenchimento não equivale à ausência da condição.
 - **Casos de residentes fora do estado:** casos de residentes da 15ª RS notificados fora do Paraná podem não constar da exportação estadual. Na base aberta de 2026 isso representou 0,4% dos residentes do PR.
 
@@ -248,6 +252,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 - HÖHLE, M.; AN DER HEIDEN, M. Bayesian nowcasting during the STEC O104:H4 outbreak in Germany, 2011. *Biometrics*, 2014. DOI: 10.1111/biom.12194.
 - McGOUGH, S. F. et al. Nowcasting by Bayesian Smoothing: a flexible, generalizable model for real-time epidemic tracking. *PLOS Computational Biology*, 2020, e1007735.
 - BASTOS, L. S. et al. COVID-19 e hospitalizações por SRAG no Brasil: uma comparação até a 12ª semana epidemiológica de 2020. *Cadernos de Saúde Pública*, v. 36, n. 4, e00070120, 2020. (Aplicação da correção do atraso de notificação às hospitalizações por SRAG.)
+- PARANÁ. Secretaria de Estado da Saúde. *Plano de Contingência para Vírus Respiratórios do Estado do Paraná*. 2. ed. rev. e atual. Curitiba: SESA, set. 2026.
 - MEYER, S.; HELD, L.; HÖHLE, M. Spatio-temporal analysis of epidemic phenomena using the R package surveillance. *Journal of Statistical Software*, v. 77, n. 11, 2017.
 
 ---
@@ -256,6 +261,7 @@ O código e o histórico de alterações estão versionados em git (repositório
 
 | Data | Alteração |
 |---|---|
+| 28/10/2026 | Canal endêmico substituído pelo diagrama de controle do Plano de Contingência para Vírus Respiratórios do Paraná (2026): SRAG hospitalizado, 5 anos de referência sem 2020–2021 (2019 e 2022–2025), mediana e Q3 como limiar epidêmico, tendência linear nas semanas t−7 a t−2, diagrama por vírus (RT-PCR), ascensão de óbitos e cenário 0 a 3 (seção 6.5). Antes: percentis 25, 75 e 90, com zonas esperado/alerta/epidêmico. Corrige também um erro do canal anterior, que dizia usar 2022–2025 mas só usava 2024 e 2025 (os demais anos não estavam na base usada). |
 | 25/10/2026 | Nowcasting: novo gráfico da validação retrospectiva semana a semana (estimativa feita na época × total conhecido hoje) e número de casos digitados dentro das colunas do gráfico da estimativa. Gráfico de tendência viral ganha aviso sobre o atraso do resultado do RT-PCR. Nenhum cálculo mudou. |
 | 10/10/2026 | Cobertura de amostragem (metas da OPAS) passa a usar no denominador os casos com critério válido para coleta (internados até 10 dias do início dos sintomas), como no Anexo 7; antes eram todos os casos de SRAG. Com a exportação de 09/10/2026: 98,5% (1.431 casos), ante 92,9% sobre todos os 1.537. |
 | 09/10/2026 | A página "Estatística Descritiva" foi dividida em "Perfil dos Casos" (`descritiva.qmd`) e "Avaliação da Vigilância" (`avaliacao.qmd`), esta organizada pelos atributos de avaliação (qualidade dos dados, oportunidade, representatividade). Nenhum cálculo mudou. |

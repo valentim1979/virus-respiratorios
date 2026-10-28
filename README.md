@@ -23,9 +23,11 @@ O recorte é por município de **residência** e as séries semanais usam a
 - **Circulação viral:** agentes detectados por RT-PCR, tendência semanal,
   tipos e linhagens de influenza, composição por faixa etária e variação
   anual desde 2022.
-- **Canal endêmico:** mediana e percentis 25, 75 e 90 dos anos
-  pós-pandêmicos (2022 ao ano anterior), com cada semana classificada
-  como abaixo do esperado, esperada, alerta ou epidêmica.
+- **Cenário epidemiológico (Plano de Contingência do Paraná):** diagrama
+  de controle de SRAG hospitalizado e por vírus (mediana e 3º quartil dos
+  5 anos anteriores sem 2020–2021), tendência linear nas 6 semanas antes
+  das 2 mais recentes, ascensão de óbitos e cenário 0 a 3 da semana
+  (`diagrama_controle.R`).
 - **Nowcasting:** correção do atraso de digitação das semanas recentes
   (triângulo de notificação com regressão binomial negativa, D = 4,
   janela de 26 semanas, intervalo de predição de 95%), com validação

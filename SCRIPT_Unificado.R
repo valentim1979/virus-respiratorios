@@ -24,7 +24,7 @@ options(timeout = 1800)
 
 # --- 0.1 Anos de análise ---
 ANO_ANALISE <- 2026
-ANO_INICIO_CANAL <- 2022
+# Diagrama de controle: anos de referência e vírus ficam em diagrama_controle.R
 
 # --- 0.2 Município ---
 MUNICIPIO_ANALISE <- NULL
@@ -609,110 +609,189 @@ if (nrow(casos_semana_ano) > 0) {
 
 
 # ==============================================================================
-# GRÁFICO 06b — CANAL ENDÊMICO COM PERCENTIS HISTÓRICOS (PÓS-PANDEMIA)
+# GRÁFICOS 06b, 06e–06h — DIAGRAMA DE CONTROLE E CENÁRIO (PLANO DE CONTINGÊNCIA PR)
 # ==============================================================================
+# Cálculo em diagrama_controle.R (metodologia do Plano de Contingência para
+# Vírus Respiratórios do Paraná, 2ª ed., set/2026). Usa a base histórica
+# (2019 em diante), que tem todos os anos de referência.
 
 ano_atual <- max(anos_carregar)
+source("diagrama_controle.R")
 
-anos_historico <- setdiff(
-  intersect(ANO_INICIO_CANAL:(ano_atual - 1), anos_disponiveis),
-  anos_carregar
+dc <- tryCatch(
+  diagrama_controle(
+    base_15rs_historica %>%
+      { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
+        filter(., CO_MUN_RES == cod_mun) else . },
+    ano_atual, DATA_EXTRACAO
+  ),
+  error = function(e) { message("  [aviso] Diagrama de controle não gerado: ", conditionMessage(e)); NULL }
 )
 
-message("Canal endêmico — anos de referência: ", paste(anos_historico, collapse = ", "))
+if (!is.null(dc)) {
+  message("Diagrama de controle — anos de referência: ", paste(dc$anos_ref, collapse = ", "),
+          " | SE ", dc$atual$se_avaliada, ": Cenário ", dc$atual$cenario, " (", dc$atual$cenario_nome, ")")
 
-if (length(anos_historico) < 2) {
-  message("  [aviso] Menos de 2 anos de referência — canal endêmico não gerado.")
-} else {
+  readr::write_csv(dc$cenarios %>% mutate(across(where(is.logical), as.integer)),
+                   file.path("dados", "cenario_semanal.csv"))
+  readr::write_csv(dc$criterios %>% mutate(across(where(is.logical), as.integer)),
+                   file.path("dados", "cenario_criterios.csv"))
 
-  base_historico <- base_15rs_completa %>%
-    filter(ANO_BASE %in% anos_historico) %>%
-    { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
-      filter(., CO_MUN_RES == cod_mun) else . } %>%
-    mutate(Semana = SEM_EPI) %>%
-    filter(!is.na(Semana)) %>%
-    group_by(ANO_BASE, Semana) %>%
-    summarise(total = n(), .groups = "drop")
+  se_ref    <- dc$atual$se_ref
+  se_aval   <- dc$atual$se_avaliada
+  se_jan    <- max(1, se_ref - 5)
+  n_sem_ano <- MMWRweek::MMWRweek(as.Date(paste0(ano_atual, "-12-28")))$MMWRweek
+  label_ref <- paste(dc$anos_ref, collapse = ", ")
 
-  canal <- base_historico %>%
-    group_by(Semana) %>%
-    summarise(
-      mediana = median(total),
-      p25     = quantile(total, 0.25),
-      p75     = quantile(total, 0.75),
-      p90     = quantile(total, 0.90),
-      n_anos  = n_distinct(ANO_BASE),
-      .groups = "drop"
-    )
-
-  serie_atual <- base_15rs_completa %>%
-    filter(ANO_BASE %in% anos_carregar) %>%
-    { if (!is.null(MUNICIPIO_ANALISE) && nzchar(trimws(MUNICIPIO_ANALISE)))
-      filter(., CO_MUN_RES == cod_mun) else . } %>%
-    mutate(Semana = SEM_EPI) %>%
-    filter(!is.na(Semana)) %>%
-    group_by(Semana) %>%
-    summarise(total = n(), .groups = "drop")
-
-  serie_atual <- serie_atual %>%
-    left_join(canal, by = "Semana") %>%
-    mutate(
-      zona = case_when(
-        total > p90  ~ "Epidêmico",
-        total > p75  ~ "Alerta",
-        total >= p25 ~ "Esperado",
-        TRUE         ~ "Abaixo do esperado"
-      ),
-      zona = factor(zona, levels = c(
-        "Epidêmico", "Alerta", "Esperado", "Abaixo do esperado"
-      ))
-    )
-
-  cores_zona <- c(
-    "Epidêmico"          = "#C62828",
-    "Alerta"             = "#FF8F00",
-    "Esperado"           = "#2E7D32",
-    "Abaixo do esperado" = "#1565C0"
+  cores_zona_dc <- c(
+    "Acima do limiar epidêmico (Q3)" = "#C62828",
+    "Entre a mediana e o limiar"     = "#FF8F00",
+    "Até a mediana"                  = "#2E7D32",
+    "Semana incompleta (fora da análise)" = "grey60"
   )
 
-  n_atual    <- sum(serie_atual$total)
-  n_anos_ref <- length(anos_historico)
-  label_ref  <- paste0(min(anos_historico), "–", max(anos_historico))
-  semanas_ep <- sum(serie_atual$zona %in% c("Epidêmico", "Alerta"), na.rm = TRUE)
+  dados_diagrama <- function(series) {
+    dc$semanal %>%
+      filter(serie %in% series, ano == ano_atual) %>%
+      left_join(dc$canal, by = c("serie", "se")) %>%
+      mutate(
+        zona = case_when(
+          inicio > dc$atual$semana_ref ~ "Semana incompleta (fora da análise)",
+          n > q3       ~ "Acima do limiar epidêmico (Q3)",
+          n > q2       ~ "Entre a mediana e o limiar",
+          TRUE         ~ "Até a mediana"
+        ),
+        zona  = factor(zona, levels = names(cores_zona_dc)),
+        serie = factor(serie, levels = series)
+      )
+  }
 
-  g06b <- ggplot() +
-    geom_ribbon(data = canal, aes(x = Semana, ymin = p75, ymax = p90),
-                fill = "#FFECB3", alpha = 0.85) +
-    geom_ribbon(data = canal, aes(x = Semana, ymin = p25, ymax = p75),
-                fill = "#C8E6C9", alpha = 0.85) +
-    geom_line(data = canal, aes(x = Semana, y = mediana),
-              color = "#388E3C", linewidth = 0.8, linetype = "dashed") +
-    geom_line(data = serie_atual, aes(x = Semana, y = total),
-              color = "#1A237E", linewidth = 1.2) +
-    geom_point(data = serie_atual, aes(x = Semana, y = total, color = zona), size = 3) +
-    geom_text(data = serie_atual, aes(x = Semana, y = total, label = total),
-              vjust = -0.8, size = 2.8, color = "grey30") +
-    scale_color_manual(values = cores_zona, name = "Zona") +
-    scale_x_continuous(breaks = seq(1, 53, by = 4), limits = c(1, 53)) +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.18))) +
+  grafico_diagrama <- function(series) {
+    canal_g <- dc$canal %>% filter(serie %in% series, se <= n_sem_ano) %>%
+      mutate(serie = factor(serie, levels = series))
+    ggplot() +
+      annotate("rect", xmin = se_jan - 0.5, xmax = se_ref + 0.5, ymin = -Inf, ymax = Inf,
+               fill = "#E3F2FD", alpha = 0.7) +
+      geom_ribbon(data = canal_g, aes(x = se, ymin = q2, ymax = q3), fill = "#FFE0B2", alpha = 0.9) +
+      geom_line(data = canal_g, aes(x = se, y = q2), color = "#388E3C", linewidth = 0.7, linetype = "dashed") +
+      geom_line(data = canal_g, aes(x = se, y = q3), color = "#C62828", linewidth = 0.8) +
+      geom_line(data = dados_diagrama(series), aes(x = se, y = n), color = "#1A237E", linewidth = 1) +
+      geom_point(data = dados_diagrama(series), aes(x = se, y = n, color = zona), size = 2.4) +
+      scale_color_manual(values = cores_zona_dc, name = NULL, drop = FALSE) +
+      scale_x_continuous(breaks = seq(1, 53, by = 4), limits = c(1, n_sem_ano)) +
+      expand_limits(y = 0) +
+      scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+      theme_minimal() +
+      theme(plot.title = element_text(face = "bold"),
+            plot.subtitle = element_text(size = 8.5, color = "grey40", lineheight = 1.3),
+            legend.position = "bottom")
+  }
+
+  legenda_dc <- paste0(
+    "Faixa laranja = canal endêmico (mediana a Q3)  |  Linha vermelha = limiar epidêmico (Q3)  |  ",
+    "Tracejado verde = mediana\n",
+    "Referência: ", label_ref, " (5 anos, sem 2020–2021)  |  ",
+    "Faixa azul = janela da tendência (SE ", se_jan, " a ", se_ref, "; as 2 semanas mais recentes ficam fora)"
+  )
+
+  # --- 06b: diagrama geral de SRAG hospitalizado ---
+  g06b <- grafico_diagrama("SRAG hospitalizado") +
+    geom_text(data = dados_diagrama("SRAG hospitalizado"), aes(x = se, y = n, label = n),
+              vjust = -0.9, size = 2.6, color = "grey30") +
     labs(
-      title    = paste0("Canal Endêmico de SRAG — ", escopo_titulo,
-                        " (", ano_atual, " | N = ", format(n_atual, big.mark = ".", decimal.mark = ","), ")"),
-      subtitle = paste0(
-        "Zona verde = esperado (P25–P75)  |  Zona amarela = alerta (P75–P90)  |  Acima = epidêmico (> P90)\n",
-        "Referência pós-pandêmica: ", label_ref, " (", n_anos_ref, " anos)  |  ",
-        "Semanas em alerta ou acima: ", semanas_ep
-      ),
-      x = "Semana epidemiológica de início dos sintomas", y = "Casos Notificados", caption = texto_rodape
+      title    = paste0("Diagrama de controle de SRAG hospitalizado — ", escopo_titulo, " (", ano_atual, ")"),
+      subtitle = legenda_dc,
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos de SRAG hospitalizado",
+      caption = paste0("Metodologia: Plano de Contingência para Vírus Respiratórios do Paraná (2026).  ", texto_rodape)
+    )
+  salvar_grafico(g06b, "06b_canal_endemico")
+
+  # --- 06e: diagrama por vírus (RT-PCR) ---
+  rotulo_virus <- dc$criterios %>%
+    filter(tipo == "vírus com canal") %>%
+    mutate(rotulo = paste0(serie, "  (tendência ", ifelse(tendencia, "↑", "↓/="), " ",
+                           format(inclinacao, decimal.mark = ","), "/sem",
+                           ifelse(criterio, " — ACIMA DO LIMIAR", ""), ")"))
+  g06e <- grafico_diagrama(VIRUS_COM_CANAL) +
+    facet_wrap(~ serie, ncol = 2, scales = "free_y",
+               labeller = as_labeller(setNames(rotulo_virus$rotulo, rotulo_virus$serie))) +
+    labs(
+      title    = paste0("Diagrama de controle por vírus (RT-PCR) — ", escopo_titulo, " (", ano_atual, ")"),
+      subtitle = paste0(legenda_dc, "\nO resultado do RT-PCR chega dias ou semanas depois: as últimas semanas ainda vão receber positivos."),
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos positivos",
+      caption = paste0("Metodologia: Plano de Contingência para Vírus Respiratórios do Paraná (2026).  ", texto_rodape)
+    )
+  salvar_grafico(g06e, "06e_diagrama_por_virus", height = 10)
+
+  # --- 06f: vírus sem canal (só tendência) ---
+  dados_tend <- dados_diagrama(VIRUS_SO_TENDENCIA)
+  g06f <- ggplot(dados_tend, aes(x = se, y = n)) +
+    annotate("rect", xmin = se_jan - 0.5, xmax = se_ref + 0.5, ymin = -Inf, ymax = Inf,
+             fill = "#E3F2FD", alpha = 0.7) +
+    geom_col(aes(fill = inicio > dc$atual$semana_ref), width = 0.75, show.legend = FALSE) +
+    geom_smooth(data = filter(dados_tend, se >= se_jan, se <= se_ref),
+                method = "lm", formula = y ~ x, se = FALSE, color = "#C62828", linewidth = 1) +
+    scale_fill_manual(values = c(`FALSE` = "#0057A3", `TRUE` = "grey70")) +
+    facet_wrap(~ serie, ncol = 1, scales = "free_y") +
+    scale_x_continuous(breaks = seq(1, 53, by = 4), limits = c(0.5, n_sem_ano + 0.5)) +
+    labs(
+      title    = paste0("Vírus sem canal endêmico: tendência linear — ", escopo_titulo, " (", ano_atual, ")"),
+      subtitle = paste0("Série histórica irregular na regional: o Plano manda acompanhar só a tendência, de forma qualitativa.\n",
+                        "Linha vermelha = tendência linear na janela SE ", se_jan, " a ", se_ref,
+                        "  |  Barras cinza = 2 semanas mais recentes (fora da análise)"),
+      x = "Semana epidemiológica de início dos sintomas", y = "Casos positivos", caption = texto_rodape
     ) +
     theme_minimal() +
-    theme(
-      plot.title    = element_text(face = "bold"),
-      plot.subtitle = element_text(size = 8.5, color = "grey40", lineheight = 1.3),
-      legend.position = "bottom"
-    )
+    theme(plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(size = 8.5, color = "grey40", lineheight = 1.3))
+  salvar_grafico(g06f, "06f_virus_tendencia", height = 8)
 
-  salvar_grafico(g06b, "06b_canal_endemico")
+  # --- 06g: óbitos por SRAG hospitalizado ---
+  dados_obitos <- dc$semanal %>%
+    filter(serie == "Óbitos por SRAG", ano == ano_atual) %>%
+    mutate(janela = se > se_aval - 8)
+  g06g <- ggplot(dados_obitos, aes(x = se, y = n, fill = janela)) +
+    geom_col(width = 0.75) +
+    geom_text(aes(label = ifelse(n > 0, n, "")), vjust = -0.5, size = 2.6, color = "grey30") +
+    scale_fill_manual(values = c(`FALSE` = "grey70", `TRUE` = "#6A1B9A"),
+                      labels = c(`FALSE` = "Semanas anteriores", `TRUE` = "Últimas 8 semanas (janela)"), name = NULL) +
+    scale_x_continuous(breaks = seq(1, 53, by = 4), limits = c(0.5, n_sem_ano + 0.5)) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+    labs(
+      title    = paste0("Óbitos por SRAG hospitalizado — ", escopo_titulo, " (", ano_atual, ")"),
+      subtitle = paste0("Alerta do Plano: aumento do número de óbitos por 3 semanas seguidas nas últimas 8 semanas  |  ",
+                        "Situação: ", ifelse(dc$atual$obitos_ascensao, "ALERTA — óbitos em ascensão", "sem ascensão"),
+                        "\nOs óbitos entram por semana de início dos sintomas; o desfecho das semanas recentes ainda está em aberto."),
+      x = "Semana epidemiológica de início dos sintomas", y = "Óbitos por SRAG", caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(size = 8.5, color = "grey40", lineheight = 1.3),
+          legend.position = "bottom")
+  salvar_grafico(g06g, "06g_obitos_semanais")
+
+  # --- 06h: cenário de cada semana do ano ---
+  cores_cenario <- c("0 — Normalidade" = "#2E7D32", "1 — Mobilização" = "#F9A825",
+                     "2 — Alerta" = "#EF6C00", "3 — Situação de emergência" = "#C62828")
+  g06h <- dc$cenarios %>%
+    mutate(cen = factor(paste0(cenario, " — ", cenario_nome), levels = names(cores_cenario))) %>%
+    ggplot(aes(x = se_avaliada, y = 1, fill = cen)) +
+    geom_tile(color = "white", linewidth = 0.6) +
+    geom_text(aes(label = cenario), color = "white", size = 3, fontface = "bold") +
+    scale_fill_manual(values = cores_cenario, name = NULL, drop = FALSE) +
+    guides(fill = guide_legend(override.aes = list(fill = unname(cores_cenario)))) +
+    scale_x_continuous(breaks = seq(1, 53, by = 2), expand = c(0, 0)) +
+    labs(
+      title    = paste0("Cenário epidemiológico por semana — ", escopo_titulo, " (", ano_atual, ")"),
+      subtitle = "Cenário calculado como se cada semana fosse a mais recente (critérios do Quadro 3 do Plano). O Cenário 4 (Crise) depende da ocupação de leitos e não é calculado.",
+      x = "Semana epidemiológica avaliada", y = NULL, caption = texto_rodape
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(face = "bold"),
+          plot.subtitle = element_text(size = 8.5, color = "grey40"),
+          axis.text.y = element_blank(), panel.grid = element_blank(),
+          legend.position = "bottom")
+  salvar_grafico(g06h, "06h_cenario_semanal", height = 3.2)
 }
 
 
